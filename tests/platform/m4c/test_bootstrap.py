@@ -19,7 +19,6 @@ from gameforge.contracts.auth import (
 from gameforge.contracts.errors import Conflict, IntegrityViolation
 from gameforge.contracts.identity import (
     DomainDefinitionV1,
-    DomainRegistryRefV1,
     DomainRegistryV1,
     Permission,
     RolePolicy,
@@ -47,6 +46,8 @@ from gameforge.runtime.persistence.models import (
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
 from gameforge.runtime.persistence.uow import SqliteUnitOfWork
+
+from tests.support.identity import bootstrap_role_policy
 
 
 NOW = datetime(2026, 7, 14, 6, 0, tzinfo=timezone.utc)
@@ -128,77 +129,13 @@ def _role_policy(
     *,
     identity_resource_kind: str = "identity",
 ) -> RolePolicy:
-    registry_ref = DomainRegistryRefV1(
-        registry_version=registry.registry_version,
-        registry_digest=registry.registry_digest,
-    )
-    grants = {
-        "identity_admin": (
-            Permission(
-                action="identity.manage",
-                resource_kind=identity_resource_kind,
-                domain_scope=None,
-            ),
-            Permission(
-                action="read",
-                resource_kind="metric",
-                domain_scope=None,
-            ),
-        ),
-        "tooling": (
-            Permission(
-                action="run",
-                resource_kind="tooling",
-                domain_scope="all",
-            ),
-        ),
-        "platform_admin": (
-            Permission(
-                action="identity.manage",
-                resource_kind="identity",
-                domain_scope=None,
-            ),
-            Permission(
-                action="run",
-                resource_kind="tooling",
-                domain_scope="all",
-            ),
-            Permission(
-                action="approval.decide",
-                resource_kind="approval",
-                domain_scope="all",
-            ),
-            Permission(
-                action="approval.self_decide",
-                resource_kind="approval",
-                domain_scope="all",
-            ),
-            Permission(
-                action="approval.route_override",
-                resource_kind="approval",
-                domain_scope="all",
-            ),
-            Permission(
-                action="read",
-                resource_kind="metric",
-                domain_scope=None,
-            ),
-        ),
-    }
-    effective_from = "2026-07-14T00:00:00Z"
-    return RolePolicy(
-        policy_version="roles@1",
-        domain_registry_ref=registry_ref,
-        grants=grants,
-        effective_from=effective_from,
-        policy_digest=compute_role_policy_digest(
-            "roles@1",
-            registry_ref,
-            grants,
-            effective_from,
+    return bootstrap_role_policy(
+        registry,
+        identity_resource_kind=identity_resource_kind,
+        tooling_grants=(
+            Permission(action="run", resource_kind="tooling", domain_scope="all"),
         ),
     )
-
 
 def _seed_policies(
     engine: Engine,

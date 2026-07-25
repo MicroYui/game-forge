@@ -25,6 +25,7 @@ import {
   type RollbackSnapshotDiff,
 } from "./RollbackContentComparison";
 import "./patches.css";
+import { profileKey } from "../execution-profiles";
 
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
 
@@ -53,10 +54,6 @@ function normalizedError(error: unknown): Error {
 
 function unknownOutcome(error: Error): boolean {
   return !(error instanceof ApiProblemError) && !(error instanceof ReauthenticationRequiredError);
-}
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
 }
 
 function rollbackProfileBusinessLabel(profile: ExecutionProfile): string {

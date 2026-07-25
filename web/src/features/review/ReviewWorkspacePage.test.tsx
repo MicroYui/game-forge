@@ -261,7 +261,7 @@ async function selectRequiredReviewReplay(user: ReturnType<typeof userEvent.setu
   await selectReviewReplay(user);
   await user.click(
     screen.getByRole("checkbox", {
-      name: "默认确定性检查 v1",
+      name: "规则与关系检查 · 内置标准方案 v1",
     }),
   );
 }
@@ -335,7 +335,7 @@ describe("Review workspace", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: "内容检查方案" }), "builtin.review@1");
     await user.click(
       screen.getByRole("checkbox", {
-        name: "默认确定性检查 v1",
+        name: "规则与关系检查 · 内置标准方案 v1",
       }),
     );
     await user.selectOptions(
@@ -400,12 +400,12 @@ describe("Review workspace", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: "内容检查方案" }), "builtin.review@1");
     await user.click(
       screen.getByRole("checkbox", {
-        name: "默认确定性检查 v1",
+        name: "规则与关系检查 · 内置标准方案 v1",
       }),
     );
     await user.click(
       screen.getByRole("checkbox", {
-        name: "默认经济仿真 v1",
+        name: "经济与数值仿真 · 内置标准方案 v1",
       }),
     );
     await user.selectOptions(
@@ -494,7 +494,7 @@ describe("Review workspace", () => {
     );
     await user.click(
       screen.getByRole("checkbox", {
-        name: "默认确定性检查 v1",
+        name: "规则与关系检查 · 内置标准方案 v1",
       }),
     );
     await user.selectOptions(
@@ -557,7 +557,7 @@ describe("Review workspace", () => {
     await selectReviewReplay(user);
     await user.click(
       screen.getByRole("checkbox", {
-        name: "默认经济仿真 v1",
+        name: "经济与数值仿真 · 内置标准方案 v1",
       }),
     );
 
@@ -625,7 +625,7 @@ describe("Review workspace", () => {
     await selectReviewReplay(user);
     await user.click(
       screen.getByRole("checkbox", {
-        name: "默认经济仿真 v1",
+        name: "经济与数值仿真 · 内置标准方案 v1",
       }),
     );
 

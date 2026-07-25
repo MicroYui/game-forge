@@ -124,6 +124,17 @@ Task 20 的门禁没有覆盖 Playwright；本次提交前补跑全量回归，�
 
 回归门禁为 non-Bench 5067 passed / 1 skipped、Bench 813 passed、Web 79 files / 765 tests、真实 E2E 6/6、visual 70/70、a11y 21/21、7 import contracts、Ruff、typecheck、build、format、4 份 API contracts 与 `git diff --check` 全绿。
 
+### Task 22：按新硬规则 7/8 根治同三处（✅）
+
+用户 2026-07-25 追加硬规则 7（不考虑向后兼容，兼容遗留当场删）与 8（不 overdesign、不写防御式对抗代码）。Task 21 的三处修法里有两处只是绕开症状，按新规则重做：
+
+1. **内置执行方案的取代走既有 lifecycle 机制**：`builtin.checker@1` 已被严格超集 `@2` 取代，却仍是 `active`，才逼出前端的多版本歧义。catalog v3 现按 catalog v2 早已确立的写法把 `@1` 置为 `disabled`（`superseded_by_event_lifecycle_checker`，revision+1），定义本身保留供历史 Run 解析。Review 与 Patch 页本来就按 `status === "active"` 过滤，于是同名复选框与「一个都不预选」同时消失——**不需要**任何"多版本挑选"逻辑，Task 21 加的 `recommendedProfile` 与 E2E 里的显式选版全部删除。
+2. **前端执行方案标识与词汇统一**：`profileKey` 在 8 个页面逐字重复、profile 标签有"默认确定性检查"与"规则与关系检查 · 内置标准方案 v1"两套词汇。新增 `web/src/features/execution-profiles.ts` 作为唯一来源（`profileRefKey`/`profileKey`/`profileBusinessLabel`/`profileBusinessContext`），删除全部本地副本；同一个内置方案在所有页面同名。
+3. **删掉客户端对抗式身份核对**：`ConstraintProposalPage` 是全仓唯一对服务端自己返回的三份视图做逐字段自洽核对的地方，读偏斜被它判成永久致命错误。守卫连同 Task 21 为喂饱它加的有界重读一起删除；正确性由服务端 CAS（stale 时返回 409）保证。
+4. **测试夹具的兼容遗留**：5 份手写 RolePolicy 收敛为 `tests/support/identity.py::bootstrap_role_policy`（漏改其中两份正是 Task 21 那 13 个失败的根因）；harness 只 put 一份 catalog、而 catalog 序列的 lifecycle revision 是单调演进的，改为按生产写法 put 全部保留快照（Journey A 早先打的"再补 put 其余 catalog"补丁随之删除）；`_builtin_profile_binding` 不再硬编码 `version=1`，改为跟随目录里唯一 active 版本。
+
+门禁为 non-Bench 5067 passed / 1 skipped、Bench 813 passed、Web 79 files / 761 tests、真实 E2E 6/6、visual 70/70、a11y 21/21、7 import contracts、Ruff、typecheck、build、format 与 4 份 API contracts 全绿。
+
 ## 完成定义
 
-只有 Task 1–21 全部完成、真实链路闭合、服务可供用户自行体验且无剩余 P0/P1，才把该增量标为 ✅ 并结束 goal。
+只有 Task 1–22 全部完成、真实链路闭合、服务可供用户自行体验且无剩余 P0/P1，才把该增量标为 ✅ 并结束 goal。

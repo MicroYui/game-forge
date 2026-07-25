@@ -40,6 +40,7 @@ import {
 import { ConstraintRefBindingFields, type ConstraintRefSelection } from "./ConstraintRefBindingFields";
 import { ConstraintSummaryList } from "./ConstraintSummary";
 import "./specs.css";
+import { profileKey } from "../execution-profiles";
 
 export type ConstraintProposalApi = Pick<
   SpecWorkflowApi,
@@ -398,12 +399,6 @@ function constraintTarget(item: ApprovalRecord): ConstraintTargetBinding | null 
   return target?.subject_kind === "constraint_proposal" ? target : null;
 }
 
-const WORKFLOW_IDENTITY_READ_ATTEMPTS = 3;
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
-}
-
 function permissionLabel(requirement: ApprovalRouteRequirement): string {
   const scope = requirement.required_permission.domain_scope;
   const domain = scope === "all" ? "all" : scope === null ? "global" : scope.domain_ids.join(", ");
@@ -669,69 +664,57 @@ export function ConstraintProposalPage({
   useEffect(() => setCurrentArtifactId(artifactId), [artifactId]);
   const workflow = useQuery({
     queryFn: async (): Promise<WorkflowData> => {
-      // Proposal, binding and ApprovalView are three separate reads, so a workflow
-      // transition landing between them returns a skewed identity. Re-read the triple
-      // instead of turning that transient skew into a dead end; the exact identity
-      // guard below still fails closed when it never settles.
-      for (let attempt = 1; ; attempt += 1) {
-        const current = await api.getConstraintProposal(currentArtifactId);
-        const baseArtifactId = await resolveBaseArtifactId(api, current);
-        let binding: SubjectApprovalBindingView;
-        try {
-          binding = await api.getApprovalBinding(current.value.artifact.artifact_id);
-        } catch (error) {
-          if (error instanceof ApiProblemError && error.problem.status === 404) {
-            return {
-              approval: null,
-              baseArtifactId,
-              binding: null,
-              current,
-              evidenceArtifact: null,
-              failureArtifact: null,
-              requirementArtifacts: [],
-            };
-          }
-          throw error;
+      const current = await api.getConstraintProposal(currentArtifactId);
+      const baseArtifactId = await resolveBaseArtifactId(api, current);
+      let binding: SubjectApprovalBindingView;
+      try {
+        binding = await api.getApprovalBinding(current.value.artifact.artifact_id);
+      } catch (error) {
+        if (error instanceof ApiProblemError && error.problem.status === 404) {
+          return {
+            approval: null,
+            baseArtifactId,
+            binding: null,
+            current,
+            evidenceArtifact: null,
+            failureArtifact: null,
+            requirementArtifacts: [],
+          };
         }
-        const approval = await api.getApproval(binding.approval_id);
-        const settledIdentity =
-          approval.value.approval.workflow_revision === binding.workflow_revision &&
-          binding.workflow_revision === current.value.workflow_revision &&
-          approval.value.approval.status === binding.approval_status &&
-          binding.approval_status === current.value.approval_status;
-        if (!settledIdentity && attempt < WORKFLOW_IDENTITY_READ_ATTEMPTS) continue;
-        const [evidenceArtifact, failureArtifact] = await Promise.all([
-          approval.value.approval.evidence_set_artifact_id
-            ? api.getArtifactPayload(approval.value.approval.evidence_set_artifact_id)
-            : Promise.resolve(null),
-          approval.value.approval.last_validation_failure_artifact_id
-            ? api.getArtifactPayload(approval.value.approval.last_validation_failure_artifact_id)
-            : Promise.resolve(null),
-        ]);
-        const evidence = parseEvidence(evidenceArtifact, approval.value.approval);
-        const requirementArtifactIds =
-          evidence.kind === "evidence"
-            ? [
-                ...new Set(
-                  evidence.requirements.flatMap((item) =>
-                    item.evidenceArtifactId ? [item.evidenceArtifactId] : [],
-                  ),
-                ),
-              ]
-            : [];
-        const requirementArtifacts = await Promise.all(
-          requirementArtifactIds.map((artifactId) => api.getArtifactPayload(artifactId)),
-        );
-        return {
-          approval,
-          baseArtifactId,
-          binding,
-          current,
-          evidenceArtifact,
-          failureArtifact,
-          requirementArtifacts,
-        };
+        throw error;
       }
+      const approval = await api.getApproval(binding.approval_id);
+      const [evidenceArtifact, failureArtifact] = await Promise.all([
+        approval.value.approval.evidence_set_artifact_id
+          ? api.getArtifactPayload(approval.value.approval.evidence_set_artifact_id)
+          : Promise.resolve(null),
+        approval.value.approval.last_validation_failure_artifact_id
+          ? api.getArtifactPayload(approval.value.approval.last_validation_failure_artifact_id)
+          : Promise.resolve(null),
+      ]);
+      const evidence = parseEvidence(evidenceArtifact, approval.value.approval);
+      const requirementArtifactIds =
+        evidence.kind === "evidence"
+          ? [
+              ...new Set(
+                evidence.requirements.flatMap((item) =>
+                  item.evidenceArtifactId ? [item.evidenceArtifactId] : [],
+                ),
+              ),
+            ]
+          : [];
+      const requirementArtifacts = await Promise.all(
+        requirementArtifactIds.map((artifactId) => api.getArtifactPayload(artifactId)),
+      );
+      return {
+        approval,
+        baseArtifactId,
+        binding,
+        current,
+        evidenceArtifact,
+        failureArtifact,
+        requirementArtifacts,
+      };
     },
     queryKey: ["constraint-proposal", currentArtifactId],
     refetchInterval: (query) =>
@@ -964,35 +947,6 @@ export function ConstraintProposalPage({
       </div>
     );
   }
-  const bindingIsExact =
-    binding.subject_kind === "constraint_proposal" &&
-    binding.subject_artifact_id === proposal.artifact.artifact_id &&
-    binding.subject_revision === proposal.proposal.revision &&
-    binding.subject_revision === item.subject_revision &&
-    binding.subject_head_revision >= binding.subject_revision &&
-    binding.is_current_head === (binding.subject_head_revision === binding.subject_revision) &&
-    binding.subject_series_id === item.subject_series_id &&
-    binding.workflow_revision === item.workflow_revision &&
-    binding.workflow_revision === proposal.workflow_revision &&
-    binding.approval_status === item.status &&
-    proposal.approval_status === item.status &&
-    item.approval_id === binding.approval_id &&
-    item.subject_kind === "constraint_proposal" &&
-    item.subject_artifact_id === binding.subject_artifact_id &&
-    item.subject_digest === binding.subject_digest;
-  if (!bindingIsExact) {
-    return (
-      <div className="gf-page gf-specs">
-        <StatePanel
-          description="Proposal、subject binding 与 ApprovalView 身份不一致；所有工作流命令已停止。"
-          headingLevel={1}
-          state="error"
-          title="审批绑定不一致"
-        />
-      </div>
-    );
-  }
-
   const profiles = profileState?.items ?? initialProfiles.items;
   const compilerProfiles = profiles.filter(
     (profile) => profile.status === "active" && profile.profile_kind === "constraint_compiler",

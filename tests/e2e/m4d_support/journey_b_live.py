@@ -36,7 +36,7 @@ def _retained_harness(workspace: Path) -> _Harness:
     harness.route = _route(harness.registry)
     harness.approval_policy = apply_testkit._approval_policy()
     harness.role_policy = _role_policy(harness.registry)
-    harness.catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
+    harness.catalog = build_builtin_registry().list_execution_profile_catalogs()[-1]
     return harness
 
 

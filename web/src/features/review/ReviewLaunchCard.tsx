@@ -16,6 +16,7 @@ import type {
   RunAccepted,
   RunSubmissionRequest,
 } from "./api";
+import { profileBusinessLabel, profileKey } from "../execution-profiles";
 
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type LlmExecutionMode = ProspectiveReviewRunRequest["llm_execution_mode"];
@@ -42,26 +43,6 @@ class ReviewLaunchAuthorityError extends Error {
 
 function normalizedError(error: unknown): Error {
   return error instanceof Error ? error : new Error("Review 启动请求失败。");
-}
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
-}
-
-function profileLabel(profile: ExecutionProfile): string {
-  if (profile.profile.profile_id.startsWith("builtin.")) {
-    const builtInLabels: Partial<Record<ExecutionProfile["profile_kind"], string>> = {
-      checker: "默认确定性检查",
-      llm_triage: "默认 AI 问题归纳",
-      review: "默认内容检查方案",
-      simulation: "默认经济仿真",
-    };
-    const builtInLabel = builtInLabels[profile.profile_kind];
-    // Several versions of one built-in profile stay selectable at once, so the
-    // version keeps every choice distinguishable for keyboard and screen-reader use.
-    if (builtInLabel !== undefined) return `${builtInLabel} v${profile.profile.version}`;
-  }
-  return profile.display_name;
 }
 
 function supportsReview(profile: ExecutionProfile): boolean {
@@ -429,7 +410,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
               <option value="">请选择内容检查方案</option>
               {reviewProfiles.map((profile) => (
                 <option key={profileKey(profile)} value={profileKey(profile)}>
-                  {profileLabel(profile)}
+                  {profileBusinessLabel(profile)}
                 </option>
               ))}
             </select>
@@ -459,7 +440,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
                       onChange={() => setCheckerKeys((current) => toggleSelection(current, key))}
                       type="checkbox"
                     />
-                    {profileLabel(profile)}
+                    {profileBusinessLabel(profile)}
                   </label>
                 );
               })
@@ -481,7 +462,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
                       onChange={() => setSimulationKeys((current) => toggleSelection(current, key))}
                       type="checkbox"
                     />
-                    {profileLabel(profile)}
+                    {profileBusinessLabel(profile)}
                   </label>
                 );
               })
@@ -498,7 +479,7 @@ export function ReviewLaunchCard({ api, context }: { api: ReviewApi; context: Re
               <option value="">不选择</option>
               {triageProfiles.map((profile) => (
                 <option key={profileKey(profile)} value={profileKey(profile)}>
-                  {profileLabel(profile)}
+                  {profileBusinessLabel(profile)}
                 </option>
               ))}
             </select>

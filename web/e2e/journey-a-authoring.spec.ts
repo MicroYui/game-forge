@@ -552,7 +552,7 @@ async function recordReviewSource(
       execution_version_plan: null,
       llm_execution_mode: "record",
       params: {
-        checker_profiles: includeChecker ? [{ profile_id: "builtin.checker", version: 1 }] : [],
+        checker_profiles: includeChecker ? [{ profile_id: "builtin.checker", version: 2 }] : [],
         constraint_snapshot_artifact_id: constraintArtifactId,
         llm_triage_policy: { profile_id: "builtin.llm_triage", version: 1 },
         review_profile: { profile_id: "builtin.review", version: 1 },
@@ -632,7 +632,7 @@ async function recordRepairSource(
       params: {
         base_snapshot_artifact_id: input.baseArtifactId,
         candidate_export_profiles: [{ profile_id: "builtin.config_export", version: 1 }],
-        checker_profiles: [{ profile_id: "builtin.checker", version: 1 }],
+        checker_profiles: [{ profile_id: "builtin.checker", version: 2 }],
         constraint_snapshot_artifact_id: input.constraintArtifactId,
         expected_subject_head_revision: item.subject_revision,
         expected_workflow_revision: item.workflow_revision,
@@ -687,8 +687,8 @@ async function launchReviewReplay(
   await page.goto(`/reviews?${search.toString()}`);
   await expect(page.getByRole("heading", { name: "启动内容检查" })).toBeVisible();
   await page.getByLabel("内容检查方案").selectOption("builtin.review@1");
-  if (includeChecker) await page.getByRole("checkbox", { name: "默认确定性检查 v1" }).check();
-  await page.getByRole("checkbox", { name: "默认经济仿真 v1" }).check();
+  if (includeChecker) await page.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v2" }).check();
+  await page.getByRole("checkbox", { name: "经济与数值仿真 · 内置标准方案 v1" }).check();
   await page.getByLabel("AI 问题归纳方案").selectOption("builtin.llm_triage@1");
   await page.getByLabel("随机种子").fill("1");
   await page.getByLabel("AI 运行方式").selectOption("replay");
@@ -898,11 +898,6 @@ async function repairPatchReplay(
 ): Promise<string> {
   await page.goto(`/patches/${encodeURIComponent(input.patchId)}`);
   await page.getByLabel("自动修复方案").selectOption("builtin.patch_repair@1");
-  // The recorded source Run bound checker v1, so the REPLAY must drop the newest
-  // recommended version and use exactly the recorded one.
-  const repairCheckers = page.getByRole("group", { name: "修复后的确定性检查" });
-  await repairCheckers.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v1" }).check();
-  await repairCheckers.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v2" }).uncheck();
   await page.getByRole("group", { name: "修复后的配置导出验证" }).getByRole("checkbox").check();
   await expect(
     page.getByRole("group", { name: "约束快照" }).getByRole("radio", { checked: true }),

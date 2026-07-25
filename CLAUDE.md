@@ -24,6 +24,10 @@
 4. **依赖方向单向**：`agents → spine`，**永不** `spine → agents`；`spine` 禁止 import 任何 LLM SDK（openai/anthropic/langchain/langgraph…）。CI 加依赖 lint。
 5. **可复现只承诺回放**：固定 model_snapshot + cassette 回放 + seed 化环境；不承诺在线模型的 bit 级复现。
 6. **TDD 全程**：尤其检查器/DSL 编译器用差分测试（多引擎对拍）+ 属性测试（对拍朴素实现）——"soundness"是卖点，必须 test-first。
+7. **不考虑向后兼容**：新实现一律只保留当前正确形态。**禁止**为旧调用方/旧数据形状保留兼容分支、类型别名、双写、`legacy_*` 路径或"旧版也支持"的降级逻辑；发现历史兼容遗留的重复实现、多套词汇、死代码，**当场删掉并统一**，不要绕开。唯一例外是**已持久化的不可变工件与审计记录本身**（Snapshot/Patch/EvidenceSet/审计链不可改写）——但读取它们的**代码**只保留一条当前路径。
+8. **不 overdesign、不写防御式对抗代码**：不为假想需求加抽象层、插件点、配置开关或"以后可能要"的参数；不在客户端对服务端自己返回的数据做冗余逐字段自洽核对；不写"万一…"的兜底分支去掩盖上游真正的 bug。正确性靠**类型 + 契约 + 确定性预言机**保证，不靠到处撒运行时自检。**与规则 1 的边界**：不砍需求/字段/接口 ≠ 允许为想象中的场景造机制——契约要定全，机制别乱加。
+
+> 规则 7/8 是 2026-07-25 用户明确追加的长期原则，适用于此后所有实现与重构。
 
 ## Git 约定
 
@@ -51,6 +55,8 @@
 > **增量C follow-up ✅**：同一游戏现可保留多份策划材料与多次 AI 提案；一次可批量上传文件并组合 1–64 份材料。项目工作台显示完整提案记录，原 maker 或 `platform_admin` 可在强 ETag/revision、幂等和审计约束下放弃终态提案；Run 结果与策划处置分离，材料、Artifact、检查证据和独立发布草案均不删除，已发布内容仍只走治理回滚。最终门禁为 non-Bench 5061 passed / 1 skipped、Bench 813 passed、Web 79 files / 760 tests、7 import contracts 与全部静态/生成契约检查全绿；完整本地服务已重启，M4 总体仍待 M4e。
 
 > **增量C 提交前回归 ✅**：Task 20 的门禁未覆盖 Playwright，提交前补跑全量回归并修复三处真实缺陷（均先写失败测试）：① `bootstrap` 要求留存 RolePolicy 给 `identity_admin` 全局 metric 读，而两处旧组合 fixture 仍是旧形状，13 个 Python 用例 fail closed；② 新增 `builtin.checker@2` 打穿「只有一个内置方案」的前端假设——Review 启动卡出现两个同名复选框，Patch 详情页不再预选任何确定性检查却仍允许启动，策划会得到注定失败的验证，现按最新版本预选并让标签带版本号，REPLAY 仍显式选回录制身份；③ 约束提案页三次独立读取跨状态迁移读偏斜被当成永久致命错误且停止轮询，现改为有界重读后再 fail closed。回归门禁为 non-Bench 5067 passed / 1 skipped、Bench 813 passed、Web 79 files / 765 tests、真实 E2E 6/6、visual 70/70、a11y 21/21、7 import contracts、Ruff/typecheck/build/format/4 份 API contracts 与 `git diff --check` 全绿。
+
+> **增量C 根治轮（硬规则 7/8）✅**：按用户新追加的硬规则重做提交前回归发现的三处缺陷，不再打补丁——`builtin.checker@1` 走 catalog v2 早已确立的 lifecycle 机制置为 `disabled`（定义保留供历史 Run 解析），两个页面本就按 `status === "active"` 过滤，于是同名复选框与「一个都不预选」同时消失，上一轮加的多版本挑选逻辑与 E2E 显式选版全部删除；8 处重复的 `profileKey` 与两套 profile 词汇收敛到 `web/src/features/execution-profiles.ts`；`ConstraintProposalPage` 对服务端三视图的逐字段自洽核对（全仓孤例）连同为它加的有界重读一并删除，正确性交回服务端 CAS；5 份手写 RolePolicy 收敛为 `tests/support/identity.py`，harness 改为按生产写法 put 全部保留 catalog 快照。门禁为 non-Bench 5067 passed / 1 skipped、Bench 813 passed、Web 79 files / 761 tests、E2E 6/6、visual 70/70、a11y 21/21、7 import contracts 与全部静态门禁全绿。
 
 > **M4d Task 15 ✅**：隔离 QA Runner 的技术实现、独立复审和产品负责人可操作门禁均已通过；起始/准备/手工任务/冻结/暂停/辅助/记录状态全部获批。该门禁完成时仅证明 Runner 工程与可操作性，尚未计入真人证据；后续 `participant-04` 的 8 场 / 4 对证据已通过同一冻结 Runner 独立完成、导入并验收。
 

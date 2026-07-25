@@ -36,6 +36,7 @@ import { requireTaskSuiteAuthority, type TaskSuiteNavigationCandidate } from "./
 import { PlaytestTerminalPanel } from "./PlaytestTerminalPanel";
 
 import "./playtest.css";
+import { profileRefKey } from "../execution-profiles";
 
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type LlmExecutionMode = ProspectivePlaytestRunRequest["llm_execution_mode"];
@@ -184,10 +185,6 @@ function sameProfile(
   right: { profile_id: string; version: number } | null | undefined,
 ): boolean {
   return left?.profile_id === right?.profile_id && left?.version === right?.version;
-}
-
-function profileKey(profile: { profile_id: string; version: number }): string {
-  return `${profile.profile_id}@${profile.version}`;
 }
 
 function unionDomainIds(
@@ -887,11 +884,11 @@ function SuiteCard({
           },
           {
             label: "环境方案",
-            value: profileKey(suite.task_suite.environment_profile),
+            value: profileRefKey(suite.task_suite.environment_profile),
           },
           {
             label: "任务生成方案",
-            value: profileKey(suite.task_suite.suite_profile),
+            value: profileRefKey(suite.task_suite.suite_profile),
           },
           {
             label: "判定规则版本",
@@ -946,7 +943,7 @@ function ConfigCandidateCard({ candidate, onSelect }: { candidate: ConfigCandida
           { label: "环境契约", value: candidate.envContractVersion },
           {
             label: "环境方案",
-            value: profileKey(candidate.environmentProfile),
+            value: profileRefKey(candidate.environmentProfile),
           },
         ]}
       />
@@ -1203,20 +1200,20 @@ export function PlaytestPage({
   }, [mode, profiles.data, selectedSuite.data]);
 
   useEffect(() => {
-    if (!derivationOptions.some((profile) => profileKey(profile.profile) === derivationKey)) {
-      setDerivationKey(derivationOptions[0] ? profileKey(derivationOptions[0].profile) : "");
+    if (!derivationOptions.some((profile) => profileRefKey(profile.profile) === derivationKey)) {
+      setDerivationKey(derivationOptions[0] ? profileRefKey(derivationOptions[0].profile) : "");
     }
   }, [derivationKey, derivationOptions]);
   useEffect(() => {
-    if (!plannerOptions.some((profile) => profileKey(profile.profile) === plannerKey)) {
-      setPlannerKey(plannerOptions[0] ? profileKey(plannerOptions[0].profile) : "");
+    if (!plannerOptions.some((profile) => profileRefKey(profile.profile) === plannerKey)) {
+      setPlannerKey(plannerOptions[0] ? profileRefKey(plannerOptions[0].profile) : "");
     }
   }, [plannerKey, plannerOptions]);
 
   const derivationProfile = derivationOptions.find(
-    (profile) => profileKey(profile.profile) === derivationKey,
+    (profile) => profileRefKey(profile.profile) === derivationKey,
   );
-  const plannerProfile = plannerOptions.find((profile) => profileKey(profile.profile) === plannerKey);
+  const plannerProfile = plannerOptions.find((profile) => profileRefKey(profile.profile) === plannerKey);
   const derivationBinding = useQuery({
     enabled: derivationProfile !== undefined,
     queryFn: () =>
@@ -1712,7 +1709,7 @@ export function PlaytestPage({
               },
               {
                 label: "环境方案",
-                value: profileKey(context.data.environmentProfile),
+                value: profileRefKey(context.data.environmentProfile),
               },
               ...(context.data.sourceRunId
                 ? [{ label: "来源运行标识", value: context.data.sourceRunId }]
@@ -1987,7 +1984,7 @@ export function PlaytestPage({
                   onChange={(event) => setDerivationKey(event.target.value)}
                 >
                   {derivationOptions.map((profile) => (
-                    <option key={profileKey(profile.profile)} value={profileKey(profile.profile)}>
+                    <option key={profileRefKey(profile.profile)} value={profileRefKey(profile.profile)}>
                       {executionProfileLabel(profile)} ·{" "}
                       {profile.domain_scope.domain_ids.map(domainLabel).join("、")}
                     </option>
@@ -2242,7 +2239,7 @@ export function PlaytestPage({
                 onChange={(event) => setPlannerKey(event.target.value)}
               >
                 {plannerOptions.map((profile) => (
-                  <option key={profileKey(profile.profile)} value={profileKey(profile.profile)}>
+                  <option key={profileRefKey(profile.profile)} value={profileRefKey(profile.profile)}>
                     {executionProfileLabel(profile)} ·{" "}
                     {profile.domain_scope.domain_ids.map(domainLabel).join("、")}
                   </option>

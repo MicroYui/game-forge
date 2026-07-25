@@ -1499,38 +1499,6 @@ describe("Patch detail", () => {
     await waitFor(() => expect(checker).not.toBeChecked());
   });
 
-  it("preselects the newest version when one built-in profile ships several versions", async () => {
-    const checkerV1 = profile("checker", "patch.validate");
-    const checkerV2: ExecutionProfile = {
-      ...checkerV1,
-      profile: { ...checkerV1.profile, version: 2 },
-    };
-    const profiles = [
-      profile("validation", "patch.validate"),
-      profile("patch_repair", "patch.repair"),
-      checkerV1,
-      checkerV2,
-      profile("simulation", "patch.validate"),
-      profile("config_export", "config.export"),
-    ];
-    renderPage(
-      api("draft", {
-        listExecutionProfiles: vi.fn<PatchWorkflowApi["listExecutionProfiles"]>(async (filters) =>
-          page(
-            profiles.filter((candidate) => candidate.profile_kind === filters.profile_kind),
-            `read:profiles:${filters.profile_kind}`,
-          ),
-        ),
-      }),
-    );
-
-    const newest = await screen.findByRole("checkbox", {
-      name: "规则与关系检查 · 内置标准方案 v2",
-    });
-    expect(newest).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v1" })).not.toBeChecked();
-  });
-
   it("automatically locks validation to the exact constraint snapshot bound by the Patch", async () => {
     const user = userEvent.setup();
     const constraintArtifactId = "artifact:constraint:patch-bound";

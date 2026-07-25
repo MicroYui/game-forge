@@ -208,12 +208,15 @@ def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -
         for definition in catalogs[0].definitions
         if definition.profile.profile_id == "builtin.checker"
     )
-    current_checker = next(
+    lifecycle = {item.profile: item for item in catalogs[-1].lifecycle}
+    current_checkers = [
         definition
         for definition in catalogs[-1].definitions
         if definition.profile.profile_id == "builtin.checker"
-        and definition.profile.version == 2
-    )
+        and lifecycle[definition.profile].state == "active"
+    ]
+    assert [definition.profile.version for definition in current_checkers] == [2]
+    current_checker = current_checkers[0]
     assert "invalid_event_lifecycle" not in old_checker.config["allowed_defect_classes"]
     assert {
         "event_scope_membership_missing",
@@ -222,9 +225,8 @@ def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -
         "permanent_depends_on_limited_content",
         "unbound_event_schedule",
     }.issubset(current_checker.config["allowed_defect_classes"])
-    lifecycle = {item.profile: item for item in catalogs[-1].lifecycle}
-    assert lifecycle[old_checker.profile].state == "active"
     assert lifecycle[current_checker.profile].state == "active"
+    assert lifecycle[old_checker.profile].state == "disabled"
 
 
 def test_readiness_rejects_record_shards_counted_from_prompt_links() -> None:
@@ -278,7 +280,7 @@ def test_builtin_playtest_graph_selectors_cover_exact_versioned_memory_config() 
         ("/params/planner_policy", "/memory_mode", "off"),
         ("/params/planner_policy", "/memory_mode", "llm_compaction"),
     }
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     planner = next(
         definition
         for definition in catalog.definitions
@@ -553,7 +555,7 @@ def test_readiness_rejects_run_kind_outcome_drift_from_frozen_digest() -> None:
 
 def test_readiness_rejects_unclosed_config_export_environment_ref() -> None:
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     config_export = next(
         profile for profile in catalog.definitions if profile.profile_kind == "config_export"
     )
@@ -575,7 +577,7 @@ def test_readiness_rejects_unclosed_config_export_environment_ref() -> None:
 
 def test_readiness_rejects_migration_profile_edge_missing_from_matrix() -> None:
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     details = MigrationProfileDetailsV1(
         edges=(
             MigrationEdgeV1(

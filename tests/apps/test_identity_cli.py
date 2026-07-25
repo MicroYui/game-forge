@@ -25,12 +25,10 @@ from gameforge.contracts.auth import (
 from gameforge.contracts.errors import Conflict
 from gameforge.contracts.identity import (
     DomainDefinitionV1,
-    DomainRegistryRefV1,
     DomainRegistryV1,
     Permission,
     RolePolicy,
     compute_domain_registry_digest,
-    compute_role_policy_digest,
 )
 from gameforge.platform.identity.bootstrap import (
     BootstrapAdminRequest,
@@ -45,6 +43,8 @@ from gameforge.runtime.persistence.models import (
     RoleAssignmentRow,
 )
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+
+from tests.support.identity import bootstrap_role_policy
 
 
 NOW = datetime(2026, 7, 14, 8, 0, tzinfo=timezone.utc)
@@ -103,73 +103,11 @@ def _seed_retained_cli_policies(
             definitions,
         ),
     )
-    registry_ref = DomainRegistryRefV1(
-        registry_version=registry.registry_version,
-        registry_digest=registry.registry_digest,
-    )
-    grants = {
-        "identity_admin": (
-            Permission(
-                action="identity.manage",
-                resource_kind="identity",
-                domain_scope=None,
-            ),
-            Permission(
-                action="read",
-                resource_kind="metric",
-                domain_scope=None,
-            ),
-        ),
-        "tooling": (
-            Permission(
-                action="run",
-                resource_kind="tooling",
-                domain_scope="all",
-            ),
-        ),
-        "platform_admin": (
-            Permission(
-                action="identity.manage",
-                resource_kind="identity",
-                domain_scope=None,
-            ),
-            Permission(
-                action="run",
-                resource_kind="tooling",
-                domain_scope="all",
-            ),
-            Permission(
-                action="approval.decide",
-                resource_kind="approval",
-                domain_scope="all",
-            ),
-            Permission(
-                action="approval.self_decide",
-                resource_kind="approval",
-                domain_scope="all",
-            ),
-            Permission(
-                action="approval.route_override",
-                resource_kind="approval",
-                domain_scope="all",
-            ),
-            Permission(
-                action="read",
-                resource_kind="metric",
-                domain_scope=None,
-            ),
-        ),
-    }
-    roles = RolePolicy(
+    roles = bootstrap_role_policy(
+        registry,
         policy_version="roles@cli-test",
-        domain_registry_ref=registry_ref,
-        grants=grants,
-        effective_from="2026-07-14T00:00:00Z",
-        policy_digest=compute_role_policy_digest(
-            "roles@cli-test",
-            registry_ref,
-            grants,
-            "2026-07-14T00:00:00Z",
+        tooling_grants=(
+            Permission(action="run", resource_kind="tooling", domain_scope="all"),
         ),
     )
     with Session(engine) as session, session.begin():

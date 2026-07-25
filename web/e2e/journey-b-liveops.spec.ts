@@ -298,10 +298,7 @@ async function draftPatch(
 
 async function startPatchValidation(page: Page): Promise<string> {
   await page.getByLabel("验证方案").selectOption("builtin.validation@1");
-  await page
-    .getByRole("group", { name: "验证使用的确定性检查" })
-    .getByRole("checkbox", { name: "规则与关系检查 · 内置标准方案 v2" })
-    .check();
+  await page.getByRole("group", { name: "验证使用的确定性检查" }).getByRole("checkbox").check();
   await page.getByRole("group", { name: "验证使用的经济仿真" }).getByRole("checkbox").check();
   await page.getByLabel("随机种子（仅仿真或 AI 方案需要）").fill("7");
   const validate = page.getByRole("button", { name: "开始验证" });

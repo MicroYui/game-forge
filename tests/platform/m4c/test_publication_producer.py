@@ -187,7 +187,7 @@ def test_ir_snapshot_identity_and_llm_tuple_are_recomputed_from_authorities() ->
 
 def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -> None:
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     definition = next(item for item in catalog.definitions if item.profile_kind == "config_export")
     assert isinstance(definition.details, ConfigExportProfileDetailsV1)
     profile = definition.profile

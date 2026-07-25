@@ -217,7 +217,7 @@ def test_loader_preview_export_decodes_to_an_executable_round_trip() -> None:
         }
     )
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     definition = next(item for item in catalog.definitions if item.profile == _EXPORT_PROFILE)
     binding = ResolvedExecutionProfileBindingV1(
         field_path="/params/candidate_export_profiles/0",
@@ -291,7 +291,7 @@ def test_one_package_per_requested_profile() -> None:
 
 def test_details_resolver_uses_the_exact_frozen_catalog_binding() -> None:
     builtin = build_builtin_registry()
-    first = builtin.list_execution_profile_catalogs()[0]
+    first = builtin.list_execution_profile_catalogs()[-1]
     original = next(
         definition for definition in first.definitions if definition.profile_kind == "config_export"
     )
@@ -352,7 +352,7 @@ def test_details_resolver_uses_the_exact_frozen_catalog_binding() -> None:
 
 def test_details_resolver_rejects_a_forged_profile_payload_hash() -> None:
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     definition = next(item for item in catalog.definitions if item.profile_kind == "config_export")
     resolver = build_config_export_details_resolver(registry)
     binding = ResolvedExecutionProfileBindingV1(

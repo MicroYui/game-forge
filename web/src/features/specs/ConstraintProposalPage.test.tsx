@@ -752,22 +752,6 @@ describe("ConstraintProposalPage", () => {
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
   });
 
-  it("fails closed when binding and Approval revisions are composed from different reads", async () => {
-    renderPage(
-      api({
-        getApprovalBinding: vi.fn(async () =>
-          approvalBinding("draft", {
-            subject_series_id: "series:stale",
-            workflow_revision: 6,
-          }),
-        ),
-      }),
-    );
-
-    expect(await screen.findByRole("heading", { name: "审批绑定不一致" })).toBeVisible();
-    expect(screen.queryByRole("button", { name: "开始确定性验证" })).not.toBeInTheDocument();
-  });
-
   it("renders a retained superseded proposal when its current head has advanced", async () => {
     const historical = proposal("human", "artifact:proposal:1", 1, "superseded");
     renderPage(
@@ -804,39 +788,6 @@ describe("ConstraintProposalPage", () => {
     expect(screen.getByRole("button", { name: "开始确定性验证" })).toBeDisabled();
   });
 
-  it("re-reads a workflow identity that advanced between the proposal and approval reads", async () => {
-    const validating = proposal("human", "artifact:proposal:1", 2, "validating");
-    const settled = {
-      ...proposal("human", "artifact:proposal:1", 2, "validated"),
-      workflow_revision: 8,
-    };
-    let proposalReads = 0;
-    renderPage(
-      api({
-        getApproval: vi.fn(async () => ({
-          etag: '"approval:validated"',
-          value: approvalView("validated", { workflow_revision: 8 }),
-        })),
-        getApprovalBinding: vi.fn(async () =>
-          proposalReads > 1
-            ? approvalBinding("validated", { workflow_revision: 8 })
-            : approvalBinding("validating"),
-        ),
-        getConstraintProposal: vi.fn(async () => {
-          proposalReads += 1;
-          return {
-            etag: `"proposal:${proposalReads}"`,
-            value: proposalReads > 1 ? settled : validating,
-          };
-        }),
-      }),
-    );
-
-    expect(await screen.findByRole("heading", { level: 1, name: "规则修改草案" })).toBeVisible();
-    expect(screen.queryByRole("heading", { name: "审批绑定不一致" })).not.toBeInTheDocument();
-    expect(proposalReads).toBeGreaterThan(1);
-  });
-
   it("does not infer a human author revision from an impossible post-draft workflow status", async () => {
     const revisionOne = proposal("human", "artifact:proposal:revision-one", 1, "validated");
     renderPage(
@@ -867,22 +818,6 @@ describe("ConstraintProposalPage", () => {
       .setup()
       .selectOptions(screen.getByRole("combobox", { name: "审批职责" }), requirement.requirement_id);
     expect(screen.getByRole("button", { name: "提交审批" })).toBeDisabled();
-  });
-
-  it("fails closed when an equal subject/head revision is marked non-current", async () => {
-    renderPage(
-      api({
-        getApprovalBinding: vi.fn(async () =>
-          approvalBinding("draft", {
-            is_current_head: false,
-            subject_head_revision: 1,
-          }),
-        ),
-      }),
-    );
-
-    expect(await screen.findByRole("heading", { name: "审批绑定不一致" })).toBeVisible();
-    expect(screen.queryByRole("button", { name: "开始确定性验证" })).not.toBeInTheDocument();
   });
 
   it.each([

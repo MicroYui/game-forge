@@ -313,7 +313,7 @@ def test_payload_schema_reverse_index_is_derived_from_the_frozen_run_kinds() -> 
 
 
 def test_agent_execution_budgets_are_inside_hashed_profile_configs() -> None:
-    catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
+    catalog = build_builtin_registry().list_execution_profile_catalogs()[-1]
     generation_definition = next(
         item for item in catalog.definitions if item.profile_kind == "generation"
     )
@@ -708,7 +708,7 @@ def test_review_outputs_bind_one_to_one_to_exact_profile_refs() -> None:
 
 
 def test_builtin_simulation_profile_is_the_only_stochastic_profile() -> None:
-    catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
+    catalog = build_builtin_registry().list_execution_profile_catalogs()[-1]
     stochastic = {
         definition.profile_kind for definition in catalog.definitions if definition.stochastic
     }

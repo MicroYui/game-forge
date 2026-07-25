@@ -34,6 +34,7 @@ import {
 } from "./authority";
 import { patchWorkflowApi, type PatchWorkflowApi, type VersionedResource } from "./api";
 import "./patches.css";
+import { profileBusinessContext, profileBusinessLabel, profileKey } from "../execution-profiles";
 
 type ApprovalView = components["schemas"]["ApprovalViewV1"];
 type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
@@ -209,50 +210,6 @@ function unknownOutcome(error: Error): boolean {
 
 function sameRef(left: RefValue | null | undefined, right: RefValue | null | undefined): boolean {
   return left?.artifact_id === right?.artifact_id && left?.revision === right?.revision;
-}
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
-}
-
-// A recommended default only exists when the catalog offers a single profile
-// identity. Several versions of that one identity stay selectable, so the
-// newest is the recommendation and every other version is an explicit opt-in.
-function recommendedProfile(profiles: readonly ExecutionProfile[]): ExecutionProfile | undefined {
-  if (profiles.length === 0) return undefined;
-  const identities = new Set(profiles.map((profile) => profile.profile.profile_id));
-  if (identities.size !== 1) return undefined;
-  return profiles.reduce((newest, profile) =>
-    profile.profile.version > newest.profile.version ? profile : newest,
-  );
-}
-
-function profileBusinessLabel(profile: ExecutionProfile): string {
-  const labels: Partial<Record<ExecutionProfile["profile_kind"], string>> = {
-    checker: "规则与关系检查",
-    config_export: "配置可导出性检查",
-    patch_repair: "AI 自动修复草案",
-    simulation: "经济与数值仿真",
-    validation: "完整验证流程",
-  };
-  const purpose =
-    labels[profile.profile_kind] ??
-    (/\p{Script=Han}/u.test(profile.display_name) ? profile.display_name : "扩展执行方案");
-  const variant = profile.profile.profile_id.startsWith("builtin.")
-    ? "内置标准方案"
-    : profile.display_name.trim() || "自定义方案";
-  return `${purpose} · ${variant} v${profile.profile.version}`;
-}
-
-function profileBusinessContext(profile: ExecutionProfile): string {
-  const descriptions: Partial<Record<ExecutionProfile["profile_kind"], string>> = {
-    checker: "检查任务结构、引用关系和规则约束",
-    config_export: "确认修改后的内容能够生成可运行配置",
-    patch_repair: "仅起草修复，结果仍会重新接受确定性验证",
-    simulation: "模拟资源产出、消耗和长期数值变化",
-    validation: "汇总本次选择的检查、仿真和已有证据",
-  };
-  return descriptions[profile.profile_kind] ?? "按当前工作流运行这项方案";
 }
 
 function patchRationaleLabel(rationale: string): string {
@@ -2344,33 +2301,28 @@ export function PatchDetailPage({
   useEffect(() => {
     if (!workflow.data || !catalog || initializedProfileDefaultsFor.current === artifactId) return;
     initializedProfileDefaultsFor.current = artifactId;
-    const validation = recommendedProfile(catalog.validation);
-    if (validation !== undefined) {
-      setValidationProfileKey(profileKey(validation));
+    if (catalog.validation.length === 1) {
+      setValidationProfileKey(profileKey(catalog.validation[0]));
     }
-    const patchRepair = recommendedProfile(catalog.patchRepair);
-    if (patchRepair !== undefined) {
-      setRepairProfileKey(profileKey(patchRepair));
+    if (catalog.patchRepair.length === 1) {
+      setRepairProfileKey(profileKey(catalog.patchRepair[0]));
     }
-    const validationChecker = recommendedProfile(catalog.validationChecker);
-    if (validationChecker !== undefined) {
-      setValidationCheckerKeys(new Set([profileKey(validationChecker)]));
+    if (catalog.validationChecker.length === 1) {
+      setValidationCheckerKeys(new Set([profileKey(catalog.validationChecker[0])]));
     }
-    const repairChecker = recommendedProfile(catalog.repairChecker);
-    if (repairChecker !== undefined) {
-      setRepairCheckerKeys(new Set([profileKey(repairChecker)]));
+    if (catalog.repairChecker.length === 1) {
+      setRepairCheckerKeys(new Set([profileKey(catalog.repairChecker[0])]));
     }
-    const repairConfigExport = recommendedProfile(catalog.repairConfigExport);
-    if (repairConfigExport !== undefined) {
-      setRepairExportKeys(new Set([profileKey(repairConfigExport)]));
+    if (catalog.repairConfigExport.length === 1) {
+      setRepairExportKeys(new Set([profileKey(catalog.repairConfigExport[0])]));
     }
   }, [artifactId, catalog, workflow.data]);
   const selectedValidation = catalog?.validation.find(
     (profile) => profileKey(profile) === validationProfileKey,
   );
-  const recommendedFocusedChecker = catalog ? recommendedProfile(catalog.focusedChecker) : undefined;
   const effectiveFocusedCheckerProfileKey =
-    focusedCheckerProfileKey || (recommendedFocusedChecker ? profileKey(recommendedFocusedChecker) : "");
+    focusedCheckerProfileKey ||
+    (catalog?.focusedChecker.length === 1 ? profileKey(catalog.focusedChecker[0]) : "");
   const selectedFocusedChecker = catalog?.focusedChecker.find(
     (profile) => profileKey(profile) === effectiveFocusedCheckerProfileKey,
   );

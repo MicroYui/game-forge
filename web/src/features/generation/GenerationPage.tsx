@@ -40,6 +40,7 @@ import {
 } from "./outcome";
 
 import "./generation.css";
+import { profileKey } from "../execution-profiles";
 
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type LlmExecutionMode = ProspectiveGenerationProposeRequest["llm_execution_mode"];
@@ -241,10 +242,6 @@ function artifactHref(artifactId: string): string {
 function sourceRunHref(path: string, runId: string, extra: Record<string, string> = {}): string {
   const search = new URLSearchParams({ sourceRun: runId, ...extra });
   return `${path}?${search.toString()}`;
-}
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
 }
 
 function sameProfile(

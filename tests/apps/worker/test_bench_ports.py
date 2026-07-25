@@ -140,7 +140,7 @@ def _aggregate_expectation(
         producer_params = CheckerRunPayloadV1(
             snapshot_artifact_id="artifact:snapshot",
             selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
-            checker_profile=ProfileRefV1(profile_id="builtin.checker", version=1),
+            checker_profile=ProfileRefV1(profile_id="builtin.checker", version=2),
             checker_ids=(),
             defect_classes=(),
         )
@@ -312,7 +312,7 @@ def _digest_constraints(constraints) -> str:
 
 def _authority(*, maximum_repetitions: int = 1):
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     evaluator = next(item for item in catalog.definitions if item.profile_kind == "bench_evaluator")
     constraints = tuple(item for item in default_constraints() if not item.has_llm_predicate())
     sample = inject(clean_base(), DefectClass.dangling_reference, seed=1)

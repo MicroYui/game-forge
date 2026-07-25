@@ -2856,7 +2856,7 @@ def _execution_profile_catalog_v2() -> ExecutionProfileCatalogSnapshotV1:
 
 
 def _execution_profile_catalog_v3() -> ExecutionProfileCatalogSnapshotV1:
-    """Publish lifecycle-aware checker@2 without rewriting retained history."""
+    """Supersede checker@1 with the lifecycle-aware checker@2."""
 
     previous = _execution_profile_catalog_v2()
     compatibility = _profile_compatibility()
@@ -2868,8 +2868,18 @@ def _execution_profile_catalog_v3() -> ExecutionProfileCatalogSnapshotV1:
     definitions = (*previous.definitions, checker_v2)
     previous_lifecycle = {item.profile: item for item in previous.lifecycle}
     changed_at = "2026-07-25T00:00:00Z"
-    lifecycle = tuple(
-        previous_lifecycle.get(
+
+    def _lifecycle(definition: ExecutionProfileDefinitionV1) -> ExecutionProfileLifecycleV1:
+        superseded = definition.profile_kind == "checker" and definition.profile.version == 1
+        if superseded:
+            return ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="disabled",
+                revision=previous_lifecycle[definition.profile].revision + 1,
+                reason_code="superseded_by_event_lifecycle_checker",
+                changed_at=changed_at,
+            )
+        return previous_lifecycle.get(
             definition.profile,
             ExecutionProfileLifecycleV1(
                 profile=definition.profile,
@@ -2878,8 +2888,8 @@ def _execution_profile_catalog_v3() -> ExecutionProfileCatalogSnapshotV1:
                 changed_at=changed_at,
             ),
         )
-        for definition in definitions
-    )
+
+    lifecycle = tuple(_lifecycle(definition) for definition in definitions)
     payload = {
         "catalog_version": 3,
         "definitions": definitions,

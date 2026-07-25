@@ -86,7 +86,7 @@ CURSOR_KEY = b"m4c-app-admission-cursor-key"
 OBJECT_CURSOR_KEY = b"m4c-app-admission-object-cursor-key"
 AUDIT_CHAIN_ID = "platform-authority"
 VALIDATION_PROFILE = ProfileRefV1(profile_id="builtin.validation", version=1)
-CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=1)
+CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
 SIMULATION_PROFILE = ProfileRefV1(profile_id="builtin.simulation", version=1)
 
 ROLE_POLICY_VERSION = "app-admission-roles@1"
@@ -285,12 +285,14 @@ class AppHarness:
             cursor_signing_key=OBJECT_CURSOR_KEY,
         )
         self.registry = build_builtin_registry()
-        self.catalog = self.registry.list_execution_profile_catalogs()[0]
+        self.catalogs = self.registry.list_execution_profile_catalogs()
+        self.catalog = self.catalogs[-1]
         self.domain_registry = _domain_registry()
         self.role_policy = _role_policy(self.domain_registry)
         with Session(self.engine) as session, session.begin():
             policies = SqlPolicySnapshotRepository(session, clock=self.clock)
-            policies.put_execution_profile_catalog(self.catalog)
+            for catalog in self.catalogs:
+                policies.put_execution_profile_catalog(catalog)
             policies.put_domain_registry(self.domain_registry)
             policies.put_role_policy(self.role_policy)
             costs = SqlCostLedger(session, clock=self.clock)

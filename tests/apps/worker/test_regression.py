@@ -188,7 +188,7 @@ def _fixture(
     oracle_executor=None,
 ):
     registry = build_builtin_registry()
-    catalog = registry.list_execution_profile_catalogs()[0]
+    catalog = registry.list_execution_profile_catalogs()[-1]
     definition = next(item for item in catalog.definitions if item.profile_kind == "environment")
     binding = ResolvedExecutionProfileBindingV1(
         field_path="/environment_profile",

@@ -56,7 +56,6 @@ from gameforge.runtime.persistence.artifacts import SqlArtifactRepository
 from gameforge.runtime.persistence.cursor import CursorSigner
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
-from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.spine.ir.loader import load_scenario
 from gameforge.spine.ir.snapshot import Snapshot
@@ -272,19 +271,8 @@ class _Harness(JourneyBHarness):
     """Journey-B composition reused with a real executable Aureus base."""
 
     def _seed_policies(self) -> None:
-        catalogs = build_builtin_registry().list_execution_profile_catalogs()
-        self.catalog = catalogs[0]
         self.role_policy = _journey_a_role_policy(self.registry)
         super()._seed_policies()
-        engine = get_engine(self.database_url)
-        try:
-            with Session(engine) as session, session.begin():
-                policies = SqlPolicySnapshotRepository(session, clock=self.clock)
-                for catalog in catalogs[1:]:
-                    policies.put_execution_profile_catalog(catalog)
-        finally:
-            engine.dispose()
-        self.catalog = catalogs[-1]
 
     def worker_config(self):
         return replace(

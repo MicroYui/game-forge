@@ -53,12 +53,10 @@ from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
     DomainDefinitionV1,
-    DomainRegistryRefV1,
     DomainRegistryV1,
     Permission,
     RolePolicy,
     compute_domain_registry_digest,
-    compute_role_policy_digest,
 )
 from gameforge.contracts.ir import Entity, NodeType
 from gameforge.contracts.jobs import CheckerRunPayloadV1, GraphSelectionV1
@@ -82,6 +80,7 @@ from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.secrets.session_keys import SessionSigningKeyProvider
 from gameforge.spine.ir.snapshot import Snapshot
+from tests.support.identity import bootstrap_role_policy
 
 OBJECT_STORE_ID = "local:test"
 ROLE_POLICY_VERSION = "e2e-roles@1"
@@ -162,50 +161,14 @@ def _domain_registry() -> DomainRegistryV1:
 
 
 def _role_policy(registry: DomainRegistryV1) -> RolePolicy:
-    registry_ref = DomainRegistryRefV1(
-        registry_version=registry.registry_version,
-        registry_digest=registry.registry_digest,
-    )
-    grants = {
-        "tooling": tuple(
+    return bootstrap_role_policy(
+        registry,
+        policy_version=ROLE_POLICY_VERSION,
+        tooling_grants=tuple(
             Permission(action=action, resource_kind=resource_kind, domain_scope="all")
             for action, resource_kind in _TOOLING_GRANTS
         ),
-        "identity_admin": (
-            Permission(action="identity.manage", resource_kind="identity", domain_scope=None),
-            Permission(action="read", resource_kind="metric", domain_scope=None),
-        ),
-    }
-    grants["platform_admin"] = (
-        *grants["identity_admin"],
-        *grants["tooling"],
-        Permission(
-            action="approval.decide",
-            resource_kind="approval",
-            domain_scope="all",
-        ),
-        Permission(
-            action="approval.self_decide",
-            resource_kind="approval",
-            domain_scope="all",
-        ),
-        Permission(
-            action="approval.route_override",
-            resource_kind="approval",
-            domain_scope="all",
-        ),
     )
-    effective_from = "2026-07-14T00:00:00Z"
-    return RolePolicy(
-        policy_version=ROLE_POLICY_VERSION,
-        domain_registry_ref=registry_ref,
-        grants=grants,
-        effective_from=effective_from,
-        policy_digest=compute_role_policy_digest(
-            ROLE_POLICY_VERSION, registry_ref, grants, effective_from
-        ),
-    )
-
 
 def _signing_keys() -> SessionSigningKeyProvider:
     return SessionSigningKeyProvider(
@@ -261,7 +224,8 @@ class _Harness:
         self.domain_registry = _domain_registry()
         self.role_policy = _role_policy(self.domain_registry)
         self.registry = build_builtin_registry()
-        self.catalog = self.registry.list_execution_profile_catalogs()[0]
+        self.catalogs = self.registry.list_execution_profile_catalogs()
+        self.catalog = self.catalogs[-1]
         self._seed_policies()
         self._bootstrap_admin()
         self._provision_tooling_actor()
@@ -275,7 +239,8 @@ class _Harness:
             policies.put_session_policy(_session_policy())
             policies.put_domain_registry(self.domain_registry)
             policies.put_role_policy(self.role_policy)
-            policies.put_execution_profile_catalog(self.catalog)
+            for catalog in self.catalogs:
+                policies.put_execution_profile_catalog(catalog)
             costs = SqlCostLedger(session, clock=self.clock)
             costs.put_budget(
                 _shared_budget(
@@ -430,7 +395,7 @@ def _checker_params(snapshot_artifact_id: str) -> CheckerRunPayloadV1:
         snapshot_artifact_id=snapshot_artifact_id,
         constraint_snapshot_artifact_id=None,
         selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
-        checker_profile=ProfileRefV1(profile_id="builtin.checker", version=1),
+        checker_profile=ProfileRefV1(profile_id="builtin.checker", version=2),
         checker_ids=("graph",),
         defect_classes=(),
     )

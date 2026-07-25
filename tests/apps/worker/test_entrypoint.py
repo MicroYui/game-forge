@@ -173,14 +173,24 @@ def _builtin_profile_binding(
     registry,
     *,
     profile_id: str,
-    version: int = 1,
     profile_kind: str,
     field_path: str,
+    version: int | None = None,
 ) -> ResolvedExecutionProfileBindingV1:
     catalog = max(
         registry.list_execution_profile_catalogs(),
         key=lambda item: item.catalog_version,
     )
+    # The catalog retains superseded definitions as disabled, so the binding follows
+    # the one active version instead of hard-coding a version here.
+    if version is None:
+        states = {item.profile: item.state for item in catalog.lifecycle}
+        (version,) = [
+            definition.profile.version
+            for definition in catalog.definitions
+            if definition.profile.profile_id == profile_id
+            and states[definition.profile] == "active"
+        ]
     return registry.resolve_execution_profile(
         catalog_version=catalog.catalog_version,
         catalog_digest=catalog.catalog_digest,

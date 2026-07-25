@@ -24,6 +24,7 @@ import {
   type SpecWorkflowApi,
 } from "./api";
 import { ConstraintRefBindingFields, type ConstraintRefSelection } from "./ConstraintRefBindingFields";
+import { profileKey } from "../execution-profiles";
 
 export type SpecEntryPanelsApi = Pick<
   SpecWorkflowApi,
@@ -204,10 +205,6 @@ function parseContentObject(
   } catch {
     return { ok: false };
   }
-}
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
 }
 
 function knownSourceOptions(catalogs: SpecEntryCatalogs): { id: string; label: string }[] {

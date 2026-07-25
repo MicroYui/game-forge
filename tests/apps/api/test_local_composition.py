@@ -62,7 +62,6 @@ from gameforge.contracts.identity import (
     Permission,
     RolePolicy,
     compute_domain_registry_digest,
-    compute_role_policy_digest,
 )
 from gameforge.contracts.jobs import (
     CancelRunPayloadV1,
@@ -103,6 +102,8 @@ from gameforge.runtime.secrets.session_keys import (
     SESSION_SIGNING_KEY_SETS_ENV,
     SessionSigningKeyProvider,
 )
+
+from tests.support.identity import bootstrap_role_policy
 
 
 def test_local_verified_payload_reader_covers_the_frozen_bench_report_limit() -> None:
@@ -171,26 +172,13 @@ def _domain_and_role_policy() -> tuple[DomainRegistryV1, RolePolicy]:
         definitions=definitions,
         registry_digest=compute_domain_registry_digest("domains@1", definitions),
     )
-    registry_ref = DomainRegistryRefV1(
-        registry_version=registry.registry_version,
-        registry_digest=registry.registry_digest,
-    )
-    grants = {
-        "identity_admin": (
-            Permission(
-                action="identity.manage",
-                resource_kind="identity",
-                domain_scope=None,
-            ),
-            Permission(action="read", resource_kind="metric", domain_scope=None),
+    policy = bootstrap_role_policy(
+        registry,
+        identity_admin_grants=(
             Permission(action="read", resource_kind="schema_registry", domain_scope=None),
         ),
-        "tooling": (
-            Permission(
-                action="run",
-                resource_kind="tooling",
-                domain_scope="all",
-            ),
+        tooling_grants=(
+            Permission(action="run", resource_kind="tooling", domain_scope="all"),
             Permission(action="run", resource_kind="checker", domain_scope="all"),
             Permission(action="read", resource_kind="spec", domain_scope="all"),
             Permission(action="read", resource_kind="artifact", domain_scope="all"),
@@ -198,43 +186,7 @@ def _domain_and_role_policy() -> tuple[DomainRegistryV1, RolePolicy]:
             Permission(action="read", resource_kind="task_suite", domain_scope="all"),
             Permission(action="read", resource_kind="run", domain_scope="all"),
             Permission(action="read", resource_kind="approval", domain_scope="all"),
-            Permission(
-                action="read",
-                resource_kind="execution_profile",
-                domain_scope="all",
-            ),
-        ),
-    }
-    grants["platform_admin"] = (
-        *grants["identity_admin"],
-        *grants["tooling"],
-        Permission(
-            action="approval.decide",
-            resource_kind="approval",
-            domain_scope="all",
-        ),
-        Permission(
-            action="approval.self_decide",
-            resource_kind="approval",
-            domain_scope="all",
-        ),
-        Permission(
-            action="approval.route_override",
-            resource_kind="approval",
-            domain_scope="all",
-        ),
-    )
-    effective_from = "2026-07-14T00:00:00Z"
-    policy = RolePolicy(
-        policy_version="roles@1",
-        domain_registry_ref=registry_ref,
-        grants=grants,
-        effective_from=effective_from,
-        policy_digest=compute_role_policy_digest(
-            "roles@1",
-            registry_ref,
-            grants,
-            effective_from,
+            Permission(action="read", resource_kind="execution_profile", domain_scope="all"),
         ),
     )
     return registry, policy
@@ -798,7 +750,7 @@ def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp
             },
             "checker_profile": ProfileRefV1(
                 profile_id="builtin.checker",
-                version=1,
+                version=2,
             ).model_dump(mode="json"),
             "checker_ids": [],
             "defect_classes": [],
@@ -985,7 +937,7 @@ def test_real_local_command_reauthorizes_inside_write_uow_after_outer_grant_revo
             "snapshot_artifact_id": snapshot_artifact_id,
             "constraint_snapshot_artifact_id": None,
             "selection": {"mode": "full", "entity_ids": [], "relation_ids": []},
-            "checker_profile": {"profile_id": "builtin.checker", "version": 1},
+            "checker_profile": {"profile_id": "builtin.checker", "version": 2},
             "checker_ids": [],
             "defect_classes": [],
         },

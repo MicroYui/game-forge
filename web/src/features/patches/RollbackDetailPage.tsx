@@ -36,6 +36,7 @@ import {
   type RollbackSnapshotDiff,
 } from "./RollbackContentComparison";
 import "./patches.css";
+import { profileKey } from "../execution-profiles";
 
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
 type ProfileKind = ExecutionProfile["profile_kind"];
@@ -77,10 +78,6 @@ function unknownOutcome(error: Error): boolean {
 
 function sameRef(left: RefValue | null | undefined, right: RefValue | null | undefined): boolean {
   return left?.artifact_id === right?.artifact_id && left?.revision === right?.revision;
-}
-
-function profileKey(profile: ExecutionProfile): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
 }
 
 function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {

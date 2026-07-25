@@ -24,6 +24,7 @@ import {
   type StructuredOperationDraft,
 } from "./StructuredPatchEditor";
 import "./specs.css";
+import { profileKey } from "../execution-profiles";
 
 export type SpecDetailApi = Pick<
   SpecWorkflowApi,
@@ -68,10 +69,6 @@ function graphPaginationState(state: GraphState): CursorPaginationState {
 
 function normalizedError(error: unknown): Error {
   return error instanceof Error ? error : new Error("图谱读取失败。");
-}
-
-function profileKey(profile: ExecutionProfilePage["items"][number]): string {
-  return `${profile.profile.profile_id}@${profile.profile.version}`;
 }
 
 function parseJsonArray(value: string): unknown[] | null {

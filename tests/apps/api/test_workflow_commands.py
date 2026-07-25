@@ -361,6 +361,9 @@ class _ConfigExporter:
 def test_patch_draft_publishes_exact_requested_config_export_candidate(
     tmp_path: Path,
 ) -> None:
+    # This harness seeds ONE catalog snapshot, so it installs the first retained one
+    # whose lifecycle histories start at revision 1; the config_export profile it
+    # exercises is identical in every later snapshot.
     catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
     exporter = _ConfigExporter()
     harness = build_harness(
@@ -489,6 +492,9 @@ def test_patch_draft_binds_constraint_without_requesting_config_export(
 def test_patch_draft_rejects_unknown_export_profile_before_publication(
     tmp_path: Path,
 ) -> None:
+    # This harness seeds ONE catalog snapshot, so it installs the first retained one
+    # whose lifecycle histories start at revision 1; the config_export profile it
+    # exercises is identical in every later snapshot.
     catalog = build_builtin_registry().list_execution_profile_catalogs()[0]
     harness = build_harness(
         tmp_path,
