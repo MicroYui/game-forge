@@ -17,8 +17,10 @@ from gameforge.contracts.identity import (
     ActorContext,
     AuthenticationContext,
     Principal,
+    RoleAssignmentV1,
 )
 from gameforge.contracts.jobs import Problem
+from gameforge.contracts.lineage import AuditActor
 
 
 def _noop() -> None:
@@ -231,3 +233,40 @@ def test_invalid_stale_cookie_does_not_block_password_reauthentication() -> None
 
     assert response.status_code == 204
     assert "session-token-1" in response.headers["Set-Cookie"]
+
+
+def test_me_reports_every_current_role_including_platform_admin() -> None:
+    session_auth = _SessionAuth()
+    admin = _principal("human:admin", "human", "Platform Admin").model_copy(
+        update={
+            "roles": (
+                RoleAssignmentV1(
+                    assignment_id="assignment:human:admin:platform_admin",
+                    principal_id="human:admin",
+                    role="platform_admin",
+                    scope=None,
+                    status="active",
+                    revision=1,
+                    granted_at="2026-07-25T00:00:00Z",
+                    granted_by=AuditActor(principal_id="human:bootstrap", principal_kind="system"),
+                ),
+                RoleAssignmentV1(
+                    assignment_id="assignment:human:admin:tooling",
+                    principal_id="human:admin",
+                    role="tooling",
+                    scope=None,
+                    status="active",
+                    revision=1,
+                    granted_at="2026-07-25T00:00:00Z",
+                    granted_by=AuditActor(principal_id="human:bootstrap", principal_kind="system"),
+                ),
+            )
+        }
+    )
+    session_auth._sessions["session-token-admin"] = admin
+    with TestClient(_app(session_auth), base_url="https://gameforge.test") as client:
+        client.cookies.set("gameforge_session", "session-token-admin")
+        response = client.get("/api/v1/auth/me")
+
+    assert response.status_code == 200
+    assert [item["role"] for item in response.json()["roles"]] == ["platform_admin", "tooling"]

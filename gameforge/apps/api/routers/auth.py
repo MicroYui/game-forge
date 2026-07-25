@@ -117,18 +117,7 @@ def auth_router() -> APIRouter:
         actor: ActorContext = Depends(require_actor),
     ) -> Principal:
         response.headers["Cache-Control"] = "no-store"
-        # The frozen v1 public role enum predates platform_admin. Authorization uses
-        # the complete current Principal above; this read projection keeps the v1
-        # wire closed while privileged capability is exposed by resource eligibility.
-        return actor.principal.model_copy(
-            update={
-                "roles": tuple(
-                    assignment
-                    for assignment in actor.principal.roles
-                    if assignment.role != "platform_admin"
-                )
-            }
-        )
+        return actor.principal
 
     return router
 

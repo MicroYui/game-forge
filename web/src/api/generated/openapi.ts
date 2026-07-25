@@ -4864,7 +4864,7 @@ export interface components {
              * Role
              * @enum {string}
              */
-            role: "content_designer" | "numeric_designer" | "qa" | "tooling" | "constraint_admin" | "gacha_compliance_reviewer" | "identity_admin";
+            role: "platform_admin" | "content_designer" | "numeric_designer" | "qa" | "tooling" | "constraint_admin" | "gacha_compliance_reviewer" | "identity_admin";
             /** Scope */
             scope: components["schemas"]["DomainScope"] | "all" | null;
             /**

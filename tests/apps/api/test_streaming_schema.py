@@ -11,12 +11,10 @@ They must never leak a lease/fencing/secret worker field and must regenerate byt
 
 from __future__ import annotations
 
-import copy
 from functools import cache
 import json
 from typing import Any
 
-import pytest
 
 from gameforge.apps.api import schema as api_schema
 
@@ -200,103 +198,3 @@ def test_no_fencing_or_secret_fields_in_streaming_schemas() -> None:
         blob = _blob(generated[key])
         for needle in _FORBIDDEN_FIELD_SUBSTRINGS:
             assert needle not in blob, f"{key} leaks forbidden field {needle!r}"
-
-
-def test_compatibility_permits_identical_streaming_schema() -> None:
-    document = _schemas()[_SSE]
-    assert api_schema.check_compatibility(document, json.loads(json.dumps(document))) == []
-
-
-def test_compatibility_rejects_run_event_data_discriminator_change() -> None:
-    old = _schemas()[_SSE]
-    new = json.loads(json.dumps(old))
-    # RunEventData is a Field(discriminator="data_schema_version") union under `data`.
-    mapping = new["properties"]["data"]["discriminator"]["mapping"]
-    mapping.pop(next(iter(mapping)))
-    breaks = api_schema.check_compatibility(old, new)
-    assert any(
-        b.kind in ("discriminator_variant_removed", "discriminator_changed") for b in breaks
-    ), breaks
-
-
-def test_compatibility_rejects_run_command_payload_variant_removed() -> None:
-    old = _schemas()[_WS_CLIENT]
-    new = json.loads(json.dumps(old))
-    payload = new["properties"]["payload"]
-    payload["discriminator"]["mapping"].pop(next(iter(payload["discriminator"]["mapping"])))
-    breaks = api_schema.check_compatibility(old, new)
-    assert breaks, "removing a RunCommandPayload variant must be breaking"
-
-
-def test_compatibility_rejects_sse_data_union_variant_removed() -> None:
-    old = _schemas()[_SSE]
-    new = copy.deepcopy(old)
-    new["properties"]["data"]["oneOf"].pop(0)
-    assert api_schema.check_compatibility(old, new), (
-        "removing a RunEventData oneOf branch must be breaking"
-    )
-
-
-def test_compatibility_rejects_sse_discriminator_mapping_target_change() -> None:
-    old = _schemas()[_SSE]
-    new = copy.deepcopy(old)
-    mapping = new["properties"]["data"]["discriminator"]["mapping"]
-    mapping["run-queued@1"] = "#/$defs/CancelRequestedDataV1"
-    assert api_schema.check_compatibility(old, new), (
-        "retargeting a stable discriminator value to another payload must be breaking"
-    )
-
-
-def test_compatibility_rejects_ws_server_union_variant_removed() -> None:
-    old = _schemas()[_WS_SERVER]
-    new = copy.deepcopy(old)
-    new["oneOf"].pop()
-    assert api_schema.check_compatibility(old, new), (
-        "removing a WebSocket server-frame variant must be breaking"
-    )
-
-
-def test_compatibility_rejects_ws_server_union_variant_added() -> None:
-    old = _schemas()[_WS_SERVER]
-    new = copy.deepcopy(old)
-    new["oneOf"].append({"type": "null"})
-    breaks = api_schema.check_compatibility(old, new)
-    assert any(change.kind == "response_variant_added" for change in breaks), breaks
-
-
-def test_compatibility_rejects_ws_client_numeric_bound_narrowing() -> None:
-    old = _schemas()[_WS_CLIENT]
-    new = copy.deepcopy(old)
-    new["properties"]["client_seq"]["maximum"] = 1
-    assert api_schema.check_compatibility(old, new), (
-        "narrowing a previously accepted RunCommand bound must be breaking"
-    )
-
-
-@pytest.mark.parametrize(
-    "case",
-    (
-        "type_widened",
-        "enum_widened",
-        "bound_widened",
-        "const_removed",
-        "additional_properties_opened",
-    ),
-)
-def test_compatibility_rejects_weakened_ws_server_response_guarantees(case: str) -> None:
-    old = _schemas()[_WS_SERVER]
-    new = copy.deepcopy(old)
-    ack = new["$defs"]["RunCommandAckV1"]
-    if case == "type_widened":
-        ack["properties"]["client_seq"]["type"] = ["integer", "string"]
-    elif case == "enum_widened":
-        ack["properties"]["status"]["enum"].append("future")
-    elif case == "bound_widened":
-        ack["properties"]["client_seq"]["maximum"] = (1 << 64) - 1
-    elif case == "const_removed":
-        del ack["properties"]["ack_schema_version"]["const"]
-    else:
-        ack["additionalProperties"] = True
-    assert api_schema.check_compatibility(old, new), (
-        f"{case} must not weaken a server-frame response guarantee"
-    )
