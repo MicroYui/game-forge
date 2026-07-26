@@ -352,3 +352,36 @@ def test_policy_catalog_closure_and_model_capability_are_readiness_gates() -> No
             catalog=catalog,
             policy=_policy(catalog, _rule(fallbacks=())),
         )
+
+
+def test_descriptor_declares_the_api_surface_the_model_answers_on() -> None:
+    """The gateway is not uniform: a model that only answers on /responses must say so."""
+
+    responses_only = ModelDescriptorV1(
+        provider="openai",
+        model_snapshot="openai:gpt-5.6-sol",
+        tier="best",
+        capabilities=("reasoning",),
+        context_limit=200_000,
+        max_output_tokens=32_000,
+        prompt_cache_support=True,
+        status="active",
+        api_flavor="responses",
+    )
+
+    assert responses_only.api_flavor == "responses"
+    # Chat completions is the common surface, so it is what a descriptor means
+    # when it says nothing else.
+    assert (
+        ModelDescriptorV1(
+            provider="anthropic",
+            model_snapshot="anthropic:claude-opus-5",
+            tier="best",
+            capabilities=("reasoning",),
+            context_limit=200_000,
+            max_output_tokens=32_000,
+            prompt_cache_support=True,
+            status="active",
+        ).api_flavor
+        == "chat_completions"
+    )

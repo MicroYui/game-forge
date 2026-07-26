@@ -74,6 +74,12 @@ class ModelDescriptorV1(_FrozenModel):
     max_output_tokens: PositiveInt
     prompt_cache_support: bool
     status: Literal["active", "disabled"]
+    # Providers do not share one surface, and a gateway can expose several: a model
+    # rejected by /chat/completions may answer only on /responses. The descriptor
+    # states which one this model answers on so no caller has to guess.
+    api_flavor: Literal["chat_completions", "responses", "anthropic_messages"] = (
+        "chat_completions"
+    )
 
     @field_validator("capabilities")
     @classmethod
