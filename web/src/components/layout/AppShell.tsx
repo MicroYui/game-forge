@@ -21,6 +21,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, useTheme, useToast } from "../../app/providers";
 import { breadcrumbsFor, navigationRoutes, type NavigationIcon } from "../../app/routes";
 import { messages } from "../../i18n/zh-CN";
+import type { AuthenticatedPrincipal } from "../../app/auth-types";
 
 const navigationIcons = {
   projects: FolderKanban,
@@ -33,6 +34,22 @@ const navigationIcons = {
   observability: Activity,
   approvals: ClipboardCheck,
 } satisfies Record<NavigationIcon, typeof Network>;
+
+/** Distinct active role names, in server order.
+ *
+ * A platform-wide role carries one global and one all-domain assignment, so the
+ * raw assignment list names it twice. Scope is authorization detail, not identity.
+ */
+export function activeRoleNames(
+  roles: AuthenticatedPrincipal["roles"],
+): AuthenticatedPrincipal["roles"][number]["role"][] {
+  const names: AuthenticatedPrincipal["roles"][number]["role"][] = [];
+  for (const assignment of roles) {
+    if (assignment.status !== "active" || assignment.revoked_at) continue;
+    if (!names.includes(assignment.role)) names.push(assignment.role);
+  }
+  return names;
+}
 
 export function AppShell() {
   const auth = useAuth();
@@ -141,13 +158,11 @@ export function AppShell() {
             {principal && (
               <div className="gf-identity" aria-label={messages.shell.currentIdentity} tabIndex={0}>
                 <span className="u-chip">{principal.display_name}</span>
-                {principal.roles
-                  .filter((assignment) => assignment.status === "active" && !assignment.revoked_at)
-                  .map((assignment) => (
-                    <span className="u-chip" key={assignment.assignment_id}>
-                      {messages.roles[assignment.role]}
-                    </span>
-                  ))}
+                {activeRoleNames(principal.roles).map((role) => (
+                  <span className="u-chip" key={role}>
+                    {messages.roles[role]}
+                  </span>
+                ))}
               </div>
             )}
             <button
