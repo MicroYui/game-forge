@@ -31,6 +31,7 @@ from gameforge.platform.runs.execution_plan import (
     ExecutionVersionPlanResolver,
     ExecutionVersionPlanAuthorityValidator,
     LegacyExecutionVersionPlanAuthorityValidator,
+    build_execution_version_plan,
 )
 
 
@@ -324,6 +325,82 @@ def test_execution_plan_resolver_derives_catalog_from_policy_and_ignores_newer_h
         call[1:] != (newer_catalog.catalog_version, newer_catalog.catalog_digest)
         for call in authority.calls
     )
+
+
+def test_a_planner_choice_binds_the_run_to_the_policy_that_names_that_model() -> None:
+    """Choosing a model means choosing the retained policy whose rules route to it."""
+
+    configured_catalog, configured_policy, _configured_plan = _valid_graph()
+    chosen_descriptor = _descriptor("chosen")
+    chosen_catalog = _catalog(chosen_descriptor, version=configured_catalog.catalog_version + 1)
+    chosen_policy = _policy(
+        chosen_catalog,
+        _rule("generation", chosen_descriptor.model_snapshot),
+        version=configured_policy.policy_version + 1,
+    )
+    authority = _Authority(
+        catalogs=(configured_catalog, chosen_catalog),
+        policies=(configured_policy, chosen_policy),
+    )
+    resolver = _resolver(
+        authority,
+        policy_version=configured_policy.policy_version,
+        policy_digest=configured_policy.routing_policy_digest,
+    )
+    expected = build_execution_version_plan(
+        graph=_retained_graph(_valid_graph()[2]),
+        catalog=chosen_catalog,
+        policy=chosen_policy,
+    )
+
+    actual = resolver.resolve(
+        graph=_retained_graph(expected),
+        llm_execution_mode="live",
+        routing_policy_version=chosen_policy.policy_version,
+        routing_policy_digest=chosen_policy.routing_policy_digest,
+    )
+
+    assert actual == expected
+    assert actual.model_catalog_version == chosen_catalog.catalog_version
+    assert all(
+        node.allowed_model_snapshots == (chosen_descriptor.model_snapshot,) for node in actual.nodes
+    )
+
+
+def test_a_choice_this_deployment_never_retained_fails_closed() -> None:
+    catalog, policy, plan = _valid_graph()
+    authority = _Authority(catalogs=(catalog,), policies=(policy,))
+    resolver = _resolver(
+        authority,
+        policy_version=policy.policy_version,
+        policy_digest=policy.routing_policy_digest,
+    )
+
+    with pytest.raises(IntegrityViolation):
+        resolver.resolve(
+            graph=_retained_graph(plan),
+            llm_execution_mode="live",
+            routing_policy_version=policy.policy_version + 99,
+            routing_policy_digest=policy.routing_policy_digest,
+        )
+
+
+def test_a_half_specified_choice_is_rejected_before_any_authority_is_read() -> None:
+    catalog, policy, plan = _valid_graph()
+    authority = _Authority(catalogs=(catalog,), policies=(policy,))
+    resolver = _resolver(
+        authority,
+        policy_version=policy.policy_version,
+        policy_digest=policy.routing_policy_digest,
+    )
+
+    with pytest.raises(ValueError, match="together"):
+        resolver.resolve(
+            graph=_retained_graph(plan),
+            llm_execution_mode="live",
+            routing_policy_version=policy.policy_version,
+        )
+    assert authority.calls == []
 
 
 def test_execution_plan_resolver_rejects_wrong_configured_policy_digest() -> None:

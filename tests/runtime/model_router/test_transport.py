@@ -8,7 +8,7 @@ from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapsho
 from gameforge.runtime.model_router.transport import OpenAITransport, StubTransport
 
 
-def _req(content="hi"):
+def _req(content="hi", params=None):
     return ModelRequest(
         model_snapshot=ModelSnapshot(
             provider="google", model="gemini-3.6-flash", snapshot_tag="s1"
@@ -16,6 +16,7 @@ def _req(content="hi"):
         messages=[Message(role="user", content=content)],
         agent_node_id="triage",
         prompt_version="triage@1",
+        params=params or {},
     )
 
 
@@ -93,6 +94,24 @@ def test_openai_transport_refuses_an_elapsed_deadline():
         assert "deadline" in str(error)
     else:  # pragma: no cover - the transport must not call a dead deadline
         raise AssertionError("an elapsed deadline must not reach the gateway")
+
+
+def test_the_routers_output_bound_reaches_chat_completions_by_its_own_name():
+    """This gateway accepts an unmapped `max_output_tokens` and ignores it, so the
+    bound has to arrive as `max_tokens` or it silently does not apply."""
+
+    client = _FakeClient()
+    transport = OpenAITransport(
+        base_url="http://localhost:4141",
+        api_key="sk-x",
+        client=client,
+    )
+
+    transport.complete(_req(params={"max_output_tokens": 512}))
+
+    body = client.calls[0][1]["json"]
+    assert body["max_tokens"] == 512
+    assert "max_output_tokens" not in body
 
 
 def test_stub_transport_returns_by_request_hash():

@@ -544,7 +544,12 @@ def main() -> None:
     )
     from gameforge.apps.api.local import create_readiness_closed_local_app
 
-    app = create_readiness_closed_local_app(api_config)
+    # The picker reads the same models this process routes to: the gateway when it
+    # is real, the fixed stand-in when the browser journey needs a fixed answer.
+    app = create_readiness_closed_local_app(
+        api_config,
+        gateway_models=None if args.models == "gateway" else (lambda: STUB_MODELS),
+    )
     stop = threading.Event()
     worker = None
     if args.worker == "enabled":

@@ -384,11 +384,21 @@ class ExecutionVersionPlanResolver:
         graph: AgentExecutionGraphV1,
         llm_execution_mode: Literal["live", "record", "replay"],
         replay_plan: ExecutionVersionPlanV1 | None = None,
+        routing_policy_version: int | None = None,
+        routing_policy_digest: str | None = None,
     ) -> ExecutionVersionPlanV1:
-        """Return one validated plan without resolving any mutable alias."""
+        """Return one validated plan without resolving any mutable alias.
+
+        A planner who picked a model supplies that model's retained routing policy;
+        the deployment pointer is what a run starts on when nobody chose. Either way
+        the policy is read by exact version and digest, and the plan it produces is
+        validated against the same retained authority.
+        """
 
         if type(graph) is not AgentExecutionGraphV1:
             raise TypeError("execution-plan resolution requires an exact Agent graph")
+        if (routing_policy_version is None) != (routing_policy_digest is None):
+            raise ValueError("a chosen routing-policy version and digest are supplied together")
         if llm_execution_mode == "replay":
             if replay_plan is None:
                 raise IntegrityViolation("REPLAY execution lacks its source-bound plan")
@@ -412,20 +422,25 @@ class ExecutionVersionPlanResolver:
                 "deployment execution routing-policy pointer is unavailable",
                 component="execution_plan_routing_policy",
             )
+        selected_version = (
+            self._routing_policy_version
+            if routing_policy_version is None
+            else routing_policy_version
+        )
+        selected_digest = (
+            self._routing_policy_digest if routing_policy_digest is None else routing_policy_digest
+        )
 
         with self._authority_scope() as authority:
-            policy = authority.get_routing_policy(
-                self._routing_policy_version,
-                self._routing_policy_digest,
-            )
+            policy = authority.get_routing_policy(selected_version, selected_digest)
             if not isinstance(policy, RoutingPolicyV1):
                 raise IntegrityViolation(
                     "configured exact routing policy is unavailable",
-                    policy_version=self._routing_policy_version,
+                    policy_version=selected_version,
                 )
             if (
-                policy.policy_version != self._routing_policy_version
-                or policy.routing_policy_digest != self._routing_policy_digest
+                policy.policy_version != selected_version
+                or policy.routing_policy_digest != selected_digest
             ):
                 raise IntegrityViolation(
                     "configured routing policy authority returned a non-exact binding"

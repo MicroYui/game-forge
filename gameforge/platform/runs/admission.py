@@ -370,11 +370,7 @@ class DefaultRunBudgetPlanProvider:
         self._selection_policy_version = selection_policy_version
         self._budget_policy_version = budget_policy_version
         self._limits = limits
-        self._reservation = (
-            _DEFAULT_RUN_RESERVATION
-            if reservation is None
-            else reservation
-        )
+        self._reservation = _DEFAULT_RUN_RESERVATION if reservation is None else reservation
         limit_by_dimension = {item.dimension: item for item in limits}
         reservation_by_dimension = {item.dimension: item for item in self._reservation}
         hold_dimensions = {item.dimension for item in limits if item.dimension != "concurrent_run"}
@@ -1397,6 +1393,8 @@ class RunAdmissionEngine:
                     catalog=catalog,
                     llm_execution_mode=request.llm_execution_mode,
                     replay_plan=replay_plan,
+                    routing_policy_version=request.routing_policy_version,
+                    routing_policy_digest=request.routing_policy_digest,
                 )
 
             prepared = self._prepare_run(
@@ -4184,6 +4182,8 @@ class RunAdmissionEngine:
         catalog: ExecutionProfileCatalogSnapshotV1,
         llm_execution_mode: Literal["live", "record", "replay"],
         replay_plan: ExecutionVersionPlanV1 | None,
+        routing_policy_version: int | None = None,
+        routing_policy_digest: str | None = None,
     ) -> ExecutionVersionPlanV1:
         resolver = self._execution_version_plans
         if resolver is None:
@@ -4223,6 +4223,8 @@ class RunAdmissionEngine:
             graph=graph,
             llm_execution_mode=llm_execution_mode,
             replay_plan=replay_plan,
+            routing_policy_version=routing_policy_version,
+            routing_policy_digest=routing_policy_digest,
         )
 
     # ── RBAC authorization with the server-resolved resource domain ──────────
@@ -5004,16 +5006,12 @@ class RunAdmissionEngine:
                     frozen_role_policy.policy_digest,
                 )
                 if retained_role_policy != frozen_role_policy:
-                    raise Conflict(
-                        "frozen workflow role policy changed before atomic creation"
-                    )
+                    raise Conflict("frozen workflow role policy changed before atomic creation")
                 retained_registry = policies.get_domain_registry(
                     retained_role_policy.domain_registry_ref
                 )
                 if retained_registry != frozen_registry:
-                    raise Conflict(
-                        "frozen workflow domain registry changed before atomic creation"
-                    )
+                    raise Conflict("frozen workflow domain registry changed before atomic creation")
                 for permission in authorization.permissions:
                     if (
                         authorize(

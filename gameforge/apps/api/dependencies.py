@@ -18,12 +18,13 @@ from gameforge.contracts.auth import (
     SessionIssueV1,
     SessionToken,
 )
-from gameforge.contracts.identity import ActorContext
+from gameforge.contracts.identity import ActorContext, Principal
 from gameforge.contracts.jobs import RunDispatchTraceCarrierV1
 from gameforge.contracts.errors import AuthRequired
 from gameforge.contracts.api import (
     ExecutionOptionResolveRequestV1,
     ExecutionOptionViewV1,
+    SelectableModelPageV1,
     RunAcceptedV1,
     WorkflowCommandPayloadV1,
     WorkflowCommandResponseV1,
@@ -251,6 +252,12 @@ class ExecutionOptionResolvePort(Protocol):
         request: ExecutionOptionResolveRequestV1,
         actor: ActorContext,
     ) -> ExecutionOptionViewV1: ...
+
+
+class SelectableModelPort(Protocol):
+    """The models this deployment can start a run on, read when the panel opens."""
+
+    def list_selectable_models(self, *, principal: Principal) -> SelectableModelPageV1: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -503,6 +510,7 @@ class ApiDependencies:
     project_authoring: ProjectAuthoringService | ProjectAuthoringPort | None = None
     execution_version_plans: ExecutionVersionPlanResolvePort | None = None
     execution_options: ExecutionOptionResolvePort | None = None
+    selectable_models: SelectableModelPort | None = None
     run_event_stream: RunEventStreamPort | None = None
     run_event_notifier: RunEventNotifierPort | None = None
     run_event_stream_config: RunEventStreamConfig = field(default_factory=RunEventStreamConfig)

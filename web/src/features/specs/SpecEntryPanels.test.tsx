@@ -407,6 +407,10 @@ describe("SpecEntryPanels", () => {
       replay_source_run_id: null,
       request_schema_version: "execution-option-resolve-request@1",
       resource_operation_id: "propose_constraint_api_v1_constraint_proposals_propose_post",
+      // No model picked in this environment, so the run starts on whatever this
+      // deployment routes to by default.
+      routing_policy_digest: null,
+      routing_policy_version: null,
       run_kind: { kind: "constraint_proposal.propose", version: 1 },
     });
     await waitFor(() => expect(entryApi.proposeConstraint).toHaveBeenCalledTimes(1));

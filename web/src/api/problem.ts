@@ -32,7 +32,9 @@ export function sanitizeProblem(value: unknown): SafeProblem {
     trace_id: problem.trace_id,
     earliest_cursor: problem.earliest_cursor,
     conflict_set_id: problem.conflict_set_id,
-    retry_after_s: problem.retry_after_s,
+    // A problem that carries no retry-after must read as "none", not as an absent
+    // field: `undefined !== null` renders the retry sentence around an empty gap.
+    retry_after_s: typeof problem.retry_after_s === "number" ? problem.retry_after_s : null,
   };
 }
 

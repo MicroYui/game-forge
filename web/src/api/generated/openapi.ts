@@ -613,6 +613,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Selectable Models */
+        get: operations["selectable_models_api_v1_models_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/patches": {
         parameters: {
             query?: never;
@@ -2500,6 +2517,10 @@ export interface components {
              * @enum {string}
              */
             resource_operation_id: "propose_generation_api_v1_generation_propose_post" | "repair_patch_api_v1_patches__artifact_id__repair_post" | "propose_constraint_api_v1_constraint_proposals_propose_post" | "submit_run_api_v1_runs_post" | "run_playtest_api_v1_playtest_run_post";
+            /** Routing Policy Digest */
+            routing_policy_digest?: string | null;
+            /** Routing Policy Version */
+            routing_policy_version?: number | null;
             run_kind: components["schemas"]["RunKindRef"];
         };
         /** ExecutionOptionViewV1 */
@@ -4209,6 +4230,10 @@ export interface components {
              * @constant
              */
             request_schema_version: "project-extraction-create-request@1";
+            /** Routing Policy Digest */
+            routing_policy_digest?: string | null;
+            /** Routing Policy Version */
+            routing_policy_version?: number | null;
         };
         /** ProjectExtractionDiscardRequestV1 */
         ProjectExtractionDiscardRequestV1: {
@@ -5310,6 +5335,59 @@ export interface components {
             schemas: {
                 [key: string]: components["schemas"]["JsonValue"];
             };
+        };
+        /** SelectableModelPageV1 */
+        SelectableModelPageV1: {
+            /** Items */
+            items: components["schemas"]["SelectableModelV1"][];
+            /**
+             * Page Schema Version
+             * @default selectable-model-page@1
+             * @constant
+             */
+            page_schema_version: "selectable-model-page@1";
+        };
+        /**
+         * SelectableModelV1
+         * @description One model a planner may start a run on, right now, in this deployment.
+         *
+         *     A model qualifies only when the gateway is serving it and a retained routing
+         *     policy sends the run to it — so the exact policy that makes the choice real is
+         *     part of what is offered, not something the caller has to find afterwards.
+         */
+        SelectableModelV1: {
+            /** Context Limit */
+            context_limit: number;
+            /** Display Name */
+            display_name: string;
+            /** Is Default */
+            is_default: boolean;
+            /** Max Output Tokens */
+            max_output_tokens: number;
+            /** Model */
+            model: string;
+            /** Model Catalog Digest */
+            model_catalog_digest: string;
+            /** Model Catalog Version */
+            model_catalog_version: number;
+            /**
+             * Model Schema Version
+             * @default selectable-model@1
+             * @constant
+             */
+            model_schema_version: "selectable-model@1";
+            /** Model Snapshot Id */
+            model_snapshot_id: string;
+            /** Preview */
+            preview: boolean;
+            /** Routing Policy Digest */
+            routing_policy_digest: string;
+            /** Routing Policy Version */
+            routing_policy_version: number;
+            /** Tier */
+            tier: string;
+            /** Vendor */
+            vendor: string;
         };
         /** Selector */
         Selector: {
@@ -10159,6 +10237,111 @@ export interface operations {
             };
             /** @description The requested resource was not found (problem+json). */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    selectable_models_api_v1_models_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache`. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag bound to the read snapshot of this page. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SelectableModelPageV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

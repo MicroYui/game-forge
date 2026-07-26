@@ -39,6 +39,22 @@ describe("Problem rendering boundary", () => {
     expect(JSON.stringify(problem)).not.toContain("must-not-render");
   });
 
+  it("reads an absent retry-after as no retry-after", () => {
+    // A validation problem carries no retry-after at all. Left undefined it is not
+    // null either, and the panel renders "请在  秒后重试。" with nothing in the gap.
+    const sanitized = sanitizeProblem({
+      code: "request_schema_invalid",
+      detail: "The request does not match the required schema.",
+      instance: "urn:gameforge:request:request:1",
+      request_id: "request:1",
+      status: 422,
+      title: "Request schema invalid",
+      type: "urn:gameforge:problem:request_schema_invalid",
+    });
+
+    expect(sanitized.retry_after_s).toBeNull();
+  });
+
   it("throws a typed sanitized API error", () => {
     const error = new ApiProblemError(
       sanitizeProblem({

@@ -973,6 +973,11 @@ class ExecutionOptionResolveRequestV1(_FrozenModel):
     llm_execution_mode: Literal["live", "record", "replay"]
     prospective_request: ProspectiveAgentRunRequestV1
     replay_source_run_id: BoundedId | None = None
+    # The model a planner chose, named by the retained routing policy that routes to
+    # it — the same exact pair `/api/v1/models` offers. Absent means "whatever this
+    # deployment starts runs on".
+    routing_policy_version: PositiveInt | None = None
+    routing_policy_digest: LowerHexSha256 | None = None
 
     @model_validator(mode="after")
     def _exact_request_mapping(self) -> "ExecutionOptionResolveRequestV1":
@@ -985,6 +990,10 @@ class ExecutionOptionResolveRequestV1(_FrozenModel):
             raise ValueError("execution mode does not match the prospective request")
         if (self.llm_execution_mode == "replay") != (self.replay_source_run_id is not None):
             raise ValueError("replay source is required exactly for replay execution")
+        if (self.routing_policy_version is None) != (self.routing_policy_digest is None):
+            raise ValueError("a chosen routing-policy version and digest are supplied together")
+        if self.llm_execution_mode == "replay" and self.routing_policy_version is not None:
+            raise ValueError("replay execution is bound to its source plan, not to a choice")
         _bounded_request_payload(self)
         return self
 
@@ -1072,6 +1081,49 @@ class ExecutionOptionViewV1(_FrozenModel):
             raise ValueError("non-replay option forbids a source and cassette")
         if self.option_id != compute_execution_option_id(self):
             raise ValueError("option_id does not match the canonical execution option")
+        return self
+
+
+class SelectableModelV1(_FrozenModel):
+    """One model a planner may start a run on, right now, in this deployment.
+
+    A model qualifies only when the gateway is serving it and a retained routing
+    policy sends the run to it — so the exact policy that makes the choice real is
+    part of what is offered, not something the caller has to find afterwards.
+    """
+
+    model_schema_version: Literal["selectable-model@1"] = "selectable-model@1"
+    model: BoundedId
+    display_name: BoundedId
+    vendor: BoundedId
+    tier: BoundedId
+    context_limit: PositiveInt
+    max_output_tokens: PositiveInt
+    preview: bool
+    is_default: bool
+    model_snapshot_id: BoundedId
+    routing_policy_version: PositiveInt
+    routing_policy_digest: LowerHexSha256
+    model_catalog_version: PositiveInt
+    model_catalog_digest: LowerHexSha256
+
+
+class SelectableModelPageV1(_FrozenModel):
+    page_schema_version: Literal["selectable-model-page@1"] = "selectable-model-page@1"
+    items: tuple[SelectableModelV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+
+    @model_validator(mode="after")
+    def _one_default(self) -> "SelectableModelPageV1":
+        models = [item.model for item in self.items]
+        if len(models) != len(set(models)):
+            raise ValueError("a model may be offered only once")
+        if models != sorted(models):
+            raise ValueError("selectable models must be offered in a stable order")
+        # At most one: when the gateway stops serving the model this deployment
+        # starts runs on, the alternatives are still offerable — with nothing
+        # preselected, so the planner has to say which one to use.
+        if sum(1 for item in self.items if item.is_default) > 1:
+            raise ValueError("only one offered model can be the one a run starts on")
         return self
 
 

@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { createQueryClient } from "../../api/query-client";
+import type { ModelsApi, SelectableModel } from "../models/api";
 import type {
   ArtifactPayloadView,
   Project,
@@ -14,6 +15,26 @@ import type {
   ProjectsApi,
 } from "./api";
 import { ProjectWorkspacePage } from "./ProjectWorkspacePage";
+
+function selectableModels(): ModelsApi {
+  const model: SelectableModel = {
+    context_limit: 1_050_000,
+    display_name: "GPT-5.6 Sol",
+    is_default: true,
+    max_output_tokens: 128_000,
+    model: "gpt-5.6-sol",
+    model_catalog_digest: "a".repeat(64),
+    model_catalog_version: 1,
+    model_schema_version: "selectable-model@1",
+    model_snapshot_id: "openai:sha256:" + "b".repeat(64),
+    preview: false,
+    routing_policy_digest: "c".repeat(64),
+    routing_policy_version: 10_015,
+    tier: "powerful",
+    vendor: "OpenAI",
+  };
+  return { listSelectableModels: vi.fn().mockResolvedValue([model]) };
+}
 
 const cytoscapeMock = vi.hoisted(() => {
   const collection = {
@@ -290,7 +311,12 @@ function renderPage(api: ProjectsApi) {
   return render(
     <QueryClientProvider client={createQueryClient()}>
       <MemoryRouter>
-        <ProjectWorkspacePage api={api} pollIntervalMs={5} projectId={project.project_id} />
+        <ProjectWorkspacePage
+          api={api}
+          models={selectableModels()}
+          pollIntervalMs={5}
+          projectId={project.project_id}
+        />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -458,6 +484,9 @@ describe("ProjectWorkspacePage", () => {
 
     await user.selectOptions(screen.getByRole("combobox", { name: /这份材料属于什么/u }), "limited_event");
     expect(screen.getByText(/开放期、玩法结束期、奖励兑换期/u)).toBeVisible();
+    // The card opens on the model this deployment starts runs on, and the run
+    // carries the exact policy that routes to it.
+    expect(await screen.findByLabelText("用哪个模型")).toHaveValue("gpt-5.6-sol");
     await user.click(screen.getByRole("button", { name: "AI 提取实体与关系" }));
     expect(startExtraction).toHaveBeenCalledWith(
       project.project_id,
@@ -466,6 +495,8 @@ describe("ProjectWorkspacePage", () => {
         material_ids: [material.material_id],
         planning_scope: "limited_event",
         request_schema_version: "project-extraction-create-request@1",
+        routing_policy_digest: "c".repeat(64),
+        routing_policy_version: 10_015,
       }),
       { idempotencyKey: expect.any(String) },
     );

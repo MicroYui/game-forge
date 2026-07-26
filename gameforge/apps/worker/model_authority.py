@@ -45,6 +45,11 @@ from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.price_book import UnavailablePriceBook
 from gameforge.runtime.model_router.anthropic_transport import AnthropicMessagesTransport
+from gameforge.runtime.model_router.gateway_models import (
+    DEFAULT_MODEL_GATEWAY_BASE_URL,
+    MODEL_GATEWAY_API_KEY_ENV,
+    MODEL_GATEWAY_BASE_URL_ENV,
+)
 from gameforge.runtime.model_router.openai_responses_transport import OpenAIResponsesTransport
 from gameforge.runtime.model_router.routed_transport import ApiFlavorRoutedTransport
 from gameforge.runtime.model_router.transport import OpenAITransport
@@ -55,9 +60,6 @@ from gameforge.runtime.reliability.breaker import CircuitBreaker
 
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1, max_length=512)]
 MODEL_SNAPSHOT_MANIFEST_PATH_ENV = "GAMEFORGE_WORKER_MODEL_SNAPSHOT_MANIFEST_PATH"
-MODEL_GATEWAY_BASE_URL_ENV = "GAMEFORGE_LLM_BASE_URL"
-MODEL_GATEWAY_API_KEY_ENV = "GAMEFORGE_LLM_KEY"
-DEFAULT_MODEL_GATEWAY_BASE_URL = "http://localhost:4141"
 _MAX_MODEL_SNAPSHOT_MANIFEST_BYTES = 4 * 1024 * 1024
 
 

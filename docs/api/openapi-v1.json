@@ -3149,6 +3149,30 @@
             "title": "Resource Operation Id",
             "type": "string"
           },
+          "routing_policy_digest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Policy Digest"
+          },
+          "routing_policy_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Policy Version"
+          },
           "run_kind": {
             "$ref": "#/components/schemas/RunKindRef"
           }
@@ -8142,6 +8166,30 @@
             "default": "project-extraction-create-request@1",
             "title": "Request Schema Version",
             "type": "string"
+          },
+          "routing_policy_digest": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Policy Digest"
+          },
+          "routing_policy_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Policy Version"
           }
         },
         "required": [
@@ -11286,6 +11334,127 @@
           "registry_digest"
         ],
         "title": "SchemaRegistryDocumentV1",
+        "type": "object"
+      },
+      "SelectableModelPageV1": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SelectableModelV1"
+            },
+            "maxItems": 1024,
+            "title": "Items",
+            "type": "array"
+          },
+          "page_schema_version": {
+            "const": "selectable-model-page@1",
+            "default": "selectable-model-page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "SelectableModelPageV1",
+        "type": "object"
+      },
+      "SelectableModelV1": {
+        "additionalProperties": false,
+        "description": "One model a planner may start a run on, right now, in this deployment.\n\nA model qualifies only when the gateway is serving it and a retained routing\npolicy sends the run to it — so the exact policy that makes the choice real is\npart of what is offered, not something the caller has to find afterwards.",
+        "properties": {
+          "context_limit": {
+            "minimum": 1.0,
+            "title": "Context Limit",
+            "type": "integer"
+          },
+          "display_name": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "max_output_tokens": {
+            "minimum": 1.0,
+            "title": "Max Output Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "model_catalog_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Model Catalog Digest",
+            "type": "string"
+          },
+          "model_catalog_version": {
+            "minimum": 1.0,
+            "title": "Model Catalog Version",
+            "type": "integer"
+          },
+          "model_schema_version": {
+            "const": "selectable-model@1",
+            "default": "selectable-model@1",
+            "title": "Model Schema Version",
+            "type": "string"
+          },
+          "model_snapshot_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Model Snapshot Id",
+            "type": "string"
+          },
+          "preview": {
+            "title": "Preview",
+            "type": "boolean"
+          },
+          "routing_policy_digest": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Routing Policy Digest",
+            "type": "string"
+          },
+          "routing_policy_version": {
+            "minimum": 1.0,
+            "title": "Routing Policy Version",
+            "type": "integer"
+          },
+          "tier": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Tier",
+            "type": "string"
+          },
+          "vendor": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Vendor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model",
+          "display_name",
+          "vendor",
+          "tier",
+          "context_limit",
+          "max_output_tokens",
+          "preview",
+          "is_default",
+          "model_snapshot_id",
+          "routing_policy_version",
+          "routing_policy_digest",
+          "model_catalog_version",
+          "model_catalog_digest"
+        ],
+        "title": "SelectableModelV1",
         "type": "object"
       },
       "Selector": {
@@ -19759,6 +19928,139 @@
         "summary": "Query Metrics",
         "tags": [
           "observability"
+        ]
+      }
+    },
+    "/api/v1/models": {
+      "get": {
+        "operationId": "selectable_models_api_v1_models_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelectableModelPageV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Selectable Models",
+        "tags": [
+          "execution-options"
         ]
       }
     },

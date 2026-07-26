@@ -499,10 +499,10 @@ class _Harness:
 
 
 # ── HTTP session helpers ─────────────────────────────────────────────────────
-def _start_api(config: LocalApiConfig):
+def _start_api(config: LocalApiConfig, *, gateway_models=None):
     """Start the real FastAPI lifespan while retaining independent cookie jars."""
 
-    api = create_readiness_closed_local_app(config)
+    api = create_readiness_closed_local_app(config, gateway_models=gateway_models)
     owner = TestClient(api, base_url="https://gameforge.test")
     owner.__enter__()
     api.state.journey_lifespan_owner = owner

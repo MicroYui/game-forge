@@ -36,6 +36,8 @@ import {
   type ProjectIdentityConflict,
 } from "./model";
 import "./projects.css";
+import { ModelPicker } from "../models/ModelPicker";
+import { modelsApi, type ModelsApi, type SelectableModel } from "../models/api";
 import { projectLink } from "./links";
 
 const extractionGoal =
@@ -208,10 +210,12 @@ function MutationError({ error }: { error: Error }) {
 
 export function ProjectWorkspacePage({
   api = projectsApi,
+  models = modelsApi,
   pollIntervalMs = 1500,
   projectId,
 }: {
   api?: ProjectsApi;
+  models?: ModelsApi;
   pollIntervalMs?: number;
   projectId: string;
 }) {
@@ -259,6 +263,7 @@ export function ProjectWorkspacePage({
   const [planningScope, setPlanningScope] = useState<ProjectExtraction["planning_scope"]>("auto");
   const [materialBusy, setMaterialBusy] = useState(false);
   const [extractionBusy, setExtractionBusy] = useState(false);
+  const [chosenModel, setChosenModel] = useState<SelectableModel | null>(null);
   const [discardBusy, setDiscardBusy] = useState(false);
   const [renamingMaterialId, setRenamingMaterialId] = useState<string | null>(null);
   const [renameDraft, setRenameDraft] = useState("");
@@ -501,6 +506,8 @@ export function ProjectWorkspacePage({
           planning_scope: planningScope,
           objective_goal_text: objective,
           request_schema_version: "project-extraction-create-request@1",
+          routing_policy_digest: chosenModel?.routing_policy_digest ?? null,
+          routing_policy_version: chosenModel?.routing_policy_version ?? null,
         },
         createMutationIntent(),
       );
@@ -902,7 +909,7 @@ export function ProjectWorkspacePage({
           </div>
         </header>
         <div className="gf-project-workspace__extraction-controls">
-          <label>
+          <label className="gf-project-workspace__extraction-scope">
             这份材料属于什么
             <select
               onChange={(event) =>
@@ -918,7 +925,7 @@ export function ProjectWorkspacePage({
             </select>
             <small>{planningScopeDescriptions[planningScope]}</small>
           </label>
-          <label>
+          <label className="gf-project-workspace__extraction-objective">
             希望 AI 做什么
             <textarea
               maxLength={16_384}
@@ -927,6 +934,7 @@ export function ProjectWorkspacePage({
               value={objective}
             />
           </label>
+          <ModelPicker api={models} onChange={setChosenModel} value={chosenModel} />
           <button
             disabled={
               selectedMaterialIds.size === 0 ||

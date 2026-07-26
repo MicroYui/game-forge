@@ -106,9 +106,17 @@
 
 同时按硬规则 7 清掉三处遗留：层 1 那个按 `provider:model` 拆 id 的 dispatch 表（产品目录用的是不可逆 `provider:sha256:…`，那个假设本来就不成立）；`OpenAITransport` 的 openai SDK 实现改为与两个兄弟传输一致的 httpx（否则 `apps` 组合三种传输会撞 import-linter，而它们本来就该同形）；随之失效的 `router -> transport` 定向豁免与那条只测该豁免的用例。
 
-### 层 3：可用模型读端点（待做）
+### 层 3：可用模型读端点（✅）
 
-### 层 4：启动卡上的模型选择器（待做）
+`GET /api/v1/models` 在打开时现读网关，并与保留的路由权威对账：只列出**既在网关上被服务、又有一份该部署保留的路由策略指向它**的模型。缺任一条都不列——列出来只会让策划选完在计划校验处被拒。每条自带 `display_name` / 厂商 / 分级 / 上下文上限，以及那份**确切的路由策略 version+digest**，所以调用方拿到的就是"选它"所需的全部权威，不用再去找。默认模型标 `is_default`；当默认模型恰好被网关下掉时，其余仍可选，但**不预选任何一个**，逼策划显式选一次。没有网关的部署没有可选项，端点 fail closed 为依赖不可用。
+
+### 层 4：启动卡上的模型选择器（✅）
+
+`ModelPicker` 接到「AI 提取实体与关系」和「从策划材料提取规则」两张启动卡。选择被翻译成该模型的路由策略 ref，随请求进入 `ExecutionVersionPlanResolver`：**计划因此绑定到策划选的那份策略**，节点 allowlist 里只有那一个模型，worker 不可能路由到别处。没配网关的部署上选择器整个不渲染（那里本就没有可选项），运行仍走部署默认。
+
+实跑证据：浏览器里选 Claude Opus 5 跑同一份「铁潮港」材料，产出 18 个 op（比 gpt-5.6-sol 的 15 个多出 `EVENT 大潮`），Patch 的 `model_snapshot` 正是 Opus 的 canonical id。
+
+期间修掉三处真缺陷：① `AnthropicMessagesTransport` 不认路由层的 `max_output_tokens`，原样塞进 Messages 请求体导致网关 400——**选 Opus 必然失败**；② `OpenAITransport` 同样不翻译，而这个网关会**接受并忽略**未知字段，于是输出上限静默失效；③ `sanitizeProblem` 让缺失的 `retry_after_s` 保持 `undefined`，`undefined !== null` 使错误面板渲染出「请在  秒后重试。」（P7）。
 
 ## 完成定义
 

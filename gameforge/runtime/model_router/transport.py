@@ -48,10 +48,18 @@ class OpenAITransport:
             close()
 
     def _complete(self, req: ModelRequest, *, timeout_s: float | None) -> ModelResponse:
+        params = dict(req.params)
+        # The router names one canonical output bound; chat completions calls it
+        # `max_tokens`. This gateway accepts the unmapped name without honouring it,
+        # which is worse than a rejection: the bound would silently not apply.
+        if "max_output_tokens" in params and "max_tokens" in params:
+            raise ValueError("max_tokens and max_output_tokens are mutually exclusive")
+        if "max_output_tokens" in params:
+            params["max_tokens"] = params.pop("max_output_tokens")
         body = {
             "model": req.model_snapshot.model,
             "messages": [message.model_dump(exclude_none=True) for message in req.messages],
-            **req.params,
+            **params,
         }
         headers = {
             "Authorization": f"Bearer {self._api_key}",

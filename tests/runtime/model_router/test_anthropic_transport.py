@@ -176,6 +176,36 @@ def test_max_tokens_honored_when_present():
     assert fake.calls[0]["json"]["model"] == "claude-opus-4-8"
 
 
+def test_the_routers_output_bound_reaches_the_messages_api_by_its_own_name():
+    """The router names the bound `max_output_tokens`; Messages calls it `max_tokens`.
+
+    Passing it through unmapped puts an unknown field in the body and the gateway
+    rejects the whole call with a 400.
+    """
+
+    fake = _FakeClient(_REAL_SHAPE)
+    t = AnthropicMessagesTransport(base_url="http://localhost:4141", api_key="sk-x", client=fake)
+
+    t.complete(_req([Message(role="user", content="hi")], params={"max_output_tokens": 512}))
+
+    body = fake.calls[0]["json"]
+    assert body["max_tokens"] == 512
+    assert "max_output_tokens" not in body
+
+
+def test_an_ambiguous_output_bound_is_rejected_rather_than_guessed():
+    fake = _FakeClient(_REAL_SHAPE)
+    t = AnthropicMessagesTransport(base_url="http://localhost:4141", api_key="sk-x", client=fake)
+
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        t.complete(
+            _req(
+                [Message(role="user", content="hi")],
+                params={"max_output_tokens": 512, "max_tokens": 16},
+            )
+        )
+
+
 def test_other_params_pass_through_except_max_tokens():
     fake = _FakeClient(_REAL_SHAPE)
     t = AnthropicMessagesTransport(base_url="http://localhost:4141", api_key="sk-x", client=fake)

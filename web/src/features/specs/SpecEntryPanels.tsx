@@ -6,6 +6,8 @@ import { createMutationIntent, ReauthenticationRequiredError, type MutationInten
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import type { components } from "../../api/generated/openapi";
+import { ModelPicker } from "../models/ModelPicker";
+import type { SelectableModel } from "../models/api";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
 import { TechnicalDetails } from "../../components/identity";
 import { ProblemPanel, StatePanel } from "../../components/ui";
@@ -605,6 +607,7 @@ function AgentConstraintEntry({
   const [profileSelection, setProfileSelection] = useState("");
   const [mode, setMode] = useState<"" | LlmExecutionMode>("live");
   const [replaySourceRunId, setReplaySourceRunId] = useState("");
+  const [chosenModel, setChosenModel] = useState<SelectableModel | null>(null);
   const [attempt, setAttempt] = useState<AgentAttempt | null>(null);
 
   useEffect(() => {
@@ -778,6 +781,8 @@ function AgentConstraintEntry({
       replay_source_run_id: mode === "replay" ? replaySourceRunId.trim() : null,
       request_schema_version: "execution-option-resolve-request@1",
       resource_operation_id: "propose_constraint_api_v1_constraint_proposals_propose_post",
+      routing_policy_digest: mode === "replay" ? null : (chosenModel?.routing_policy_digest ?? null),
+      routing_policy_version: mode === "replay" ? null : (chosenModel?.routing_policy_version ?? null),
       run_kind: { kind: "constraint_proposal.propose", version: 1 },
     };
     void executeAgent({
@@ -907,6 +912,7 @@ function AgentConstraintEntry({
             </select>
           </label>
         )}
+        {mode !== "replay" && <ModelPicker onChange={setChosenModel} value={chosenModel} />}
         <button disabled={!canSubmit} type="submit">
           {attempt?.pending ? "正在提取规则…" : "生成规则提案"}
         </button>

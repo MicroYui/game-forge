@@ -220,6 +220,13 @@ class ProjectExtractionCreateRequestV1(_FrozenModel):
     llm_execution_mode: Literal["live", "record", "replay"] = "record"
     execution_version_plan: ExecutionVersionPlanV1 | None = None
     cassette_artifact_id: BoundedId | None = None
+    # The model the planner picked, named by the retained routing policy that routes
+    # to it — exactly the pair `/api/v1/models` offers. Absent means "whatever this
+    # deployment starts runs on".
+    routing_policy_version: PositiveInt | None = None
+    routing_policy_digest: Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")] | None = (
+        None
+    )
 
     @model_validator(mode="after")
     def _canonical(self) -> "ProjectExtractionCreateRequestV1":
@@ -235,6 +242,10 @@ class ProjectExtractionCreateRequestV1(_FrozenModel):
         )
         if (self.llm_execution_mode == "replay") != (self.cassette_artifact_id is not None):
             raise ValueError("replay requires exactly one cassette artifact binding")
+        if (self.routing_policy_version is None) != (self.routing_policy_digest is None):
+            raise ValueError("a chosen routing-policy version and digest are supplied together")
+        if self.llm_execution_mode == "replay" and self.routing_policy_version is not None:
+            raise ValueError("replay execution is bound to its source plan, not to a choice")
         return self
 
 

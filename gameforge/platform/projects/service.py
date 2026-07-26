@@ -990,6 +990,8 @@ class ProjectAuthoringService:
                     run_kind=RunKindRef(kind="generation.propose", version=1),
                     llm_execution_mode=request.llm_execution_mode,
                     prospective_request=prospective,
+                    routing_policy_version=request.routing_policy_version,
+                    routing_policy_digest=request.routing_policy_digest,
                 ),
                 actor=context.actor,
             )

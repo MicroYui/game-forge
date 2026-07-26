@@ -1183,6 +1183,22 @@ class SqlCostRepository:
         )
         return parsed
 
+    def list_routing_policies(self) -> tuple[RoutingPolicyV1, ...]:
+        """Every retained policy, oldest first — what a deployment can route through."""
+
+        rows = self._session.scalars(
+            select(RoutingPolicyRow).order_by(RoutingPolicyRow.policy_version)
+        ).all()
+        return tuple(
+            _parse_payload(
+                row.payload,
+                RoutingPolicyV1,
+                label="routing policy",
+                identity=str(row.policy_version),
+            )
+            for row in rows
+        )
+
     def put_routing_decision(self, decision: RoutingDecisionV1) -> RoutingDecisionV1:
         canonical = _canonical_model(decision, RoutingDecisionV1, label="routing decision")
         existing = self.get_routing_decision(canonical.decision_id)

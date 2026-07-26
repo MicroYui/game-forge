@@ -9,6 +9,9 @@ from gameforge.contracts.routing import canonical_model_snapshot_id
 from gameforge.platform.registry.defaults import build_builtin_registry
 from gameforge.platform.routing.gateway_catalog import gateway_model_snapshot
 from gameforge.platform.runs.execution_plan import build_execution_version_plan
+from gameforge.runtime.persistence.engine import get_engine
+from gameforge.runtime.persistence.runs import SqlRunRepository
+from sqlalchemy.orm import Session
 from tests.e2e.m4c.test_journey_b import _headers, _login, _start_api, _stop_api
 from tests.e2e.m4c.test_journey_b import _drive
 from tests.e2e.m4d_support.project_live import (
@@ -71,6 +74,98 @@ def test_project_launcher_seeds_every_model_the_gateway_serves(tmp_path) -> None
         assert response.status_code == 201, response.text
         assert response.json()["project_id"].startswith("project:")
     finally:
+        _stop_api(api)
+
+
+def test_a_planner_choice_of_model_reaches_the_run_it_starts(tmp_path) -> None:
+    """Picking a model has to change what the run is actually bound to."""
+
+    harness, seed, authorities = _stub_stack(tmp_path)
+    default_policy = _default_routing_policy(seed, STUB_MODELS)
+    chosen = next(model for model in STUB_MODELS if model.model != DEFAULT_MODEL)
+    chosen_id = canonical_model_snapshot_id(gateway_model_snapshot(chosen))
+    chosen_policy = next(
+        policy
+        for policy in seed.policies
+        if all(rule.primary_model_snapshot == chosen_id for rule in policy.rules)
+    )
+    api = _start_api(
+        _project_api_config(harness, default_policy),
+        gateway_models=lambda: STUB_MODELS,
+    )
+    worker = build_worker_process(
+        harness.worker_config(),
+        model_execution_authorities=authorities,
+    )
+    try:
+        admin = _login(api, ADMIN_LOGIN, ADMIN_PASSWORD)
+        offered = admin.client.get("/api/v1/models")
+        assert offered.status_code == 200, offered.text
+        offer = next(item for item in offered.json()["items"] if item["model"] == chosen.model)
+        assert offer["is_default"] is False
+        assert offer["routing_policy_version"] == chosen_policy.policy_version
+
+        project = admin.client.post(
+            "/api/v1/projects",
+            json={
+                "request_schema_version": "project-create-request@1",
+                "project_key": "model-choice",
+                "display_name": "选模型验证",
+                "description": "验证策划选的模型进入运行。",
+                "genre": "验证",
+                "domain_scope": {"domain_ids": ["builtin"]},
+            },
+            headers=_headers(admin, idempotency_key="project-live:model-choice-project"),
+        )
+        assert project.status_code == 201, project.text
+        project_id = project.json()["project_id"]
+        material = admin.client.post(
+            f"/api/v1/projects/{project_id}/materials:text",
+            json={
+                "request_schema_version": "project-material-text-request@1",
+                "display_name": "核心设定",
+                "source_format": "plain_text",
+                "text": "天空港由天气管理员维护。",
+            },
+            headers=_headers(admin, idempotency_key="project-live:model-choice-material"),
+        )
+        assert material.status_code == 201, material.text
+        extraction = admin.client.post(
+            f"/api/v1/projects/{project_id}/extractions",
+            json={
+                "request_schema_version": "project-extraction-create-request@1",
+                "material_ids": [material.json()["material_id"]],
+                "planning_scope": "auto",
+                "objective_goal_text": "提取实体与关系。",
+                "llm_execution_mode": "record",
+                "candidate_export_profiles": [],
+                "cassette_artifact_id": None,
+                "execution_version_plan": None,
+                "generation_policy": None,
+                "routing_policy_version": offer["routing_policy_version"],
+                "routing_policy_digest": offer["routing_policy_digest"],
+            },
+            headers=_headers(admin, idempotency_key="project-live:model-choice-extract"),
+        )
+        assert extraction.status_code == 202, extraction.text
+
+        engine = get_engine(harness.database_url)
+        try:
+            with Session(engine) as session:
+                record = SqlRunRepository(session).get(extraction.json()["run_id"])
+        finally:
+            engine.dispose()
+        assert record is not None
+        plan = record.payload.execution_version_plan
+        assert plan is not None
+        assert plan.routing_policy_version == chosen_policy.policy_version
+        assert plan.routing_policy_digest == chosen_policy.routing_policy_digest
+        # The run may only reach the model the planner picked.
+        assert {model for node in plan.nodes for model in node.allowed_model_snapshots} == {
+            chosen_id
+        }
+    finally:
+        worker.close()
         _stop_api(api)
 
 

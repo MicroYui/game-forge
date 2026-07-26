@@ -115,6 +115,7 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("post", "/api/v1/approvals/{approval_id}:request_changes", "200"),
     ("post", "/api/v1/runs", "202"),
     ("post", "/api/v1/execution-options:resolve", "200"),
+    ("get", "/api/v1/models", "200"),
     ("get", "/api/v1/runs", "200"),
     ("get", "/api/v1/runs/{run_id}", "200"),
     ("get", "/api/v1/runs/{run_id}/findings", "200"),

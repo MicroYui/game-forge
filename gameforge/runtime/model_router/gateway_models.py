@@ -9,7 +9,8 @@ from — is derived from this one reading, so none of them can disagree about wh
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
+import os
 from typing import Any
 
 import httpx
@@ -19,6 +20,11 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.routing import ApiFlavor, GatewayModelV1
 
 GATEWAY_MODELS_PATH = "/v1/models"
+# One deployment, one gateway: the worker calls models through it and the API reads
+# which models it serves, so both processes are configured from the same two names.
+MODEL_GATEWAY_BASE_URL_ENV = "GAMEFORGE_LLM_BASE_URL"
+MODEL_GATEWAY_API_KEY_ENV = "GAMEFORGE_LLM_KEY"
+DEFAULT_MODEL_GATEWAY_BASE_URL = "http://localhost:4141"
 
 # A gateway lists every endpoint a model serves; we send it on the most native one
 # we speak. Anthropic's Messages API carries system prompts and cache breakpoints
@@ -106,6 +112,23 @@ def fetch_gateway_models(
             http.close()
 
 
+def gateway_model_reader(
+    environment: Mapping[str, str] | None = None,
+) -> Callable[[], tuple[GatewayModelV1, ...]] | None:
+    """A live reader, or None when this deployment reaches no gateway.
+
+    Reading is deliberately not cached: the picker is opened to find out what is
+    served right now, and a stale list offers a model the gateway has dropped.
+    """
+
+    source = os.environ if environment is None else environment
+    api_key = source.get(MODEL_GATEWAY_API_KEY_ENV)
+    if not api_key:
+        return None
+    base_url = source.get(MODEL_GATEWAY_BASE_URL_ENV, DEFAULT_MODEL_GATEWAY_BASE_URL)
+    return lambda: fetch_gateway_models(base_url=base_url, api_key=api_key)
+
+
 def _read_entry(entry: _GatewayEntry) -> GatewayModelV1 | None:
     if entry.capabilities.type != "chat":
         return None
@@ -154,7 +177,11 @@ def _capabilities(supports: Mapping[str, Any]) -> tuple[str, ...]:
 
 
 __all__ = [
+    "DEFAULT_MODEL_GATEWAY_BASE_URL",
     "GATEWAY_MODELS_PATH",
+    "MODEL_GATEWAY_API_KEY_ENV",
+    "MODEL_GATEWAY_BASE_URL_ENV",
     "fetch_gateway_models",
+    "gateway_model_reader",
     "parse_gateway_models",
 ]

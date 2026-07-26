@@ -23,6 +23,7 @@ type ReviewArtifact = components["schemas"]["ReviewArtifactViewV1"];
 type RollbackRequest = components["schemas"]["RollbackRequestReadViewV1"];
 type RunCost = components["schemas"]["RunCostViewV2"];
 type RunView = components["schemas"]["RunViewV1"];
+type SelectableModelPage = components["schemas"]["SelectableModelPageV1"];
 type SpecView = components["schemas"]["SpecViewV1"];
 type TaskSuite = components["schemas"]["TaskSuiteArtifactViewV1"];
 type TaskSuiteDerivationBinding = components["schemas"]["TaskSuiteDerivationBindingViewV1"];
@@ -112,6 +113,28 @@ const specArtifact = artifact(
   { ir_snapshot_id: "snapshot:v3", tool_version: "ingest@3" },
   ["artifact:source:v3"],
 );
+
+const selectableModels = {
+  items: [
+    {
+      context_limit: 1_050_000,
+      display_name: "GPT-5.6 Sol",
+      is_default: true,
+      max_output_tokens: 128_000,
+      model: "gpt-5.6-sol",
+      model_catalog_digest: "a".repeat(64),
+      model_catalog_version: 1,
+      model_schema_version: "selectable-model@1",
+      model_snapshot_id: `openai:sha256:${"b".repeat(64)}`,
+      preview: false,
+      routing_policy_digest: "c".repeat(64),
+      routing_policy_version: 10_015,
+      tier: "powerful",
+      vendor: "OpenAI",
+    },
+  ],
+  page_schema_version: "selectable-model-page@1",
+} satisfies SelectableModelPage;
 
 const spec = {
   artifact: specArtifact,
@@ -971,6 +994,8 @@ function fixtureResponse(url: URL): FixtureResponse | null {
       }
       return null;
     }
+    case "/api/v1/models":
+      return { body: selectableModels };
     case "/api/v1/execution-profiles":
       return profilePage(url);
     case "/api/v1/reviews":

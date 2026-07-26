@@ -377,8 +377,28 @@
 .gf-project-workspace__extraction-controls {
   display: grid;
   grid-template-columns: minmax(210px, 0.36fr) minmax(0, 1fr) auto;
+  grid-template-areas:
+    "scope objective action"
+    "model objective action"
+    "summary summary summary";
   gap: var(--space-3);
   align-items: end;
+}
+
+.gf-project-workspace__extraction-scope {
+  grid-area: scope;
+}
+
+.gf-project-workspace__extraction-controls > .gf-model-picker {
+  grid-area: model;
+}
+
+.gf-project-workspace__extraction-objective {
+  grid-area: objective;
+}
+
+.gf-project-workspace__extraction-controls > button {
+  grid-area: action;
 }
 
 .gf-project-workspace__extraction-controls > label {
@@ -387,6 +407,21 @@
   color: var(--ink-2);
   font-size: var(--font-size-small);
   font-weight: 600;
+}
+
+.gf-model-picker {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--ink-2);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+}
+
+.gf-model-picker small {
+  color: var(--muted);
+  font-size: var(--font-size-small);
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 .gf-project-workspace__extraction-controls > label small {
@@ -409,7 +444,7 @@
 }
 
 .gf-project-workspace__selection-summary {
-  grid-column: 1 / -1;
+  grid-area: summary;
   padding: var(--space-2) var(--space-3);
   border-inline-start: 3px solid var(--deterministic);
   background: var(--surface);

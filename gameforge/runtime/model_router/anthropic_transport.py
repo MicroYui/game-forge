@@ -57,13 +57,21 @@ class AnthropicMessagesTransport:
                 req,
                 prefix_message_count=directive.prefix_message_count,
             )
-        max_tokens = req.params.get("max_tokens", _DEFAULT_MAX_TOKENS)
+        params = dict(req.params)
+        # The router names one canonical output bound; each surface spells it its own
+        # way. Messages calls it `max_tokens`, and rejects the whole call if an
+        # unknown `max_output_tokens` reaches the body.
+        if "max_output_tokens" in params and "max_tokens" in params:
+            raise ValueError("max_tokens and max_output_tokens are mutually exclusive")
+        if "max_output_tokens" in params:
+            params["max_tokens"] = params.pop("max_output_tokens")
+        max_tokens = params.pop("max_tokens", _DEFAULT_MAX_TOKENS)
         body: dict[str, Any] = {
             "model": req.model_snapshot.model,
             "max_tokens": max_tokens,
             "messages": messages,
             **({"system": system} if system else {}),
-            **{k: v for k, v in req.params.items() if k != "max_tokens"},
+            **params,
         }
         headers = {
             "Authorization": f"Bearer {self._api_key}",

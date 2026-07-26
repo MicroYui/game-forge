@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import base64
 import binascii
-from collections.abc import AsyncIterator, Iterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Callable, Iterator, Mapping, Sequence
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from hashlib import sha256
@@ -92,6 +92,7 @@ from gameforge.contracts.jobs import (
 )
 from gameforge.contracts.lineage import ArtifactV2, AuditActor, AuditCorrelation, AuditSubject
 from gameforge.contracts.observability import SpanDataV1
+from gameforge.contracts.routing import GatewayModelV1
 from gameforge.contracts.workflow import ApprovalPolicyRefV1, ApprovalPolicyV1, RollbackRequestV1
 from gameforge.platform.audit.gate import AuditGate
 from gameforge.platform.approvals.apply import (
@@ -115,6 +116,7 @@ from gameforge.platform.diff.rebase import (
 )
 from gameforge.platform.cost_policy.run_accounting import SqlRunCostAccounting
 from gameforge.platform.publication import TerminalPublisher
+from gameforge.platform.read_models.authorization import ReadAuthorizationService
 from gameforge.platform.read_models.workflows import CurrentApprovalProgressProjector
 from gameforge.platform.identity.authentication import (
     ApiKeyAuthenticationCapabilities,
@@ -150,6 +152,10 @@ from gameforge.platform.runs.admission import (
     build_admission_capability_binder,
 )
 from gameforge.platform.runs.commands import RunCommandCapabilities, RunCommandService
+from gameforge.platform.routing.selectable_models import (
+    SelectableModelRead,
+    SelectableModelService,
+)
 from gameforge.platform.runs.execution_plan import (
     ExecutionPlanAuthority,
     ExecutionVersionPlanResolver,
@@ -189,6 +195,7 @@ from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.cost.price_book import UnavailablePriceBook
+from gameforge.runtime.model_router.gateway_models import gateway_model_reader
 from gameforge.runtime.object_store import LocalObjectStore
 from gameforge.runtime.observability import AlwaysOnSampler, Tracer
 from gameforge.runtime.observability.local_store import LocalTelemetryStore
@@ -1445,6 +1452,7 @@ def build_local_api_resources(
     *,
     trusted_components: TrustedComponentMaps | None = None,
     legacy_import_authority: LegacyImportAuthority | None = None,
+    gateway_models: Callable[[], Sequence[GatewayModelV1]] | None = None,
 ) -> LocalApiResources:
     if not isinstance(config, LocalApiConfig):
         raise LocalApiConfigurationError("local API requires an exact LocalApiConfig")
@@ -1690,6 +1698,33 @@ def build_local_api_resources(
         routing_policy_version=config.execution_routing_policy_version,
         routing_policy_digest=config.execution_routing_policy_digest,
     )
+
+    @contextmanager
+    def selectable_model_read_scope() -> Iterator[SelectableModelRead]:
+        with sqlite_read_snapshot_session(engine) as session:
+            yield SelectableModelRead(
+                routing=SqlCostLedger(session, clock=clock),
+                authorization=ReadAuthorizationService(
+                    policy_repository=SqlPolicySnapshotRepository(session, clock=clock),
+                    role_policy_version=config.role_policy_version,
+                    role_policy_digest=config.role_policy_digest,
+                ),
+            )
+
+    # No gateway configured means no live reading, so the picker fails closed as an
+    # unavailable dependency rather than offering a list nobody can run on. A
+    # deterministic browser journey injects its own reading, as the worker does.
+    models_reader = gateway_models if gateway_models is not None else gateway_model_reader()
+    selectable_models = (
+        None
+        if models_reader is None
+        else SelectableModelService(
+            read_scope=selectable_model_read_scope,
+            gateway_models=models_reader,
+            default_policy_version=config.execution_routing_policy_version,
+            default_policy_digest=config.execution_routing_policy_digest,
+        )
+    )
     run_admission = _build_run_admission_engine(
         config=config,
         clock=clock,
@@ -1861,6 +1896,7 @@ def build_local_api_resources(
         project_authoring=project_authoring,
         execution_version_plans=execution_version_plans,
         execution_options=run_admission,
+        selectable_models=selectable_models,
         run_event_stream=run_event_stream,
         run_event_notifier=run_event_notifier,
         run_command_service=run_command_service,
@@ -1901,12 +1937,14 @@ def create_local_app(
     *,
     trusted_components: TrustedComponentMaps | None = None,
     legacy_import_authority: LegacyImportAuthority | None = None,
+    gateway_models: Callable[[], Sequence[GatewayModelV1]] | None = None,
 ) -> FastAPI:
     resolved_legacy_import_authority = _factory_legacy_import_authority(legacy_import_authority)
     resources = build_local_api_resources(
         config or LocalApiConfig.from_environment(),
         trusted_components=trusted_components,
         legacy_import_authority=resolved_legacy_import_authority,
+        gateway_models=gateway_models,
     )
     app = create_app(resources.dependencies, lifespan=_local_lifespan(resources))
     app.state.local_resources = resources
@@ -1917,6 +1955,7 @@ def create_readiness_closed_local_app(
     config: LocalApiConfig | None = None,
     *,
     legacy_import_authority: LegacyImportAuthority | None = None,
+    gateway_models: Callable[[], Sequence[GatewayModelV1]] | None = None,
 ) -> FastAPI:
     """Compose the local API with the canonical readiness-closing trusted components.
 
@@ -1942,6 +1981,7 @@ def create_readiness_closed_local_app(
         config,
         trusted_components=components,
         legacy_import_authority=legacy_import_authority,
+        gateway_models=gateway_models,
     )
 
 
