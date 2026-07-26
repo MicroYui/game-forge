@@ -513,4 +513,30 @@ describe("ObservabilityPage", () => {
     expect(within(histogramTable).getByRole("cell", { name: "未提供" })).toBeVisible();
     expect(within(histogramTable).getAllByRole("cell", { name: "3" })).toHaveLength(2);
   });
+
+  it("shows the query window as China Standard Time and still sends UTC", async () => {
+    const user = userEvent.setup();
+    const testApi = api();
+    renderPage(testApi);
+
+    const start = await screen.findByLabelText("开始时间");
+    const end = screen.getByLabelText("结束时间");
+    // The page's default window is the last hour in UTC; a planner reads it local.
+    expect((start as HTMLInputElement).value).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/u);
+
+    await user.clear(start);
+    await user.type(start, "2026-07-26T09:00");
+    await user.clear(end);
+    await user.type(end, "2026-07-26T10:00");
+    await user.click(screen.getByRole("button", { name: "应用同一时间窗" }));
+
+    await waitFor(() =>
+      expect(testApi.queryLogs).toHaveBeenCalledWith(
+        expect.objectContaining({
+          endUtc: "2026-07-26T02:00:00.000Z",
+          startUtc: "2026-07-26T01:00:00.000Z",
+        }),
+      ),
+    );
+  });
 });

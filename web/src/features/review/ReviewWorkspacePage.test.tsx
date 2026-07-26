@@ -856,7 +856,7 @@ describe("Review workspace", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "内容检查" })).toBeVisible();
     const reports = screen.getAllByText("内容检查报告");
     expect(reports).toHaveLength(2);
-    expect(screen.getAllByText("2026年7月20日 02:00")).toHaveLength(2);
+    expect(screen.getAllByText("2026年7月20日 10:00")).toHaveLength(2);
     expect(screen.getByText("artifact:review:1")).not.toBeVisible();
     expect(reportLink("artifact:review:1")).toHaveAttribute(
       "href",

@@ -33,6 +33,7 @@ import {
   traceSummaryTone,
 } from "./model";
 import "./observability.css";
+import { PRODUCT_TIME_ZONE, timestampToLocalInput, zonedLocalToIso } from "../time";
 
 function defaultWindow(now: Date): TimeWindow {
   return {
@@ -196,16 +197,24 @@ const traceColumns: readonly CursorTableColumn<TraceSummary>[] = [
 ];
 
 function WindowControls({ active, onApply }: { active: TimeWindow; onApply(window: TimeWindow): void }) {
-  const [start, setStart] = useState(active.startUtc);
-  const [end, setEnd] = useState(active.endUtc);
+  // The window travels as UTC but a planner reads and edits it in local time.
+  const [start, setStart] = useState(() => timestampToLocalInput(active.startUtc, PRODUCT_TIME_ZONE));
+  const [end, setEnd] = useState(() => timestampToLocalInput(active.endUtc, PRODUCT_TIME_ZONE));
   const [error, setError] = useState<string | null>(null);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const startMs = Date.parse(start);
-    const endMs = Date.parse(end);
+    let startMs: number;
+    let endMs: number;
+    try {
+      startMs = Date.parse(zonedLocalToIso(start, PRODUCT_TIME_ZONE));
+      endMs = Date.parse(zonedLocalToIso(end, PRODUCT_TIME_ZONE));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "请填写完整的日期和时间。");
+      return;
+    }
     if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || startMs >= endMs) {
-      setError("请输入带时区的有效时间，且结束时间必须晚于开始时间。");
+      setError("请填写有效时间，且结束时间必须晚于开始时间。");
       return;
     }
     setError(null);
@@ -218,12 +227,17 @@ function WindowControls({ active, onApply }: { active: TimeWindow; onApply(windo
   return (
     <form className="gf-observability__window" onSubmit={submit}>
       <label>
-        <span>开始时间（含时区）</span>
-        <input onChange={(event) => setStart(event.target.value)} required value={start} />
+        <span>开始时间</span>
+        <input
+          onChange={(event) => setStart(event.target.value)}
+          required
+          type="datetime-local"
+          value={start}
+        />
       </label>
       <label>
-        <span>结束时间（含时区）</span>
-        <input onChange={(event) => setEnd(event.target.value)} required value={end} />
+        <span>结束时间</span>
+        <input onChange={(event) => setEnd(event.target.value)} required type="datetime-local" value={end} />
       </label>
       <button className="gf-secondary-button" type="submit">
         应用同一时间窗

@@ -315,12 +315,12 @@ describe("GenerationPage", () => {
 
     expect(
       await screen.findByRole("option", {
-        name: "没有额外规则（仍会执行基础校验） · 2026年7月22日 08:38创建 · 同名版本 1",
+        name: "没有额外规则（仍会执行基础校验） · 2026年7月22日 16:38创建 · 同名版本 1",
       }),
     ).toBeVisible();
     expect(
       screen.getByRole("option", {
-        name: "没有额外规则（仍会执行基础校验） · 2026年7月23日 01:34创建 · 同名版本 2",
+        name: "没有额外规则（仍会执行基础校验） · 2026年7月23日 09:34创建 · 同名版本 2",
       }),
     ).toBeVisible();
     expect(screen.queryByText(/aaaabbbb|ccccdddd/u)).not.toBeInTheDocument();
@@ -436,7 +436,7 @@ describe("GenerationPage", () => {
     });
 
     expect(await screen.findByRole("heading", { name: "初步确定性检查" })).toBeVisible();
-    expect(screen.getByText("进度更新 · 2026年7月20日 00:00")).toBeVisible();
+    expect(screen.getByText("进度更新 · 2026年7月20日 08:00")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "从最早保留事件重新开始" }));
     expect(restart).toHaveBeenCalledOnce();
   });

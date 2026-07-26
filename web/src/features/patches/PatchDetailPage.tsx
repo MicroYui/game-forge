@@ -20,7 +20,7 @@ import { cursorFromPage } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import { MergeResolver, SnapshotDiffView } from "../../components/diff";
 import { findingDisplayMessage } from "../../components/evidence";
-import { TechnicalDetails } from "../../components/identity";
+import { TechnicalDetails, compactDateTime } from "../../components/identity";
 import { ConfirmDialog, ProblemPanel, StatePanel } from "../../components/ui";
 import { generationManifestArtifactIds, parseGenerationCandidateManifest } from "../generation/candidate";
 import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
@@ -1099,14 +1099,8 @@ function arrayValue(value: unknown): unknown[] {
 }
 
 function artifactCreatedLabel(artifact: ArtifactSummary): string {
-  const createdAt = artifact.created_at ? new Date(artifact.created_at) : null;
-  return createdAt && Number.isFinite(createdAt.valueOf())
-    ? new Intl.DateTimeFormat("zh-CN", {
-        dateStyle: "medium",
-        hour12: false,
-        timeStyle: "medium",
-      }).format(createdAt)
-    : "创建时间未记录";
+  const label = compactDateTime(artifact.created_at);
+  return label === "时间未知" ? "创建时间未记录" : label;
 }
 
 function artifactSnapshotId(artifact: ArtifactCatalogItem): string | null {

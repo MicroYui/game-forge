@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { CopyableText } from "../tables";
 import "./identity.css";
+import { PRODUCT_TIME_ZONE } from "../../features/time";
 
 export interface TechnicalDetail {
   copyLabel?: string;
@@ -60,10 +61,26 @@ export function ResourceIdentity({
   );
 }
 
+const productDateTimeFormat = new Intl.DateTimeFormat("zh-CN", {
+  timeZone: PRODUCT_TIME_ZONE,
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
 export function compactDateTime(value: string | null | undefined): string {
   if (!value) return "时间未知";
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/u.exec(value);
-  if (!match) return value;
-  const [, year, month, day, hour, minute] = match;
+  const instant = new Date(value);
+  if (!Number.isFinite(instant.valueOf())) return "时间未知";
+  const parts = new Map(productDateTimeFormat.formatToParts(instant).map((part) => [part.type, part.value]));
+  const year = parts.get("year");
+  const month = parts.get("month");
+  const day = parts.get("day");
+  const hour = parts.get("hour");
+  const minute = parts.get("minute");
+  if (!year || !month || !day || !hour || !minute) return "时间未知";
   return `${year}年${Number(month)}月${Number(day)}日 ${hour}:${minute}`;
 }

@@ -77,6 +77,7 @@ from gameforge.contracts.identity import (
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.lineage import AuditActor, VersionTuple, build_artifact_v2
 from gameforge.contracts.workflow import ApprovalItem
+from gameforge.platform.identity.role_policy import GLOBAL_ROLES, role_assignment_scopes
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.auth.passwords import Argon2PasswordRuntime, normalize_login_name
 from gameforge.runtime.clock import SystemUtcClock
@@ -366,20 +367,23 @@ class _Harness:
             )
             expected_revision = bumped.revision
             for role in roles:
-                assignment = identities.grant(
-                    assignment_id=f"assignment:{principal_id}:{role}",
-                    principal_id=principal_id,
-                    role=role,
-                    scope=None if role == "tooling" else _DOMAIN,
-                    granted_by=AuditActor(
-                        principal_id="system:test",
-                        principal_kind="system",
-                    ),
-                    expected_principal_revision=expected_revision,
-                )
-                retained = identities.get(assignment.principal_id)
-                assert retained is not None
-                expected_revision = retained.revision
+                scopes = role_assignment_scopes(role) if role in GLOBAL_ROLES else (_DOMAIN,)
+                for scope in scopes:
+                    suffix = "" if scope == "all" or scope is _DOMAIN else ":global"
+                    assignment = identities.grant(
+                        assignment_id=f"assignment:{principal_id}:{role}{suffix}",
+                        principal_id=principal_id,
+                        role=role,
+                        scope=scope,
+                        granted_by=AuditActor(
+                            principal_id="system:test",
+                            principal_kind="system",
+                        ),
+                        expected_principal_revision=expected_revision,
+                    )
+                    retained = identities.get(assignment.principal_id)
+                    assert retained is not None
+                    expected_revision = retained.revision
         engine.dispose()
 
     # ── base ref (a quest snapshot bound to content/head @ rev 1) ────────────

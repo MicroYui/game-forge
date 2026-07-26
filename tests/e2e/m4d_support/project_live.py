@@ -15,7 +15,8 @@ from sqlalchemy.orm import Session
 
 from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.apps.worker.model_authority import WorkerModelExecutionAuthorities
-from gameforge.contracts.identity import Permission, RolePolicy, compute_role_policy_digest
+from gameforge.contracts.identity import DomainRegistryV1, RolePolicy
+from gameforge.platform.identity.role_policy import builtin_role_policy
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
@@ -205,53 +206,19 @@ class _ProjectTransport(_JourneyTransport):
         return super()._response(request)
 
 
-def _platform_role_policy(base: RolePolicy) -> RolePolicy:
-    explicit = (
-        Permission(action="create", resource_kind="project", domain_scope="all"),
-        Permission(action="read", resource_kind="project", domain_scope="all"),
-        Permission(action="update", resource_kind="project", domain_scope="all"),
-        Permission(action="archive", resource_kind="project", domain_scope="all"),
-        Permission(action="create", resource_kind="material", domain_scope="all"),
-        Permission(action="read", resource_kind="material", domain_scope="all"),
-        Permission(action="archive", resource_kind="material", domain_scope="all"),
-        Permission(action="create", resource_kind="extraction", domain_scope="all"),
-        Permission(action="read", resource_kind="extraction", domain_scope="all"),
-        Permission(action="read", resource_kind="constraint_proposal", domain_scope="all"),
-        Permission(action="read", resource_kind="constraint_snapshot", domain_scope="all"),
-        Permission(action="read", resource_kind="validation_evidence", domain_scope="all"),
-        Permission(action="propose", resource_kind="constraint_proposal", domain_scope="all"),
-        Permission(action="validate", resource_kind="constraint_proposal", domain_scope="all"),
-        Permission(action="publish", resource_kind="constraint_proposal", domain_scope="all"),
-        Permission(action="approval.decide", resource_kind="approval", domain_scope="all"),
-        Permission(action="approval.self_decide", resource_kind="approval", domain_scope="all"),
-        Permission(action="approval.route_override", resource_kind="approval", domain_scope="all"),
-    )
-    values = [permission for permissions in base.grants.values() for permission in permissions]
-    values.extend(explicit)
-    deduped = {
-        json.dumps(
-            permission.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
-        ): permission
-        for permission in values
-    }
-    platform_grants = tuple(deduped[key] for key in sorted(deduped))
-    grants = {**base.grants, "platform_admin": platform_grants}
-    return RolePolicy(
+def _platform_role_policy(registry: DomainRegistryV1, base: RolePolicy) -> RolePolicy:
+    """Install the product default policy, keeping this workspace's business roles."""
+
+    return builtin_role_policy(
+        registry,
         policy_version=_ROLE_POLICY_VERSION,
-        domain_registry_ref=base.domain_registry_ref,
-        grants=grants,
         effective_from=_EFFECTIVE_FROM,
-        policy_digest=compute_role_policy_digest(
-            _ROLE_POLICY_VERSION,
-            base.domain_registry_ref,
-            grants,
-            _EFFECTIVE_FROM,
-        ),
+        extra_grants=base.grants,
     )
 
 
 def _install_platform_policy(harness: _Harness) -> None:
-    policy = _platform_role_policy(harness.role_policy)
+    policy = _platform_role_policy(harness.registry, harness.role_policy)
     engine = get_engine(harness.database_url)
     try:
         with Session(engine) as session, session.begin():

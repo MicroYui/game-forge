@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { ResourceIdentity, TechnicalDetails } from "./ResourceIdentity";
+import { ResourceIdentity, TechnicalDetails, compactDateTime } from "./ResourceIdentity";
 
 describe("ResourceIdentity", () => {
   it("leads with a business label and keeps the exact identifier behind disclosure", async () => {
@@ -50,5 +50,24 @@ describe("ResourceIdentity", () => {
 
     expect(within(disclosure).getByText("read-snapshot:immutable:123")).toBeVisible();
     expect(within(disclosure).getByText("review@1")).toBeVisible();
+  });
+});
+
+describe("compactDateTime", () => {
+  it("renders a UTC instant in the product's China Standard Time", () => {
+    expect(compactDateTime("2026-07-26T04:56:00Z")).toBe("2026年7月26日 12:56");
+  });
+
+  it("shifts the calendar day when the UTC instant belongs to the previous day", () => {
+    expect(compactDateTime("2026-07-25T20:30:00Z")).toBe("2026年7月26日 04:30");
+  });
+
+  it("keeps an offset-bearing instant on the same wall clock", () => {
+    expect(compactDateTime("2026-07-26T12:56:00+08:00")).toBe("2026年7月26日 12:56");
+  });
+
+  it("reports a missing or unreadable timestamp instead of echoing the wire value", () => {
+    expect(compactDateTime(null)).toBe("时间未知");
+    expect(compactDateTime("not-a-timestamp")).toBe("时间未知");
   });
 });

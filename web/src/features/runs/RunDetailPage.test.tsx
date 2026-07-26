@@ -305,7 +305,7 @@ describe("RunDetailPage", () => {
       );
     });
 
-    expect(screen.getByText("进度更新 · 2026年7月19日 12:00")).toBeVisible();
+    expect(screen.getByText("进度更新 · 2026年7月19日 20:00")).toBeVisible();
     expect(screen.getByText("已完成 2 / 4")).toBeVisible();
   });
 
@@ -437,7 +437,7 @@ describe("RunDetailPage", () => {
     rerenderRun("run:2");
 
     expect(await screen.findByText("finding:run-2")).not.toBeVisible();
-    expect(screen.queryByText("进度更新 · 2026年7月19日 12:00")).not.toBeInTheDocument();
+    expect(screen.queryByText("进度更新 · 2026年7月19日 20:00")).not.toBeInTheDocument();
     expect(screen.queryByText(/最早可用游标 17/)).not.toBeInTheDocument();
 
     await act(async () => pending.resolve(page([staleFinding], null) as FindingRevisionPage));
