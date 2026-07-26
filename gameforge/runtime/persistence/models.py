@@ -370,6 +370,9 @@ class ApprovalItemRow(Base):
         nullable=False,
     )
     subject_digest: Mapped[str] = mapped_column(String, nullable=False)
+    # What the subject does, in its author's own immutable words. Approvals
+    # retained from before this column carry none.
+    subject_summary: Mapped[str | None] = mapped_column(String, nullable=True)
     status: Mapped[str] = mapped_column(String, nullable=False)
     workflow_revision: Mapped[int] = mapped_column(Integer, nullable=False)
     supersedes_approval_id: Mapped[str | None] = mapped_column(

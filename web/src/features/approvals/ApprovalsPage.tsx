@@ -121,7 +121,7 @@ const queueColumns: readonly CursorTableColumn<ApprovalViewData>[] = [
     render: (view) => (
       <ResourceIdentity
         actionLabel="查看并处理"
-        description={`${approvalStatusLabels[view.approval.status]} · ${view.requirement_progress.length} 项审批职责`}
+        description={`${subjectKindLabels[view.approval.subject_kind]} · 第 ${view.approval.subject_revision} 版 · ${approvalStatusLabels[view.approval.status]} · ${view.requirement_progress.length} 项审批职责`}
         details={[
           {
             copyLabel: "复制审批标识",
@@ -136,7 +136,12 @@ const queueColumns: readonly CursorTableColumn<ApprovalViewData>[] = [
           { label: "流程版本", value: String(view.approval.workflow_revision) },
         ]}
         href={`/approvals/${encodeURIComponent(view.approval.approval_id)}`}
-        title={`${subjectKindLabels[view.approval.subject_kind]} · 第 ${view.approval.subject_revision} 版`}
+        // The subject's own words say which of these rows is which; kind plus a
+        // version number reads the same on every one of them.
+        title={
+          view.approval.subject_summary ??
+          `${subjectKindLabels[view.approval.subject_kind]} · 第 ${view.approval.subject_revision} 版`
+        }
       />
     ),
   },
@@ -748,8 +753,8 @@ export function ApprovalDetailPage({
           <p className="gf-approvals__kicker">人工审批</p>
           <h1>审批详情</h1>
           <p>
-            {subjectKindLabels[view.approval.subject_kind]} · 第 {view.approval.subject_revision} 版 ·{" "}
-            {approvalStatusLabels[view.approval.status]}
+            {view.approval.subject_summary ?? subjectKindLabels[view.approval.subject_kind]} · 第{" "}
+            {view.approval.subject_revision} 版 · {approvalStatusLabels[view.approval.status]}
           </p>
         </div>
         <div aria-hidden="true" className="gf-approvals__hero-mark">

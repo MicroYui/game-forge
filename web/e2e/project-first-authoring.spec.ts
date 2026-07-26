@@ -154,7 +154,9 @@ test.describe("project-first-authoring", () => {
       const publishLink = page.getByRole("link", { name: "验证并发布这个版本" });
       await expect(publishLink).toBeVisible();
       await publishLink.click();
-      await expect(page.getByRole("heading", { name: /修改草案 · 第 \d+ 版/u, level: 1 })).toBeVisible();
+      // The title says what the change does; the revision moved to the subline.
+      await expect(page.getByRole("heading", { level: 1 })).not.toHaveText(/^修改草案 · 第 \d+ 版$/u);
+      await expect(page.getByText(/^第 \d+ 版 · 保留历史/u)).toBeVisible();
       await expectPlannerReadable(page, "修改草案详情");
       const patchPath = new URL(page.url()).pathname;
 

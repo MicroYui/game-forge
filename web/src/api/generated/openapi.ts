@@ -1660,6 +1660,8 @@ export interface components {
             subject_revision: number;
             /** Subject Series Id */
             subject_series_id: string;
+            /** Subject Summary */
+            subject_summary?: string | null;
             /** Submitted At */
             submitted_at?: string | null;
             /** Supersedes Approval Id */

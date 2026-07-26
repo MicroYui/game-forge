@@ -711,6 +711,7 @@ const approval = {
     subject_kind: "patch",
     subject_revision: 3,
     subject_series_id: "patch-series:v3",
+    subject_summary: "把新手奖励降回确定性回收口之下",
     submitted_at: "2026-07-20T06:15:00.000Z",
     target_binding: {
       binding_schema_version: "approval-target-binding@1",

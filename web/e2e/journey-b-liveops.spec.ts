@@ -285,7 +285,9 @@ async function draftPatch(
   const link = page.getByRole("link", { name: "检查修改草案" });
   const href = await requiredHref(link);
   await link.click();
-  await expect(page.getByRole("heading", { name: /^修改草案 · 第 1 版$/u })).toBeVisible();
+  // The title says what the change does; the revision moved to the subline.
+  await expect(page.getByRole("heading", { level: 1 })).not.toHaveText(/^修改草案 · 第 \d+ 版$/u);
+  await expect(page.getByText(/^第 1 版 · 保留历史/u)).toBeVisible();
   await expect(page.getByRole("heading", { name: "修改前后对比" })).toBeVisible();
   const diffTable = page.getByRole("table", { name: "修改前后的字段差异" });
   const diffRow = diffTable.getByRole("row").nth(1);
@@ -775,7 +777,7 @@ test.describe("journey-b-liveops", () => {
             stalePatchPage.getByRole("link", { name: "打开新修改草案" }),
           );
           await stalePatchPage.goto(replacementHref);
-          await expect(stalePatchPage.getByRole("heading", { name: "修改草案 · 第 2 版" })).toBeVisible();
+          await expect(stalePatchPage.getByText(/^第 2 版 · 保留历史/u)).toBeVisible();
           await expect(stalePatchPage.getByText(/尚无验证证据/u)).toBeVisible();
           await expect(
             stalePatchPage.getByRole("button", {

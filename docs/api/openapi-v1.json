@@ -480,6 +480,19 @@
             "title": "Subject Series Id",
             "type": "string"
           },
+          "subject_summary": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Summary"
+          },
           "submitted_at": {
             "anyOf": [
               {

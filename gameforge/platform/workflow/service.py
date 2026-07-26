@@ -633,6 +633,7 @@ class WorkflowCommandService:
             subject_kind="patch",
             subject_artifact=patch_artifact,
             subject_revision=1,
+            subject_summary=patch.rationale,
             domain_scope=scope,
             target_binding=binding,
             proposer=self._proposer(server),
@@ -995,6 +996,7 @@ class WorkflowCommandService:
         item = self._new_draft_item(
             governance=governance,
             subject_kind="constraint_proposal",
+            subject_summary=proposal.rationale,
             subject_artifact=artifact,
             subject_revision=revision,
             domain_scope=payload.domain_scope,
@@ -1109,6 +1111,7 @@ class WorkflowCommandService:
         item = self._new_draft_item(
             governance=governance,
             subject_kind="rollback_request",
+            subject_summary=request.reason,
             subject_artifact=artifact,
             subject_revision=1,
             domain_scope=scope,
@@ -1156,6 +1159,7 @@ class WorkflowCommandService:
         target_binding: Any,
         proposer: AuditActor,
         created_at: str,
+        subject_summary: str | None,
         series_id: str | None = None,
         supersedes_approval_id: str | None = None,
     ) -> ApprovalItem:
@@ -1172,6 +1176,7 @@ class WorkflowCommandService:
             subject_kind=subject_kind,  # type: ignore[arg-type]
             subject_artifact_id=subject_artifact.artifact_id,
             subject_digest=subject_artifact.payload_hash,
+            subject_summary=subject_summary,
             status="draft",
             workflow_revision=1,
             supersedes_approval_id=supersedes_approval_id,
@@ -1492,6 +1497,7 @@ class WorkflowCommandService:
             subject_kind="patch",
             subject_artifact=patch_artifact,
             subject_revision=material.source_item.subject_revision + 1,
+            subject_summary=patch.rationale,
             domain_scope=material.source_item.domain_scope,
             target_binding=binding,
             proposer=self._proposer(server),

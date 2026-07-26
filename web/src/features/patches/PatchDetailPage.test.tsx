@@ -873,8 +873,13 @@ describe("Patch detail", () => {
     });
     renderPage(patchApi);
 
-    expect(await screen.findByRole("heading", { name: "修改草案 · 第 1 版" })).toBeVisible();
-    expect(screen.getByText("调整奖励与经济数值，使资源产出回到安全范围内。")).toBeVisible();
+    // A kind plus a version number names nothing: the title has to say what the
+    // change does, the same way the ledger row does.
+    expect(
+      await screen.findByRole("heading", { name: "调整奖励与经济数值，使资源产出回到安全范围内。" }),
+    ).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "修改草案 · 第 1 版" })).not.toBeInTheDocument();
+    expect(screen.getByText(/^第 1 版 · /u)).toBeVisible();
     expect(screen.getByText("Bring the reward back under the deterministic sink rate.")).not.toBeVisible();
     expect(screen.getByText(PATCH_ID)).not.toBeVisible();
     expect(screen.getByText(CURRENT_SNAPSHOT)).not.toBeVisible();

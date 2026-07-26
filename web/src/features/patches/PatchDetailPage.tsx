@@ -2872,8 +2872,9 @@ export function PatchDetailPage({
       <header className="gf-patches__hero gf-patches__hero--detail">
         <div>
           <p className="gf-patches__kicker">内容修改草案</p>
-          <h1>修改草案 · 第 {data.current.value.patch.revision} 版</h1>
-          <p>{patchRationaleLabel(data.current.value.patch.rationale)}</p>
+          {/* The title says what this change does; the revision is context. */}
+          <h1>{patchRationaleLabel(data.current.value.patch.rationale)}</h1>
+          <p>第 {data.current.value.patch.revision} 版 · 保留历史，不覆盖之前的版本</p>
         </div>
         <span className="gf-patches__status-mark">
           {data.current.value.patch.produced_by === "agent" ? <Bot size={17} /> : <BadgeCheck size={17} />}

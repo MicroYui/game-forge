@@ -98,6 +98,7 @@ function approvalView(): ApprovalViewData {
       subject_kind: "patch",
       subject_revision: 3,
       subject_series_id: "patch-series:7",
+      subject_summary: "把新手奖励降回确定性回收口之下",
       submitted_at: "2026-07-20T02:15:00Z",
       target_binding: {
         binding_schema_version: "approval-target-binding@1",
@@ -572,7 +573,10 @@ describe("ApprovalsPage", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "审批队列" })).toBeVisible();
     expect(approvalsApi.listMine).toHaveBeenCalledWith(null);
     const table = await screen.findByRole("table", { name: "待我审批" });
-    const row = within(table).getByRole("row", { name: /内容补丁 · 第 3 版/ });
+    // Every queue row used to read "内容补丁 · 第 N 版" and say nothing about which
+    // change it is; the subject's own immutable words do.
+    const row = within(table).getByRole("row", { name: /把新手奖励降回确定性回收口之下/ });
+    expect(row).toHaveTextContent("内容补丁 · 第 3 版");
     expect(row).toHaveTextContent("人员 · alice");
     expect(row).toHaveTextContent("经济系统");
     expect(row).toHaveTextContent("叙事内容");

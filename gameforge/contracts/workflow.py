@@ -1122,6 +1122,11 @@ class ApprovalItem(_FrozenModel):
     subject_kind: SubjectKind
     subject_artifact_id: NonEmptyStr
     subject_digest: LowerHexSha256
+    # What the subject actually does, in the words its author wrote — a Patch's
+    # rationale, a rollback's reason. Taken at draft time from an immutable
+    # property of the subject, so it can never go stale the way a renamable
+    # display name would. Retained approvals created before it existed have none.
+    subject_summary: Annotated[str, StringConstraints(min_length=1, max_length=2048)] | None = None
     status: ApprovalStatus
     workflow_revision: PositiveInt
     supersedes_approval_id: NonEmptyStr | None = None
