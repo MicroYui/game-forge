@@ -48,6 +48,7 @@ from tests.e2e.m4c.test_journey_b import (
     _start_api,
     _stop_api,
 )
+from tests.e2e.m4d_support.stub_models import STUB_MODELS
 from tests.e2e.m4d_support.journey_b_live import (
     _install_loopback_egress_guard,
     _is_loopback_host,
@@ -313,7 +314,9 @@ def main() -> None:
     )
     from gameforge.apps.api.local import create_readiness_closed_local_app
 
-    app = create_readiness_closed_local_app(api_config)
+    # These journeys run the real console, so the model picker has to have the same
+    # fixed answer the rest of their model execution does.
+    app = create_readiness_closed_local_app(api_config, gateway_models=lambda: STUB_MODELS)
     stop = threading.Event()
     worker = None
     if args.worker == "enabled":

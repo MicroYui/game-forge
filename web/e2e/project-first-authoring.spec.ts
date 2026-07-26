@@ -8,6 +8,7 @@ import {
   startAuthoringStack,
   type AuthoringStack,
 } from "./support/authoring-live-stack";
+import { expectPlannerReadable } from "./support/planner-readable";
 
 const adminCredentials = { login: "admin", password: "admin-password-1" };
 const feishuMaterial = JSON.stringify({
@@ -109,6 +110,7 @@ test.describe("project-first-authoring", () => {
         .fill("玩家经营一座漂浮在云海中的港口，并与天气管理员共同维护生态。");
       await page.getByRole("button", { name: "创建并添加材料" }).click();
       await expect(page.getByRole("heading", { name: "天空港计划", level: 1 })).toBeVisible();
+      await expectPlannerReadable(page, "新建项目后的工作台");
 
       const authoringPath = new URL(page.url()).pathname;
       expect(authoringPath).toMatch(/^\/projects\/project%3A[^/]+\/authoring$/u);
@@ -125,6 +127,7 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByRole("heading", { name: "已得到可编辑内容草案" })).toBeVisible({
         timeout: 45_000,
       });
+      await expectPlannerReadable(page, "项目创作工作台");
       const aliases = page.getByRole("region", { name: "同一内容识别结果" });
       await expect(aliases).toContainText("air.quality");
       await expect(aliases).toContainText("air_quality");
@@ -152,6 +155,7 @@ test.describe("project-first-authoring", () => {
       await expect(publishLink).toBeVisible();
       await publishLink.click();
       await expect(page.getByRole("heading", { name: /修改草案 · 第 \d+ 版/u, level: 1 })).toBeVisible();
+      await expectPlannerReadable(page, "修改草案详情");
       const patchPath = new URL(page.url()).pathname;
 
       const validate = page.getByRole("button", { name: "开始验证", exact: true });
@@ -166,6 +170,7 @@ test.describe("project-first-authoring", () => {
       await expect(approvalLink).toBeVisible();
       await approvalLink.click();
       await expect(page.getByRole("heading", { name: "审批详情", level: 1 })).toBeVisible();
+      await expectPlannerReadable(page, "审批详情");
       await approveAsPlatformAdmin(page);
 
       await page.goto(patchPath);
@@ -181,12 +186,14 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByRole("heading", { name: "天空港计划", level: 1 })).toBeVisible();
       await expect(page.getByText("第 1 版内容")).toBeVisible();
       await expect(page.getByRole("region", { name: "游戏内容图谱" })).toBeVisible();
+      await expectPlannerReadable(page, "游戏现状总览");
       const rulesLink = page.getByRole("link", { name: /生成与维护规则/u });
       await expect(rulesLink).toHaveAttribute("href", /\/specs\?.*project=/u);
       await rulesLink.click();
 
       await expect(page.getByRole("heading", { name: "内容与规则", level: 1 })).toBeVisible();
       await expect(page.getByText("已绑定天空港计划项目的 1 份策划材料")).toBeVisible();
+      await expectPlannerReadable(page, "内容与规则");
       const ruleEntry = page.locator('article[data-entry="agent"]');
       await ruleEntry
         .getByLabel("你希望 AI 重点提取什么？")

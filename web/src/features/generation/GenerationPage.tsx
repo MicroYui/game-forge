@@ -13,7 +13,7 @@ import { SnapshotDiffView } from "../../components/diff";
 import { EvidenceSections } from "../../components/evidence";
 import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
 import { RunProgress, type RunEventItem } from "../../components/run-progress";
-import { ProblemPanel, StatePanel } from "../../components/ui";
+import { Disclosure, ProblemPanel, StatePanel } from "../../components/ui";
 import { replaySourceOptionLabel, type ReplaySourceRun } from "../runs/replaySources";
 import {
   generationApi,
@@ -827,18 +827,16 @@ function GenerationAuthoring({
                 ))
               )}
             </fieldset>
-            <details
+            <Disclosure
               className="gf-generation__advanced-settings"
-              open={
+              openWhile={
                 selectedGeneration === undefined ||
                 selectedEnvironment === undefined ||
                 selectedExports.length === 0 ||
                 mode === ""
-                  ? true
-                  : undefined
               }
+              summary="高级设置"
             >
-              <summary>高级设置</summary>
               <div className="gf-form">
                 <label>
                   AI 生成方案
@@ -938,7 +936,7 @@ function GenerationAuthoring({
                   state={profileCatalog}
                 />
               </div>
-            </details>
+            </Disclosure>
             {mode === "replay" && (
               <>
                 <label>

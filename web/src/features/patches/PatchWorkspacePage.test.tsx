@@ -28,7 +28,17 @@ const patch = {
   patch: {
     base_snapshot_id: "snapshot:base",
     expected_to_fix: ["finding:gold"],
-    ops: [],
+    ops: [
+      { new_value: {}, op: "add_entity", op_id: "op:1", target: "npc:guide" },
+      { new_value: {}, op: "add_relation", op_id: "op:2", target: "rel:1" },
+      {
+        new_value: {},
+        old_value: {},
+        op: "set_entity_attr",
+        op_id: "op:3",
+        target: "item:gold",
+      },
+    ],
     patch_schema_version: "patch@2",
     preconditions: [],
     produced_by: "human",
@@ -124,7 +134,16 @@ describe("Patch workspace", () => {
     ).toBeVisible();
     expect(within(patchLedger).getByText(/^第 3 版 · /u)).toBeVisible();
     expect(within(patchLedger).queryByText("内容修改 · 第 3 版")).not.toBeInTheDocument();
-    expect(within(patchLedger).getByText("已验证 · 流程版本 7")).toBeVisible();
+    // `workflow_revision` is optimistic-concurrency bookkeeping; it says nothing
+    // about the change, so it belongs with the identities, not in the状态 cell.
+    const workflowCell = patchLedger.querySelector(".gf-patches__workflow-cell");
+    expect(workflowCell).toHaveTextContent("已验证");
+    expect(workflowCell).not.toHaveTextContent("流程版本");
+    // It is still recorded, inside the collapsed technical details.
+    expect(within(patchLedger).getAllByText("流程版本")[0].closest("details")).not.toBeNull();
+    // "原版本 → 候选版本" named two SHAs a planner cannot read; say what changed.
+    expect(within(patchLedger).getByText("新增 2 项 · 修改 1 项")).toBeVisible();
+    expect(within(patchLedger).queryByText("原版本 → 候选版本")).not.toBeInTheDocument();
     expect(within(patchLedger).getByText(PATCH_ID)).not.toBeVisible();
     expect(within(patchLedger).getByRole("link", { name: "查看修改" })).toHaveAttribute(
       "href",

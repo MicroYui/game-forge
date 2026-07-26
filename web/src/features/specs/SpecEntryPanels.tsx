@@ -10,7 +10,7 @@ import { ModelPicker } from "../models/ModelPicker";
 import type { SelectableModel } from "../models/api";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
 import { TechnicalDetails } from "../../components/identity";
-import { ProblemPanel, StatePanel } from "../../components/ui";
+import { Disclosure, ProblemPanel, StatePanel } from "../../components/ui";
 import {
   specWorkflowApi,
   type ArtifactPage,
@@ -853,11 +853,13 @@ function AgentConstraintEntry({
             value={authoringGoal}
           />
         </label>
-        <details
+        <Disclosure
           className="gf-specs__advanced-binding"
-          open={!selectedProfile || !dslGrammarVersion || !mode ? true : undefined}
+          // Only once the catalog is in: a panel that pops open and then shuts
+          // itself as data arrives moves whatever the planner was reaching for.
+          openWhile={profileCatalogReady && (!selectedProfile || !dslGrammarVersion || !mode)}
+          summary="高级设置"
         >
-          <summary>高级设置</summary>
           <div className="gf-form">
             <label>
               规则格式
@@ -898,7 +900,7 @@ function AgentConstraintEntry({
               </select>
             </label>
           </div>
-        </details>
+        </Disclosure>
         {mode === "replay" && (
           <label>
             回放来源

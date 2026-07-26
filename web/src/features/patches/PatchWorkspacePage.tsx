@@ -69,6 +69,22 @@ function patchRationaleLabel(value: string): string {
   return "根据检查结果创建的内容修改";
 }
 
+/** What this change actually does to the game's content. */
+function opSummaryLabel(ops: PatchArtifactReadView["patch"]["ops"]): string {
+  const counts = { added: 0, changed: 0, removed: 0 };
+  for (const op of ops) {
+    if (op.op.startsWith("add_")) counts.added += 1;
+    else if (op.op.startsWith("delete_") || op.op.startsWith("remove_")) counts.removed += 1;
+    else counts.changed += 1;
+  }
+  const parts = [
+    counts.added > 0 ? `新增 ${counts.added} 项` : null,
+    counts.changed > 0 ? `修改 ${counts.changed} 项` : null,
+    counts.removed > 0 ? `删除 ${counts.removed} 项` : null,
+  ].filter((part): part is string => part !== null);
+  return parts.length > 0 ? parts.join(" · ") : "没有内容改动";
+}
+
 function rollbackReasonLabel(value: string): string {
   return /\p{Script=Han}/u.test(value) ? value : "按已确认的历史版本恢复正式内容";
 }
@@ -90,6 +106,7 @@ const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
           ...(patchRationaleLabel(item.patch.rationale) === item.patch.rationale
             ? []
             : [{ label: "原始修改理由", value: item.patch.rationale }]),
+          { label: "流程版本", value: String(item.workflow_revision) },
         ]}
         href={`/patches/${encodeURIComponent(item.artifact.artifact_id)}`}
         // The title says what this change does; the revision is context, not identity.
@@ -106,13 +123,11 @@ const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
     header: "流程状态",
     id: "workflow",
     render: (item) => (
-      <span className="gf-patches__workflow-cell">
-        {workflowStatusLabel(item.approval_status)} · 流程版本 {item.workflow_revision}
-      </span>
+      <span className="gf-patches__workflow-cell">{workflowStatusLabel(item.approval_status)}</span>
     ),
   },
   {
-    header: "版本变化",
+    header: "改了什么",
     id: "transition",
     render: (item) => (
       <ResourceIdentity
@@ -121,7 +136,7 @@ const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
           { label: "修改前版本标识", value: item.patch.base_snapshot_id },
           { label: "修改后版本标识", value: item.patch.target_snapshot_id },
         ]}
-        title="原版本 → 候选版本"
+        title={opSummaryLabel(item.patch.ops)}
       />
     ),
   },
@@ -154,6 +169,7 @@ const rollbackColumns: readonly CursorTableColumn<RollbackRequestReadView>[] = [
           ...(rollbackReasonLabel(item.request.reason) === item.request.reason
             ? []
             : [{ label: "原始回退原因", value: item.request.reason }]),
+          { label: "流程版本", value: String(item.workflow_revision) },
         ]}
         href={`/rollback-requests/${encodeURIComponent(item.artifact.artifact_id)}`}
         title={`回滚请求 · 恢复到第 ${item.request.target_history_revision} 版`}
@@ -179,9 +195,7 @@ const rollbackColumns: readonly CursorTableColumn<RollbackRequestReadView>[] = [
     header: "流程状态",
     id: "workflow",
     render: (item) => (
-      <span className="gf-patches__workflow-cell">
-        {workflowStatusLabel(item.approval_status)} · 流程版本 {item.workflow_revision}
-      </span>
+      <span className="gf-patches__workflow-cell">{workflowStatusLabel(item.approval_status)}</span>
     ),
   },
 ];

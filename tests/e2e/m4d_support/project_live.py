@@ -45,6 +45,7 @@ from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
 from tests.e2e.m4c.test_journey_a import _Harness, _JourneyTransport
 from tests.e2e.m4c.test_journey_b import _shared_budget
 from tests.e2e.m4d_support.journey_a_live import _retained_harness
+from tests.e2e.m4d_support.stub_models import STUB_MODELS
 from tests.e2e.m4d_support.journey_b_live import (
     _install_loopback_egress_guard,
     _is_loopback_host,
@@ -62,37 +63,6 @@ _SNAPSHOT_MANIFEST_NAME = "model-snapshots.json"
 # The model every launch card starts on. A planner may pick any other catalogued
 # model; that choice selects the routing policy whose rules name it.
 DEFAULT_MODEL = "gpt-5.6-sol"
-# What the browser journey routes to instead of the gateway. Two models with two
-# different surfaces, so the deterministic run exercises the same multi-model
-# catalog and per-model policy shape the real deployment seeds.
-STUB_MODELS: tuple[GatewayModelV1, ...] = (
-    GatewayModelV1(
-        model="gpt-5.6-sol",
-        display_name="GPT-5.6 Sol",
-        vendor="OpenAI",
-        served_version="gpt-5.6-sol",
-        tier="powerful",
-        api_flavor="responses",
-        capabilities=("reasoning", "structured_outputs", "tool_calls"),
-        context_limit=1_050_000,
-        max_output_tokens=128_000,
-        prompt_cache_support=True,
-        preview=False,
-    ),
-    GatewayModelV1(
-        model="claude-opus-5",
-        display_name="Claude Opus 5",
-        vendor="Anthropic",
-        served_version="claude-opus-5",
-        tier="powerful",
-        api_flavor="anthropic_messages",
-        capabilities=("reasoning", "structured_outputs", "tool_calls"),
-        context_limit=1_000_000,
-        max_output_tokens=64_000,
-        prompt_cache_support=True,
-        preview=False,
-    ),
-)
 
 _PROJECT_GENERATION_OPS = json.dumps(
     [

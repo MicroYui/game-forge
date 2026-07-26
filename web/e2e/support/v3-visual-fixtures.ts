@@ -371,7 +371,10 @@ const patchArtifact = {
   patch: {
     base_snapshot_id: "snapshot:base:v3",
     expected_to_fix: ["finding:economy:v3"],
-    ops: [],
+    ops: [
+      { new_value: {}, op: "add_entity", op_id: "op:v3:1", target: "item:starter_pack" },
+      { new_value: {}, op: "add_relation", op_id: "op:v3:2", target: "rel:v3:starter" },
+    ],
     patch_schema_version: "patch@2",
     preconditions: [],
     produced_by: "human",
