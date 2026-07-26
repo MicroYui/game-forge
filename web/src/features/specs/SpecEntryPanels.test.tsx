@@ -9,7 +9,12 @@ import type { components } from "../../api/generated/openapi";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError, type SafeProblem } from "../../api/problem";
 import { createQueryClient } from "../../api/query-client";
-import { SpecEntryPanels, type SpecEntryCatalogs, type SpecEntryPanelsApi } from "./SpecEntryPanels";
+import {
+  SpecEntryPanels,
+  type ProjectConstraintAuthoringContext,
+  type SpecEntryCatalogs,
+  type SpecEntryPanelsApi,
+} from "./SpecEntryPanels";
 import type {
   ConstraintProposalReadView,
   ExecutionOptionView,
@@ -172,7 +177,6 @@ const sourceProposal: ConstraintProposalReadView = {
 
 const sourceRaw = {
   ...artifact("artifact:source:design", "source_raw"),
-  display_title: "天空港核心创意",
 };
 const sourceRendered = {
   ...artifact("artifact:source:rendered", "source_rendered"),
@@ -197,6 +201,11 @@ function api(overrides: Partial<SpecEntryPanelsApi> = {}): SpecEntryPanelsApi {
   return {
     draftConstraint: vi.fn(async () => proposalResult),
     listExecutionProfiles: vi.fn(async () => profilePage),
+    listProjectMaterials: vi.fn(async () => ({
+      items: [],
+      next_cursor: null,
+      page_schema_version: "project-material-page@1" as const,
+    })),
     listRefHistory: vi.fn(),
     proposeConstraint: vi.fn(async () => acceptedRun),
     resolveExecutionOption: vi.fn(async () => resolvedOption),
@@ -205,11 +214,14 @@ function api(overrides: Partial<SpecEntryPanelsApi> = {}): SpecEntryPanelsApi {
   };
 }
 
-function renderPanels(entryApi: SpecEntryPanelsApi) {
+function renderPanels(
+  entryApi: SpecEntryPanelsApi,
+  projectContext: ProjectConstraintAuthoringContext | null = null,
+) {
   return render(
     <MemoryRouter initialEntries={["/specs?entry=create"]}>
       <QueryClientProvider client={createQueryClient()}>
-        <SpecEntryPanels api={entryApi} catalogs={catalogs} />
+        <SpecEntryPanels api={entryApi} catalogs={catalogs} projectContext={projectContext} />
       </QueryClientProvider>
     </MemoryRouter>,
   );
@@ -246,7 +258,7 @@ async function fillHumanDraft(user: ReturnType<typeof userEvent.setup>) {
   );
   await user.click(within(human).getByRole("checkbox", { name: "economy" }));
   await user.click(within(human).getByRole("checkbox", { name: "rewards" }));
-  await user.click(within(human).getByRole("checkbox", { name: /天空港核心创意/ }));
+  await user.click(within(human).getByRole("checkbox", { name: /原始策划材料 · / }));
   await user.type(within(human).getByLabelText("Human rationale"), "Keep gold inflation bounded.");
   fireEvent.change(within(human).getByLabelText("Typed constraints JSON"), {
     target: {
@@ -270,7 +282,7 @@ async function fillAgentDraft(
 ) {
   const profileSelect = await openAgentSettings(user);
   const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
-  await user.click(within(agent).getByRole("checkbox", { name: /天空港核心创意/ }));
+  await user.click(within(agent).getByRole("checkbox", { name: /原始策划材料 · / }));
   await user.selectOptions(
     within(agent).getByLabelText("基于哪个现有规则版本（可选）"),
     "artifact:constraint:base",
@@ -350,7 +362,7 @@ describe("SpecEntryPanels", () => {
     const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
     expect(
       within(agent).getByRole("checkbox", {
-        name: /天空港核心创意/,
+        name: /原始策划材料 · /,
       }),
     ).toBeVisible();
     expect(
@@ -693,12 +705,46 @@ describe("SpecEntryPanels", () => {
     }
   });
 
-  it("names planning material by what the planner typed", async () => {
-    renderPanels(api());
+  it("names planning material by its current name, not a stale snapshot", async () => {
+    // Material can be renamed, so the picker reads the project's current names
+    // instead of anything captured when the Artifact was published.
+    const listProjectMaterials = vi.fn(async () => ({
+      items: [
+        {
+          byte_size: 128,
+          created_at: "2026-07-26T00:00:00Z",
+          created_by: "human:admin",
+          display_name: "天空港核心创意",
+          material_id: "material:1",
+          material_schema_version: "project-material@1" as const,
+          media_type: "text/plain",
+          original_source_artifact_id: "artifact:source:design",
+          parse_status: "ready" as const,
+          parse_warnings: [],
+          parser_id: "plain-text",
+          parser_version: "1",
+          project_id: "project:sky-harbor",
+          rendered_source_artifact_id: "artifact:source:rendered",
+          revision: 1,
+          source_format: "plain_text" as const,
+          status: "active" as const,
+          text_char_count: 64,
+        },
+      ],
+      next_cursor: null,
+      page_schema_version: "project-material-page@1" as const,
+    }));
+    renderPanels(api({ listProjectMaterials }), {
+      baseConstraintArtifactId: null,
+      baseConstraintRevision: null,
+      constraintRefName: "constraints/sky-harbor",
+      projectId: "project:sky-harbor",
+      projectName: "天空港计划",
+      sourceArtifactIds: ["artifact:source:design"],
+    });
 
     const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
-    // The planner named this material; kind and ordinal identify nothing to them.
-    expect(within(agent).getByRole("checkbox", { name: /天空港核心创意/u })).toBeVisible();
-    expect(within(agent).queryByRole("checkbox", { name: /^原始策划材料 · /u })).not.toBeInTheDocument();
+    // Both the original and the parsed Artifact answer to the current name.
+    expect(await within(agent).findAllByRole("checkbox", { name: /^天空港核心创意 · /u })).toHaveLength(2);
   });
 });

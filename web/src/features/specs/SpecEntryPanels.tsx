@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Bot, FileUp, UserRoundPen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { createMutationIntent, ReauthenticationRequiredError, type MutationIntent } from "../../api/csrf";
 import { CursorExpiredError } from "../../api/pagination";
@@ -30,6 +30,7 @@ export type SpecEntryPanelsApi = Pick<
   SpecWorkflowApi,
   | "draftConstraint"
   | "listExecutionProfiles"
+  | "listProjectMaterials"
   | "listRefHistory"
   | "proposeConstraint"
   | "resolveExecutionOption"
@@ -207,15 +208,19 @@ function parseContentObject(
   }
 }
 
-function knownSourceOptions(catalogs: SpecEntryCatalogs): { id: string; label: string }[] {
+function knownSourceOptions(
+  catalogs: SpecEntryCatalogs,
+  // Material can be renamed, so its CURRENT name comes from the project, never
+  // from anything captured when the Artifact was published.
+  materialNames: ReadonlyMap<string, string> = new Map(),
+): { id: string; label: string }[] {
   const values = new Map<string, string>();
   const ordinals = new Map<string, number>();
   for (const source of catalogs.sources) {
     const kindLabel = source.kind === "source_raw" ? "原始策划材料" : "已解析策划材料";
-    // A planner recognises material by the name they gave it. Kind and ordinal are
-    // only a fallback for material published before names were recorded.
-    if (source.display_title) {
-      values.set(source.artifact_id, `${source.display_title} · ${kindLabel}`);
+    const currentName = materialNames.get(source.artifact_id);
+    if (currentName) {
+      values.set(source.artifact_id, `${currentName} · ${kindLabel}`);
       continue;
     }
     const createdAt = source.created_at?.slice(0, 10) ?? "时间未知";
@@ -280,17 +285,19 @@ function SourceArtifactPicker({
   catalogs,
   disabled = false,
   label,
+  materialNames,
   onChange,
   value,
 }: {
   catalogs: SpecEntryCatalogs;
   disabled?: boolean;
   label: string;
+  materialNames?: ReadonlyMap<string, string>;
   onChange(value: string): void;
   value: string;
 }) {
   const selected = new Set(splitIds(value));
-  const options = knownSourceOptions(catalogs);
+  const options = knownSourceOptions(catalogs, materialNames);
   function toggle(id: string, checked: boolean) {
     const next = new Set(selected);
     if (checked) next.add(id);
@@ -572,6 +579,22 @@ function AgentConstraintEntry({
     queryKey: ["spec-entry", "constraint-extraction-profiles"],
     retry: false,
   });
+  // Material names live on the project and can change; read them instead of
+  // trusting anything the Artifact carried when it was published.
+  const materialQuery = useQuery({
+    enabled: projectContext !== null,
+    queryFn: () => api.listProjectMaterials(projectContext!.projectId),
+    queryKey: ["spec-entry", "project-materials", projectContext?.projectId ?? ""],
+    retry: false,
+  });
+  const materialNames = useMemo(() => {
+    const names = new Map<string, string>();
+    for (const item of materialQuery.data?.items ?? []) {
+      names.set(item.original_source_artifact_id, item.display_name);
+      names.set(item.rendered_source_artifact_id, item.display_name);
+    }
+    return names;
+  }, [materialQuery.data]);
   const [profiles, setProfiles] = useState<ProfileState | null>(null);
   const [sourceArtifactIds, setSourceArtifactIds] = useState(
     () => projectContext?.sourceArtifactIds.join("\n") ?? "",
@@ -789,6 +812,7 @@ function AgentConstraintEntry({
           catalogs={catalogs}
           disabled={projectContext !== null}
           label="选择策划材料"
+          materialNames={materialNames}
           onChange={setSourceArtifactIds}
           value={sourceArtifactIds}
         />

@@ -307,8 +307,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn().mockResolvedValue(preview),
       getExtraction: vi.fn(),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '"project:3"', value: activeProject }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage()),
       listMaterials: vi.fn().mockResolvedValue({
@@ -380,8 +382,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn().mockResolvedValue(preview),
       getExtraction: vi.fn().mockResolvedValue({ etag: '"extraction:2"', value: conflictExtraction }),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '"project:2"', value: projectWithExtraction }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage([conflictExtraction])),
       listMaterials: vi.fn().mockResolvedValue({
@@ -417,6 +421,7 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft,
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn().mockResolvedValue(preview),
       getExtraction,
       getProject,
@@ -426,6 +431,7 @@ describe("ProjectWorkspacePage", () => {
         next_cursor: null,
         page_schema_version: "project-material-page@1",
       }),
+      getMaterial: vi.fn(),
       listProjects: vi.fn(),
       startExtraction,
       uploadMaterial: vi.fn(),
@@ -496,8 +502,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn().mockResolvedValue(preview),
       getExtraction: vi.fn().mockResolvedValue({ etag: '"extraction:1"', value: readyExtraction }),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '"project:2"', value: projectWithMismatchedDraft }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage([readyExtraction])),
       listMaterials: vi.fn().mockResolvedValue({
@@ -571,7 +579,9 @@ describe("ProjectWorkspacePage", () => {
         next_cursor: null,
         page_schema_version: "project-material-page@1",
       }),
+      getMaterial: vi.fn(),
       listProjects: vi.fn(),
+      renameMaterial: vi.fn(),
       startExtraction: vi.fn(),
       uploadMaterial: vi.fn(),
     } satisfies ProjectsApi;
@@ -629,8 +639,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn(),
       getExtraction: vi.fn(),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '"project:1"', value: project }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage()),
       listMaterials: vi.fn().mockResolvedValue({
@@ -659,6 +671,7 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn(),
       getExtraction,
       getProject: vi.fn().mockResolvedValue({ etag: '"project:1"', value: projectWithExtraction }),
@@ -668,6 +681,7 @@ describe("ProjectWorkspacePage", () => {
         next_cursor: null,
         page_schema_version: "project-material-page@1",
       }),
+      getMaterial: vi.fn(),
       listProjects: vi.fn(),
       startExtraction: vi.fn(),
       uploadMaterial: vi.fn(),
@@ -691,8 +705,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn().mockResolvedValue(preview),
       getExtraction: vi.fn().mockResolvedValue({ etag: '"extraction:2"', value: validationExtraction }),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '"project:2"', value: projectWithExtraction }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage([validationExtraction])),
       listMaterials: vi.fn().mockResolvedValue({
@@ -728,8 +744,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn().mockResolvedValue(lifecyclePreview),
       getExtraction: vi.fn().mockResolvedValue({ etag: '"extraction:2"', value: lifecycleExtraction }),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '"project:2"', value: projectWithExtraction }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage([lifecycleExtraction])),
       listMaterials: vi.fn().mockResolvedValue({
@@ -762,8 +780,10 @@ describe("ProjectWorkspacePage", () => {
       createContentDraft: vi.fn(),
       createProject: vi.fn(),
       discardExtraction: vi.fn(),
+      renameMaterial: vi.fn(),
       getArtifact: vi.fn(),
       getExtraction: vi.fn(),
+      getMaterial: vi.fn(),
       getProject: vi.fn().mockResolvedValue({ etag: '\"project:1\"', value: project }),
       listExtractions: vi.fn().mockResolvedValue(extractionPage()),
       listMaterials: vi.fn().mockResolvedValue({
@@ -808,5 +828,54 @@ describe("ProjectWorkspacePage", () => {
       { idempotencyKey: expect.any(String) },
     );
     expect(await screen.findByText("已读取 2 份策划文件，并全部选入本次提案。")).toBeVisible();
+  });
+
+  it("renames retained material without touching its Artifacts", async () => {
+    const user = userEvent.setup();
+    const renameMaterial = vi.fn().mockResolvedValue({
+      ...material,
+      display_name: "天空港核心创意",
+      revision: material.revision + 1,
+    });
+    const api = {
+      addTextMaterial: vi.fn(),
+      createContentDraft: vi.fn(),
+      createProject: vi.fn(),
+      discardExtraction: vi.fn(),
+      renameMaterial,
+      getArtifact: vi.fn(),
+      getExtraction: vi.fn(),
+      getMaterial: vi.fn().mockResolvedValue({ etag: '"material:1"', value: material }),
+      getProject: vi.fn().mockResolvedValue({ etag: '"project:3"', value: project }),
+      listExtractions: vi.fn().mockResolvedValue(extractionPage()),
+      listMaterials: vi.fn().mockResolvedValue({
+        items: [material],
+        next_cursor: null,
+        page_schema_version: "project-material-page@1",
+      }),
+      listProjects: vi.fn(),
+      startExtraction: vi.fn(),
+      uploadMaterial: vi.fn(),
+    } satisfies ProjectsApi;
+    renderPage(api);
+
+    await user.click(await screen.findByRole("button", { name: `重命名 ${material.display_name}` }));
+    const field = screen.getByRole("textbox", { name: "新的材料名称" });
+    await user.clear(field);
+    await user.type(field, "天空港核心创意");
+    await user.click(screen.getByRole("button", { name: "保存名称" }));
+
+    await waitFor(() =>
+      expect(renameMaterial).toHaveBeenCalledWith(
+        project.project_id,
+        material.material_id,
+        expect.objectContaining({
+          display_name: "天空港核心创意",
+          expected_revision: material.revision,
+        }),
+        expect.anything(),
+        expect.any(String),
+      ),
+    );
   });
 });

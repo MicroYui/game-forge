@@ -40,6 +40,7 @@ from gameforge.contracts.projects import (
     ProjectExtractionCreateRequestV1,
     ProjectExtractionDiscardRequestV1,
     ProjectGraphDraftRequestV1,
+    ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
 )
 from gameforge.platform.projects import ProjectAuthoringService, ProjectCommandContext
@@ -338,18 +339,6 @@ def test_create_project_publishes_bootstrap_without_moving_content_ref(project_r
     assert actions == ["project.created"]
 
 
-def test_bootstrap_snapshot_is_named_after_the_project(project_runtime) -> None:
-    """The content list shows a name, not an ordinal that repeats on every row."""
-
-    service, actor, uow, _, _ = project_runtime
-    project, _, _ = _create(service, actor)
-
-    with uow.begin() as transaction:
-        bootstrap = transaction.artifacts.get(project.bootstrap_snapshot_artifact_id)
-        assert bootstrap is not None
-        assert bootstrap.meta["display_title"].startswith(project.display_name)
-
-
 def test_feishu_material_retains_exact_original_and_rendered_provenance(project_runtime) -> None:
     service, actor, uow, objects, _ = project_runtime
     project, _, _ = _create(service, actor)
@@ -375,9 +364,6 @@ def test_feishu_material_retains_exact_original_and_rendered_provenance(project_
         assert rendered.kind == "source_rendered"
         assert rendered.lineage == (raw.artifact_id,)
         assert raw.meta["domain_scope"] == SCOPE.model_dump(mode="json")
-        # A planner picks material by the name they typed, so both Artifacts carry it.
-        assert raw.meta["display_title"] == "飞书天气策划"
-        assert rendered.meta["display_title"] == "飞书天气策划"
         provenance = rendered.meta["provenance"]
         assert provenance["source_kind_id"] == "tool_output"
         assert provenance["trust"] == "reviewed_external"
@@ -393,6 +379,88 @@ def test_feishu_material_retains_exact_original_and_rendered_provenance(project_
     refreshed = service.get_project(project.project_id, actor=actor)
     assert refreshed.revision == 2
     assert service.list_materials(project.project_id, actor=actor).items == (material,)
+
+
+def test_material_rename_keeps_the_artifacts_and_is_replayable(project_runtime) -> None:
+    """Planners rename material; the retained bytes and lineage never move."""
+
+    service, actor, uow, _, _ = project_runtime
+    project, _, _ = _create(service, actor)
+    material = service.add_text_material(
+        project.project_id,
+        ProjectMaterialTextRequestV1(
+            display_name="临时名字",
+            source_format="plain_text",
+            text="天空港由天气管理员维护。",
+        ),
+        context=_context(actor, "material-rename-seed", {"seed": True}),
+    )
+
+    request = ProjectMaterialRenameRequestV1(
+        expected_revision=material.revision,
+        display_name="天空港核心创意",
+    )
+    context = _context(actor, "material-rename", request.model_dump(mode="json"))
+    object.__setattr__(
+        context,
+        "if_match",
+        compute_resource_etag(
+            resource_kind="project_material",
+            resource_id=material.material_id,
+            revision=material.revision,
+        ),
+    )
+    renamed = service.rename_material(
+        project.project_id, material.material_id, request, context=context
+    )
+
+    assert renamed.display_name == "天空港核心创意"
+    assert renamed.revision == material.revision + 1
+    assert renamed.original_source_artifact_id == material.original_source_artifact_id
+    assert renamed.rendered_source_artifact_id == material.rendered_source_artifact_id
+    # A repeated request replays the same result instead of bumping the revision.
+    assert (
+        service.rename_material(
+            project.project_id, material.material_id, request, context=context
+        )
+        == renamed
+    )
+    with uow.begin() as transaction:
+        assert transaction.projects.get_material(material.material_id) == renamed
+
+
+def test_material_rename_requires_the_current_revision(project_runtime) -> None:
+    service, actor, _, _, _ = project_runtime
+    project, _, _ = _create(service, actor)
+    material = service.add_text_material(
+        project.project_id,
+        ProjectMaterialTextRequestV1(
+            display_name="初稿",
+            source_format="plain_text",
+            text="天空港由天气管理员维护。",
+        ),
+        context=_context(actor, "material-stale-seed", {"seed": True}),
+    )
+    stale = ProjectMaterialRenameRequestV1(
+        expected_revision=material.revision + 5,
+        display_name="不该生效",
+    )
+
+    stale_context = _context(actor, "material-stale", stale.model_dump(mode="json"))
+    object.__setattr__(
+        stale_context,
+        "if_match",
+        compute_resource_etag(
+            resource_kind="project_material",
+            resource_id=material.material_id,
+            revision=material.revision,
+        ),
+    )
+
+    with pytest.raises(Conflict):
+        service.rename_material(
+            project.project_id, material.material_id, stale, context=stale_context
+        )
 
 
 def test_material_archive_requires_exact_revision_and_strong_etag(project_runtime) -> None:

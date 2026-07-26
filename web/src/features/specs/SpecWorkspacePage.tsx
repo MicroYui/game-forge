@@ -148,13 +148,10 @@ function specColumns(items: readonly SpecView[]): readonly CursorTableColumn<Spe
             { label: "数据格式版本", value: item.schema_registry_version },
           ]}
           href={`/specs/${encodeURIComponent(item.artifact.artifact_id)}`}
-          // A planner recognises content by its name; the ordinal alone made every
-          // row read the same. Untitled content keeps its structural label.
           title={
-            item.artifact.display_title ??
-            (item.ref_value
+            item.ref_value
               ? `当前内容 · 第 ${item.ref_value.revision} 版`
-              : `未发布内容 · 第 ${unpublishedOrder.get(item.artifact.artifact_id) ?? "—"} 份`)
+              : `未发布内容 · 第 ${unpublishedOrder.get(item.artifact.artifact_id) ?? "—"} 份`
           }
         />
       ),

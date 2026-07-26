@@ -48,6 +48,7 @@ _EXPECTED_OPERATIONS: tuple[tuple[str, str, str], ...] = (
     ("post", "/api/v1/projects/{project_id}/materials:upload", "201"),
     ("get", "/api/v1/projects/{project_id}/materials", "200"),
     ("get", "/api/v1/projects/{project_id}/materials/{material_id}", "200"),
+    ("post", "/api/v1/projects/{project_id}/materials/{material_id}:rename", "200"),
     ("post", "/api/v1/projects/{project_id}/materials/{material_id}:archive", "200"),
     ("post", "/api/v1/projects/{project_id}/extractions", "202"),
     ("get", "/api/v1/projects/{project_id}/extractions", "200"),

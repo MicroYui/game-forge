@@ -281,6 +281,9 @@ export function ProjectWorkspacePage({
   const [materialBusy, setMaterialBusy] = useState(false);
   const [extractionBusy, setExtractionBusy] = useState(false);
   const [discardBusy, setDiscardBusy] = useState(false);
+  const [renamingMaterialId, setRenamingMaterialId] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
+  const [renameBusy, setRenameBusy] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [discardReason, setDiscardReason] = useState("");
   const [publishBusy, setPublishBusy] = useState(false);
@@ -532,6 +535,39 @@ export function ProjectWorkspacePage({
       setActionError(normalizedError(error));
     } finally {
       setExtractionBusy(false);
+    }
+  }
+
+  async function renameMaterial(material: ProjectMaterial) {
+    const name = renameDraft.trim();
+    if (!name || name === material.display_name) {
+      setRenamingMaterialId(null);
+      return;
+    }
+    setRenameBusy(true);
+    setActionError(null);
+    try {
+      // Read the material first so the write carries its exact current revision.
+      const current = await api.getMaterial(projectId, material.material_id);
+      const renamed = await api.renameMaterial(
+        projectId,
+        material.material_id,
+        {
+          display_name: name,
+          expected_revision: current.value.revision,
+          request_schema_version: "project-material-rename-request@1",
+        },
+        createMutationIntent(),
+        current.etag,
+      );
+      setMaterials((items) =>
+        items.map((item) => (item.material_id === renamed.material_id ? renamed : item)),
+      );
+      setRenamingMaterialId(null);
+    } catch (error) {
+      setActionError(normalizedError(error));
+    } finally {
+      setRenameBusy(false);
     }
   }
 
@@ -816,6 +852,48 @@ export function ProjectWorkspacePage({
                       </small>
                     </span>
                   </label>
+                  {renamingMaterialId === material.material_id ? (
+                    <form
+                      className="gf-project-workspace__rename"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        void renameMaterial(material);
+                      }}
+                    >
+                      <label>
+                        <span>新的材料名称</span>
+                        <input
+                          autoFocus
+                          maxLength={256}
+                          onChange={(event) => setRenameDraft(event.target.value)}
+                          required
+                          value={renameDraft}
+                        />
+                      </label>
+                      <button disabled={renameBusy} type="submit">
+                        保存名称
+                      </button>
+                      <button
+                        className="gf-secondary-button"
+                        onClick={() => setRenamingMaterialId(null)}
+                        type="button"
+                      >
+                        取消
+                      </button>
+                    </form>
+                  ) : (
+                    <button
+                      aria-label={`重命名 ${material.display_name}`}
+                      className="gf-secondary-button"
+                      onClick={() => {
+                        setRenameDraft(material.display_name);
+                        setRenamingMaterialId(material.material_id);
+                      }}
+                      type="button"
+                    >
+                      重命名
+                    </button>
+                  )}
                   {material.parse_warnings.length > 0 && (
                     <span className="u-status u-status--danger">
                       有 {material.parse_warnings.length} 条解析提示

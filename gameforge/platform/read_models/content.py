@@ -526,8 +526,6 @@ def _artifact_summary(
             "Artifact domain scope is not proved for content disclosure",
             artifact_id=artifact.artifact_id,
         )
-    # The planner-facing name the Artifact was published with, when it has one.
-    display_title = artifact.meta.get("display_title") if isinstance(artifact, ArtifactV2) else None
     return ArtifactSummaryV1(
         artifact_id=artifact.artifact_id,
         lineage_schema_version=artifact.lineage_schema_version,
@@ -538,7 +536,6 @@ def _artifact_summary(
         payload_schema_id=payload_schema_id,
         domain_scope=permission.domain_scope,
         created_at=artifact.created_at,
-        display_title=display_title if isinstance(display_title, str) and display_title else None,
     )
 
 

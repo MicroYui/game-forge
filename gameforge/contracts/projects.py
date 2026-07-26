@@ -146,6 +146,16 @@ class ProjectArchiveRequestV1(_FrozenModel):
     reason: Annotated[str, StringConstraints(min_length=1, max_length=1024)]
 
 
+class ProjectMaterialRenameRequestV1(_FrozenModel):
+    """Rename retained material. The Artifacts keep their bytes and lineage."""
+
+    request_schema_version: Literal["project-material-rename-request@1"] = (
+        "project-material-rename-request@1"
+    )
+    expected_revision: PositiveInt
+    display_name: BoundedName
+
+
 def _canonical_text(value: str) -> str:
     rendered = value.replace("\r\n", "\n").replace("\r", "\n")
     if not rendered.strip():
@@ -493,6 +503,7 @@ __all__ = [
     "ProjectExtractionV1",
     "ProjectGraphDraftRequestV1",
     "ProjectMaterialPageV1",
+    "ProjectMaterialRenameRequestV1",
     "ProjectMaterialTextRequestV1",
     "ProjectMaterialV1",
     "ProjectPageV1",

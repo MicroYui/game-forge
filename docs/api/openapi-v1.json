@@ -814,19 +814,6 @@
             ],
             "title": "Created At"
           },
-          "display_title": {
-            "anyOf": [
-              {
-                "maxLength": 256,
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Display Title"
-          },
           "domain_scope": {
             "anyOf": [
               {
@@ -8720,6 +8707,35 @@
           "items"
         ],
         "title": "ProjectMaterialPageV1",
+        "type": "object"
+      },
+      "ProjectMaterialRenameRequestV1": {
+        "additionalProperties": false,
+        "description": "Rename retained material. The Artifacts keep their bytes and lineage.",
+        "properties": {
+          "display_name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "request_schema_version": {
+            "const": "project-material-rename-request@1",
+            "default": "project-material-rename-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "display_name"
+        ],
+        "title": "ProjectMaterialRenameRequestV1",
         "type": "object"
       },
       "ProjectMaterialTextRequestV1": {
@@ -24280,6 +24296,265 @@
           }
         ],
         "summary": "Archive Material",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/materials/{material_id}:rename": {
+      "post": {
+        "operationId": "rename_material_api_v1_projects__project_id__materials__material_id__rename_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "material_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Material Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectMaterialRenameRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectMaterialV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Rename Material",
         "tags": [
           "projects"
         ]

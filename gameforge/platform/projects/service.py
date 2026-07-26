@@ -74,6 +74,7 @@ from gameforge.contracts.projects import (
     ProjectExtractionV1,
     ProjectGraphDraftRequestV1,
     ProjectMaterialPageV1,
+    ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
     ProjectMaterialV1,
     ProjectPageV1,
@@ -256,7 +257,6 @@ class ProjectAuthoringService:
                 "domain_scope": request.domain_scope.model_dump(mode="json"),
                 "project_id": project_id,
                 "project_bootstrap": True,
-                "display_title": f"{request.display_name} · 初始空内容",
             },
             created_at=created_at,
         )
@@ -595,7 +595,6 @@ class ProjectAuthoringService:
         raw_artifact, rendered_artifact = self._material_artifacts(
             project_id=project_id,
             material_id=material_id,
-            display_name=display_name,
             domain_scope=material_scope,
             parsed=parsed,
             raw_stored=raw_stored,
@@ -736,6 +735,79 @@ class ProjectAuthoringService:
                 status=status,
             )
             return ProjectMaterialPageV1(items=items)
+
+    def rename_material(
+        self,
+        project_id: str,
+        material_id: str,
+        request: ProjectMaterialRenameRequestV1,
+        *,
+        context: ProjectCommandContext,
+    ) -> ProjectMaterialV1:
+        """Rename retained material without touching its Artifacts."""
+
+        with self._unit_of_work.begin() as transaction:
+            project = self._require_project(transaction, project_id)
+            self._authorize(
+                transaction,
+                actor=context.actor,
+                action="create",
+                resource_kind="material",
+                scope=project.domain_scope,
+                direct_human=True,
+            )
+            projects = _required(transaction.projects, "projects")
+            current = projects.get_material(material_id)
+            if current is None or current.project_id != project_id:
+                raise NotFound("project material does not exist", material_id=material_id)
+            # A retry of the SAME request replays its result; the revision it moved
+            # must not make the retry look like a stale write.
+            replay = self._idempotency_replay(
+                transaction,
+                context=context,
+                operation="project.material.rename",
+            )
+            if replay is not None:
+                return self._replay_material(replay, expected_material_id=material_id)
+            self._require_precondition(
+                resource_kind="project_material",
+                resource_id=material_id,
+                revision=current.revision,
+                expected_revision=request.expected_revision,
+                if_match=context.if_match,
+            )
+            renamed = current.model_copy(
+                update={
+                    "display_name": request.display_name,
+                    "revision": current.revision + 1,
+                }
+            )
+            result = projects.compare_and_set_material(
+                material_id,
+                current.revision,
+                renamed,
+            )
+            self._append_audit(
+                transaction,
+                context=context,
+                action="project.material.renamed",
+                subject=AuditSubject(
+                    resource_kind="project_material",
+                    resource_id=material_id,
+                    artifact_id=current.rendered_source_artifact_id,
+                ),
+            )
+            idempotency = _required(transaction.idempotency, "idempotency")
+            stored_result = idempotency.put_result(
+                scope=self._idempotency_scope(context.actor),
+                operation="project.material.rename",
+                key=context.idempotency_key,
+                request_hash=context.request_hash,
+                resource_kind="project_material",
+                resource_id=material_id,
+                response=result.model_dump(mode="json"),
+            )
+            return self._replay_material(stored_result, expected_material_id=material_id)
 
     def archive_material(
         self,
@@ -2090,7 +2162,6 @@ class ProjectAuthoringService:
         *,
         project_id: str,
         material_id: str,
-        display_name: str,
         domain_scope: DomainScope,
         parsed: ParsedPlanningMaterial,
         raw_stored: Any,
@@ -2136,7 +2207,6 @@ class ProjectAuthoringService:
                 "domain_scope": domain_scope.model_dump(mode="json"),
                 "project_id": project_id,
                 "material_id": material_id,
-                "display_title": display_name,
                 "provenance": raw_provenance.model_dump(mode="json"),
             },
             created_at=created_at,
@@ -2176,7 +2246,6 @@ class ProjectAuthoringService:
                 "domain_scope": domain_scope.model_dump(mode="json"),
                 "project_id": project_id,
                 "material_id": material_id,
-                "display_title": display_name,
                 "provenance": rendered_provenance.model_dump(mode="json"),
             },
             created_at=created_at,

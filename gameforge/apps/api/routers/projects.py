@@ -34,6 +34,7 @@ from gameforge.contracts.projects import (
     ProjectExtractionV1,
     ProjectGraphDraftRequestV1,
     ProjectMaterialPageV1,
+    ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
     ProjectMaterialV1,
     ProjectPageV1,
@@ -488,6 +489,43 @@ def project_router() -> APIRouter:
         result = cast(
             ProjectMaterialV1,
             _port(dependencies).get_material(project_id, material_id, actor=actor),
+        )
+        _resource_headers(
+            response,
+            resource_kind="project_material",
+            resource_id=result.material_id,
+            revision=result.revision,
+        )
+        return result
+
+    @router.post(
+        "/projects/{project_id}/materials/{material_id}:rename",
+        response_model=ProjectMaterialV1,
+        dependencies=[Depends(_require_mutation_headers)],
+    )
+    def rename_material(
+        project_id: ApiResourceId,
+        material_id: ApiResourceId,
+        payload: ProjectMaterialRenameRequestV1,
+        request: Request,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+        dependencies: ApiDependencies = Depends(api_dependencies),
+    ) -> ProjectMaterialV1:
+        result = cast(
+            ProjectMaterialV1,
+            _port(dependencies).rename_material(
+                project_id,
+                material_id,
+                payload,
+                context=_context(
+                    request,
+                    actor,
+                    operation="project.material.rename",
+                    payload=payload.model_dump(mode="json"),
+                    include_if_match=True,
+                ),
+            ),
         )
         _resource_headers(
             response,

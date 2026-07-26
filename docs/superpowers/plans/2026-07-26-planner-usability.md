@@ -45,13 +45,20 @@
 
 ## 片 3：可读标题（P2/P3/P4）
 
-### Task 4：读模型补齐人类可读标题
+### Task 4：修改草案以「改了什么」为标题（✅）
 
-先写契约测试：内容版本、修改草案、材料、规则版本的读视图都带 `display_title`（策划可读）与 `display_summary`（改了什么/来自哪份材料）。由既有权威数据派生：项目名 + 材料名 + Patch rationale + 变更计数。
+`PatchWorkspacePage` 的主栏改为 `patchRationaleLabel(patch.rationale)`，版本号与时间退到副行。rationale 是 Patch 的不可变属性，不会随任何改名而过期。
 
-### Task 5：前端列表与详情改用标题
+### Task 5：材料可改名，名字始终取自当前权威数据（✅）
 
-「修改与版本」「内容与规则」「材料选择器」「校验规则版本」列表主栏改为标题，副行才是版本与时间；技术标识仍只在「查看技术信息」里。
+**设计更正**：最初把材料名写进 Artifact 的 `meta.display_title` 并加 `ArtifactSummaryV1.display_title` 投影，前提是"材料不可改名"。产品负责人指出改名是正常需求——而项目本来就能改名，于是**任何写进不可变 Artifact 的名字都会过期**。该字段与两处 meta 写入已整体撤销。
+
+改为：
+- 新增 `POST /projects/{id}/materials/{material_id}:rename`（强 ETag + expected_revision + 幂等 + 审计），Artifact 的字节与血缘不动；同一请求重试走幂等重放而不是被自己造成的 revision 变化判为过期。
+- 项目工作台的材料卡片提供重命名入口。
+- AI 提取面板改为读**项目材料列表**取当前名字标注来源；无项目上下文时仍回退到结构化标签。
+
+「内容与规则」页的内容版本列表跨项目，暂无当前项目名来源，保留结构化标签，留待后续接入。
 
 ## 片 4：术语与缺值（P6/P7）
 

@@ -16,6 +16,7 @@ export type ProjectCreateRequest = components["schemas"]["ProjectCreateRequestV1
 export type ProjectMaterial = components["schemas"]["ProjectMaterialV1"];
 export type ProjectMaterialPage = components["schemas"]["ProjectMaterialPageV1"];
 export type ProjectMaterialTextRequest = components["schemas"]["ProjectMaterialTextRequestV1"];
+export type ProjectMaterialRenameRequest = components["schemas"]["ProjectMaterialRenameRequestV1"];
 export type ProjectExtraction = components["schemas"]["ProjectExtractionV1"];
 export type ProjectExtractionCreateRequest = components["schemas"]["ProjectExtractionCreateRequestV1"];
 export type ProjectExtractionDiscardRequest = components["schemas"]["ProjectExtractionDiscardRequestV1"];
@@ -65,6 +66,14 @@ export interface ProjectsApi {
     intent: MutationIntent,
     extractionEtag: string,
   ): Promise<ProjectExtraction>;
+  getMaterial(projectId: string, materialId: string): Promise<VersionedResource<ProjectMaterial>>;
+  renameMaterial(
+    projectId: string,
+    materialId: string,
+    request: ProjectMaterialRenameRequest,
+    intent: MutationIntent,
+    materialEtag: string,
+  ): Promise<ProjectMaterial>;
   getArtifact(artifactId: string): Promise<ArtifactPayloadView>;
   createContentDraft(
     projectId: string,
@@ -201,6 +210,24 @@ export function createProjectsApi(client: GameForgeOpenApiClient = gameForgeApi.
       );
     },
 
+    async getMaterial(projectId, materialId) {
+      return unwrapVersioned<ProjectMaterial>(
+        await client.GET("/api/v1/projects/{project_id}/materials/{material_id}", {
+          params: { path: { material_id: materialId, project_id: projectId } },
+        }),
+      );
+    },
+    async renameMaterial(projectId, materialId, request, intent, materialEtag) {
+      return unwrapApiResponse<ProjectMaterial>(
+        await client.POST("/api/v1/projects/{project_id}/materials/{material_id}:rename", {
+          body: request,
+          params: {
+            header: headersForVersionedMutation(intent, materialEtag),
+            path: { material_id: materialId, project_id: projectId },
+          },
+        }),
+      );
+    },
     async discardExtraction(projectId, extractionId, request, intent, extractionEtag) {
       return unwrapApiResponse<ProjectExtraction>(
         await client.POST("/api/v1/projects/{project_id}/extractions/{extraction_id}:discard", {
