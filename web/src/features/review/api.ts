@@ -8,7 +8,7 @@ import {
   type MutationIntent,
 } from "../../api/csrf";
 import type { components, paths } from "../../api/generated/openapi";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
 import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
 
@@ -44,14 +44,6 @@ export interface ReviewApi {
   getFinding(findingId: string, revision: number): Promise<FindingRevision>;
   getSpec(artifactId: string): Promise<SpecView>;
   getConstraint(artifactId: string): Promise<ConstraintSnapshotView>;
-}
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
 }
 
 export function createReviewApi(client: GameForgeOpenApiClient = gameForgeApi.client): ReviewApi {

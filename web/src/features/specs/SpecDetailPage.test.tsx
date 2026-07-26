@@ -9,12 +9,17 @@ import { SpecDetailPage, type SpecDetailApi } from "./SpecDetailPage";
 
 const cytoscapeMock = vi.hoisted(() => {
   const selected = {
+    closedNeighborhood: vi.fn(() => ({ addClass: vi.fn() })),
     addClass: vi.fn(),
     empty: () => false,
     select: vi.fn(),
     unselect: vi.fn(),
   };
-  const elements = { removeClass: vi.fn(), unselect: vi.fn() };
+  const elements = {
+    difference: vi.fn(() => ({ addClass: vi.fn() })),
+    removeClass: vi.fn(),
+    unselect: vi.fn(),
+  };
   return {
     factory: vi.fn(() => ({
       $id: vi.fn(() => selected),

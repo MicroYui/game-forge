@@ -76,7 +76,18 @@ function useGraphPalette(): GraphPalette {
   return palette;
 }
 
+/** Canvas styles are painted by cytoscape, so the motion preference is read here
+ *  rather than inherited from the CSS custom properties the rest of the UI uses. */
+function focusTransitionMs(): number {
+  const reduced =
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return reduced ? 0 : 180;
+}
+
 function graphStyles(palette: GraphPalette): StylesheetJson {
+  const transitionMs = focusTransitionMs();
   return [
     {
       selector: "node",
@@ -93,6 +104,8 @@ function graphStyles(palette: GraphPalette): StylesheetJson {
         "text-max-width": "108px",
         "text-valign": "center",
         "text-wrap": "wrap",
+        "transition-duration": transitionMs,
+        "transition-property": "background-color, border-color, border-width, width, height, opacity",
         width: "128px",
       },
     },
@@ -120,6 +133,8 @@ function graphStyles(palette: GraphPalette): StylesheetJson {
         "text-background-padding": "2px",
         "text-rotation": "autorotate",
         color: palette.edgeLabel,
+        "transition-duration": transitionMs,
+        "transition-property": "line-color, target-arrow-color, width, opacity",
         width: "1.5px",
       },
     },
@@ -136,6 +151,43 @@ function graphStyles(palette: GraphPalette): StylesheetJson {
     {
       selector: ".is-search-muted",
       style: { opacity: 0.22 },
+    },
+    // Selecting an entity answers "what does this connect to?" on the canvas: the
+    // focus grows, everything it touches stays legible, the rest recedes.
+    {
+      selector: "node.is-focus",
+      style: {
+        "background-color": palette.selected,
+        "border-color": palette.selected,
+        "border-width": 5,
+        color: palette.background,
+        "font-size": 12,
+        height: "64px",
+        "text-max-width": "132px",
+        width: "156px",
+        "z-index": 30,
+      },
+    },
+    {
+      selector: "node.is-neighbor",
+      style: {
+        "border-color": palette.selected,
+        "border-width": 3,
+        "z-index": 25,
+      },
+    },
+    {
+      selector: "edge.is-neighbor",
+      style: {
+        "line-color": palette.selected,
+        "target-arrow-color": palette.selected,
+        width: "3px",
+        "z-index": 25,
+      },
+    },
+    {
+      selector: ".is-unrelated",
+      style: { opacity: 0.14 },
     },
   ];
 }
@@ -335,12 +387,19 @@ export interface KnowledgeGraphProps {
 function updateGraphSelection(cy: Core, selectedKey: string | null) {
   cy.elements().unselect();
   cy.elements().removeClass("is-selected");
+  cy.elements().removeClass("is-focus");
+  cy.elements().removeClass("is-neighbor");
+  cy.elements().removeClass("is-unrelated");
   if (selectedKey === null) return;
   const selected = cy.$id(selectedKey);
-  if (!selected.empty()) {
-    selected.select();
-    selected.addClass("is-selected");
-  }
+  if (selected.empty()) return;
+  selected.select();
+  selected.addClass("is-selected");
+  selected.addClass("is-focus");
+  // closedNeighborhood is the selection plus everything one hop away.
+  const connected = selected.closedNeighborhood();
+  connected.addClass("is-neighbor");
+  cy.elements().difference(connected).addClass("is-unrelated");
 }
 
 function updateGraphSearch(cy: Core, facts: readonly GraphFact[], normalizedQuery: string) {

@@ -41,3 +41,12 @@ export function requireExplicitCursorRestart(
   }
   throw error;
 }
+
+/** Run one cursor read, turning an expired cursor into an explicit restart. */
+export async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
+  try {
+    return await read();
+  } catch (error) {
+    throw requireExplicitCursorRestart(error, cursor);
+  }
+}

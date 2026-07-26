@@ -8,6 +8,8 @@ import type { ProjectGraphDraft } from "./model";
 
 const cytoscapeMock = vi.hoisted(() => {
   const collection = {
+    closedNeighborhood: vi.fn(() => ({ addClass: vi.fn() })),
+    difference: vi.fn(() => ({ addClass: vi.fn() })),
     addClass: vi.fn(),
     empty: () => false,
     removeClass: vi.fn(),

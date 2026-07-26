@@ -9,7 +9,7 @@ import {
 } from "../../api/csrf";
 import type { components, paths } from "../../api/generated/openapi";
 import type { RunEvent } from "../../api/generated/sse-run-event-v1";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { clearAuthorizedSessionState, gameForgeApi } from "../../api/runtime";
 import { RunEventStream, type RunEventStreamState } from "../../api/sse";
 import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
@@ -82,14 +82,6 @@ type ApiResponse<T> = {
   error?: unknown;
   response: Response;
 };
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
-}
 
 async function unwrapVersionedResponse<T>(result: ApiResponse<T>): Promise<VersionedResource<T>> {
   const value = await unwrapApiResponse<T>(result);

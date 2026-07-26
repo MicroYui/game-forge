@@ -42,6 +42,7 @@ function renderPage(api: Pick<ProjectsApi, "createProject" | "listProjects">) {
         <Routes>
           <Route element={<ProjectsPage api={api} />} path="/projects" />
           <Route element={<LocationProbe />} path="/projects/:projectId" />
+          <Route element={<LocationProbe />} path="/projects/:projectId/authoring" />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -81,7 +82,10 @@ describe("ProjectsPage", () => {
       },
       { idempotencyKey: expect.any(String) },
     );
-    expect(await screen.findByTestId("location")).toHaveTextContent("/projects/project%3Asky-harbor");
+    // Creating a project promises material next, so it lands on authoring.
+    expect(await screen.findByTestId("location")).toHaveTextContent(
+      "/projects/project%3Asky-harbor/authoring",
+    );
   });
 
   it("shows business names and keeps system identifiers inside technical details", async () => {

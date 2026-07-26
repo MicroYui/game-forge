@@ -110,8 +110,9 @@ test.describe("project-first-authoring", () => {
       await page.getByRole("button", { name: "创建并添加材料" }).click();
       await expect(page.getByRole("heading", { name: "天空港计划", level: 1 })).toBeVisible();
 
-      const projectPath = new URL(page.url()).pathname;
-      expect(projectPath).toMatch(/^\/projects\/project%3A/u);
+      const authoringPath = new URL(page.url()).pathname;
+      expect(authoringPath).toMatch(/^\/projects\/project%3A[^/]+\/authoring$/u);
+      const projectPath = authoringPath.replace(/\/authoring$/u, "");
 
       await page.getByLabel("材料名称").fill("天空港核心创意");
       await page.getByLabel("粘贴格式").selectOption("feishu_blocks_json");
@@ -176,7 +177,10 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByRole("heading", { name: "修改已应用" })).toBeVisible();
 
       await page.goto(projectPath);
-      await expect(page.getByRole("heading", { name: "首个内容版本已发布" })).toBeVisible();
+      // The project home now opens on what the game is, not on the creation wizard.
+      await expect(page.getByRole("heading", { name: "天空港计划", level: 1 })).toBeVisible();
+      await expect(page.getByText("第 1 版内容")).toBeVisible();
+      await expect(page.getByRole("region", { name: "游戏内容图谱" })).toBeVisible();
       const rulesLink = page.getByRole("link", { name: /生成与维护规则/u });
       await expect(rulesLink).toHaveAttribute("href", /\/specs\?.*project=/u);
       await rulesLink.click();
@@ -296,7 +300,7 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByRole("heading", { name: "修改已应用" })).toBeVisible();
 
       await page.goto(projectPath);
-      await expect(page.getByText(/项目当前内容已经是第 2 版/u)).toBeVisible();
+      await expect(page.getByText("第 2 版内容")).toBeVisible();
       await page.getByRole("link", { name: /进入自动试玩/u }).click();
       await expect(page.getByRole("heading", { name: "自动试玩", level: 1 })).toBeVisible();
       const preparePlaytest = page.getByRole("button", { name: /^准备内容候选/u });

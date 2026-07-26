@@ -1,7 +1,7 @@
 import type { GameForgeOpenApiClient } from "../../api/client";
 import { unwrapApiResponse } from "../../api/client";
 import type { components } from "../../api/generated/openapi";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
 
 export type RunPage = components["schemas"]["OpaquePageV1_RunViewV1_"];
@@ -52,14 +52,6 @@ export interface ObservabilityApi {
   listTraceSpans(traceId: string, cursor: string | null): Promise<SpanPage>;
   queryLogs(query: LogQuery): Promise<LogPage>;
   queryMetrics(query: MetricQuery): Promise<MetricPage>;
-}
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
 }
 
 export function createObservabilityApi(

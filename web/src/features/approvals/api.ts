@@ -2,7 +2,7 @@ import type { GameForgeOpenApiClient } from "../../api/client";
 import { responseEtag, unwrapApiResponse } from "../../api/client";
 import { headersForVersionedMutation, type MutationIntent } from "../../api/csrf";
 import type { components } from "../../api/generated/openapi";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
 
 export type ApprovalAction = "approve" | "reject" | "request_changes";
@@ -57,14 +57,6 @@ async function unwrapVersioned(
   const etag = responseEtag(result.response);
   if (etag === null) throw new Error("The server response did not include the required ETag.");
   return { etag, value };
-}
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
 }
 
 export function createApprovalsApi(client: GameForgeOpenApiClient = gameForgeApi.client): ApprovalsApi {

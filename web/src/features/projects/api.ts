@@ -8,6 +8,7 @@ import {
   type MutationIntent,
 } from "../../api/csrf";
 import type { components, paths } from "../../api/generated/openapi";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
 
 export type Project = components["schemas"]["GameProjectV1"];
@@ -15,6 +16,7 @@ export type ProjectPage = components["schemas"]["ProjectPageV1"];
 export type ProjectCreateRequest = components["schemas"]["ProjectCreateRequestV1"];
 export type ProjectMaterial = components["schemas"]["ProjectMaterialV1"];
 export type ProjectMaterialPage = components["schemas"]["ProjectMaterialPageV1"];
+export type GraphPage = components["schemas"]["OpaquePageV1_GraphItemV1_"];
 export type ProjectMaterialTextRequest = components["schemas"]["ProjectMaterialTextRequestV1"];
 export type ProjectMaterialRenameRequest = components["schemas"]["ProjectMaterialRenameRequestV1"];
 export type ProjectExtraction = components["schemas"]["ProjectExtractionV1"];
@@ -74,6 +76,7 @@ export interface ProjectsApi {
     intent: MutationIntent,
     materialEtag: string,
   ): Promise<ProjectMaterial>;
+  listContentGraph(artifactId: string, cursor: string | null): Promise<GraphPage>;
   getArtifact(artifactId: string): Promise<ArtifactPayloadView>;
   createContentDraft(
     projectId: string,
@@ -207,6 +210,19 @@ export function createProjectsApi(client: GameForgeOpenApiClient = gameForgeApi.
             path: { extraction_id: extractionId, project_id: projectId },
           },
         }),
+      );
+    },
+
+    listContentGraph(artifactId, cursor) {
+      return readCursorPage(cursor, async () =>
+        unwrapApiResponse<GraphPage>(
+          await client.GET("/api/v1/specs/{artifact_id}/graph", {
+            params: {
+              path: { artifact_id: artifactId },
+              query: cursorQuery(cursor),
+            },
+          }),
+        ),
       );
     },
 

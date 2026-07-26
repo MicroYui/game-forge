@@ -14,7 +14,7 @@ import {
   RollbackDetailRoute,
 } from "./features/patches";
 import { PlaytestRoute } from "./features/playtest";
-import { ProjectWorkspaceRoute, ProjectsRoute } from "./features/projects";
+import { ProjectOverviewRoute, ProjectWorkspaceRoute, ProjectsRoute } from "./features/projects";
 import { FindingDetailRoute, ReviewDetailRoute, ReviewWorkspaceRoute } from "./features/review";
 import {
   ConstraintProposalRoute,
@@ -36,7 +36,8 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route element={<Navigate replace to="/projects" />} index />
           <Route element={<ProjectsRoute />} path="/projects" />
-          <Route element={<ProjectWorkspaceRoute />} path="/projects/:projectId" />
+          <Route element={<ProjectOverviewRoute />} path="/projects/:projectId" />
+          <Route element={<ProjectWorkspaceRoute />} path="/projects/:projectId/authoring" />
           <Route element={<SpecWorkspaceRoute />} path="/specs" />
           <Route element={<SpecDetailRoute />} path="/specs/:artifactId" />
           <Route element={<ConstraintSnapshotRoute />} path="/constraints/:artifactId" />

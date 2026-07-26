@@ -68,7 +68,8 @@ export function ProjectsPage({ api = projectsApi }: { api?: ProjectsPageApi }) {
         },
         createMutationIntent(),
       );
-      navigate(`/projects/${encodeURIComponent(created.value.project_id)}`);
+      // The button promises material next, so land where material is added.
+      navigate(`/projects/${encodeURIComponent(created.value.project_id)}/authoring`);
     } catch (error) {
       setSubmitError(normalizedError(error));
     } finally {

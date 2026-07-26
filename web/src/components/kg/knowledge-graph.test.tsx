@@ -16,13 +16,16 @@ const cytoscapeMock = vi.hoisted(() => {
   const addClass = vi.fn();
   const on = vi.fn();
   const off = vi.fn();
+  const neighborhood = { addClass: vi.fn() };
   const idCollection = {
     addClass,
+    closedNeighborhood: vi.fn(() => neighborhood),
     empty: () => false,
     select,
     unselect,
   };
   const elementsCollection = {
+    difference: vi.fn(() => ({ addClass: vi.fn() })),
     removeClass,
     unselect,
   };
@@ -373,5 +376,19 @@ describe("KnowledgeGraph", () => {
     await user.type(screen.getByRole("searchbox", { name: "搜索本页内容" }), "not-present-anywhere");
     expect(screen.getByText("请选择一项内容或关系。")).toBeVisible();
     expect(cytoscapeMock.unselect).toHaveBeenCalled();
+  });
+
+  it("lights up what a selected entity connects to and dims the rest", async () => {
+    const user = userEvent.setup();
+    render(<KnowledgeGraph items={graphItems} />);
+
+    // Selecting an entity should answer "what is this connected to?" on the canvas,
+    // not only in the side list.
+    await user.click(screen.getByRole("button", { name: /失落车队/u }));
+
+    const results = cytoscapeMock.cy.$id.mock.results;
+    const focused = results[results.length - 1]?.value;
+    expect(focused.addClass).toHaveBeenCalledWith("is-focus");
+    expect(focused.closedNeighborhood).toHaveBeenCalled();
   });
 });

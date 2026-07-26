@@ -9,7 +9,7 @@ import {
   type MutationIntent,
 } from "../../api/csrf";
 import type { components, paths } from "../../api/generated/openapi";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { gameForgeApi } from "../../api/runtime";
 import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
 
@@ -168,14 +168,6 @@ export interface PatchWorkflowApi {
     request: RollbackWorkflowApplyRequest,
     intent: MutationIntent,
   ): Promise<WorkflowApplyResult>;
-}
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
 }
 
 async function unwrapVersionedResponse<T>(result: ApiResponse<T>): Promise<VersionedResource<T>> {

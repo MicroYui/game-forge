@@ -2,7 +2,7 @@ import type { GameForgeOpenApiClient } from "../../api/client";
 import { unwrapApiResponse } from "../../api/client";
 import type { components } from "../../api/generated/openapi";
 import type { RunEvent } from "../../api/generated/sse-run-event-v1";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { clearAuthorizedSessionState, gameForgeApi } from "../../api/runtime";
 import { RunEventStream, type RunEventStreamState } from "../../api/sse";
 
@@ -41,14 +41,6 @@ export interface RunDetailApi {
   loadCommandsPage(runId: string, cursor: string | null): Promise<RunCommandPage>;
   loadTracesPage(runId: string, cursor: string | null): Promise<TraceSummaryPage>;
   createEventStream(callbacks: RunEventStreamCallbacks & { runId: string }): RunEventStreamHandle;
-}
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
 }
 
 export function createRunDetailApi(client: GameForgeOpenApiClient = gameForgeApi.client): RunDetailApi {

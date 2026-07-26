@@ -9,7 +9,7 @@ import {
 } from "../../api/csrf";
 import type { components, paths } from "../../api/generated/openapi";
 import type { RunEvent } from "../../api/generated/sse-run-event-v1";
-import { cursorQuery, requireExplicitCursorRestart } from "../../api/pagination";
+import { cursorQuery, readCursorPage } from "../../api/pagination";
 import { clearAuthorizedSessionState, gameForgeApi } from "../../api/runtime";
 import { RunEventStream, type RunEventStreamState } from "../../api/sse";
 import { projectReplaySourcePage, type ReplaySourceRunPage } from "../runs/replaySources";
@@ -73,14 +73,6 @@ export interface PlaytestApi {
   listRunFindingLinks(runId: string, cursor: string | null): Promise<RunFindingLinkPage>;
   listRunCommands(runId: string, cursor: string | null): Promise<RunCommandPage>;
   createEventStream(callbacks: PlaytestEventStreamCallbacks & { runId: string }): PlaytestEventStreamHandle;
-}
-
-async function readCursorPage<T>(cursor: string | null, read: () => Promise<T>): Promise<T> {
-  try {
-    return await read();
-  } catch (error) {
-    throw requireExplicitCursorRestart(error, cursor);
-  }
 }
 
 export function createPlaytestApi(client: GameForgeOpenApiClient = gameForgeApi.client): PlaytestApi {
