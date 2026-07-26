@@ -39,6 +39,11 @@ type DetailRoute = {
 
 export const detailRoutes: readonly DetailRoute[] = [
   { parentPath: "/projects", path: "/projects/:projectId", title: messages.details.project },
+  {
+    parentPath: "/projects",
+    path: "/projects/:projectId/authoring",
+    title: messages.details.projectAuthoring,
+  },
   { parentPath: "/specs", path: "/specs/:artifactId", title: messages.details.spec },
   {
     parentPath: "/specs",

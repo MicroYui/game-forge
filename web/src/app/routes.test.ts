@@ -3,10 +3,16 @@ import { describe, expect, it } from "vitest";
 import { breadcrumbsFor, navigationRoutes } from "./routes";
 
 describe("breadcrumbsFor", () => {
-  it("makes projects the product home and keeps project detail beneath it", () => {
+  it("makes projects the product home and names both project pages", () => {
     expect(navigationRoutes[0]).toMatchObject({ path: "/projects", title: "游戏项目" });
     expect(breadcrumbsFor("/projects")).toEqual([{ title: "游戏项目" }]);
     expect(breadcrumbsFor("/projects/project%3Asky-harbor")).toEqual([
+      { path: "/projects", title: "游戏项目" },
+      { title: "游戏总览" },
+    ]);
+    // The authoring flow is its own page since the project opened on the game;
+    // an unregistered route reads as "页面不存在" above a page that rendered fine.
+    expect(breadcrumbsFor("/projects/project%3Asky-harbor/authoring")).toEqual([
       { path: "/projects", title: "游戏项目" },
       { title: "项目创作" },
     ]);
