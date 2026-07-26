@@ -80,7 +80,7 @@ const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
     render: (item) => (
       <ResourceIdentity
         actionLabel="查看修改"
-        description={`${compactDateTime(item.artifact.created_at)} · ${patchRationaleLabel(item.patch.rationale)}`}
+        description={`第 ${item.patch.revision} 版 · ${compactDateTime(item.artifact.created_at)}`}
         details={[
           {
             copyLabel: "复制修改标识",
@@ -92,7 +92,8 @@ const patchColumns: readonly CursorTableColumn<PatchArtifactReadView>[] = [
             : [{ label: "原始修改理由", value: item.patch.rationale }]),
         ]}
         href={`/patches/${encodeURIComponent(item.artifact.artifact_id)}`}
-        title={`内容修改 · 第 ${item.patch.revision} 版`}
+        // The title says what this change does; the revision is context, not identity.
+        title={patchRationaleLabel(item.patch.rationale)}
       />
     ),
   },

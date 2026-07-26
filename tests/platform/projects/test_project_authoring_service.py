@@ -338,6 +338,18 @@ def test_create_project_publishes_bootstrap_without_moving_content_ref(project_r
     assert actions == ["project.created"]
 
 
+def test_bootstrap_snapshot_is_named_after_the_project(project_runtime) -> None:
+    """The content list shows a name, not an ordinal that repeats on every row."""
+
+    service, actor, uow, _, _ = project_runtime
+    project, _, _ = _create(service, actor)
+
+    with uow.begin() as transaction:
+        bootstrap = transaction.artifacts.get(project.bootstrap_snapshot_artifact_id)
+        assert bootstrap is not None
+        assert bootstrap.meta["display_title"].startswith(project.display_name)
+
+
 def test_feishu_material_retains_exact_original_and_rendered_provenance(project_runtime) -> None:
     service, actor, uow, objects, _ = project_runtime
     project, _, _ = _create(service, actor)
@@ -363,6 +375,9 @@ def test_feishu_material_retains_exact_original_and_rendered_provenance(project_
         assert rendered.kind == "source_rendered"
         assert rendered.lineage == (raw.artifact_id,)
         assert raw.meta["domain_scope"] == SCOPE.model_dump(mode="json")
+        # A planner picks material by the name they typed, so both Artifacts carry it.
+        assert raw.meta["display_title"] == "飞书天气策划"
+        assert rendered.meta["display_title"] == "飞书天气策划"
         provenance = rendered.meta["provenance"]
         assert provenance["source_kind_id"] == "tool_output"
         assert provenance["trust"] == "reviewed_external"

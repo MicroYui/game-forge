@@ -170,7 +170,10 @@ const sourceProposal: ConstraintProposalReadView = {
   },
 };
 
-const sourceRaw = artifact("artifact:source:design", "source_raw");
+const sourceRaw = {
+  ...artifact("artifact:source:design", "source_raw"),
+  display_title: "天空港核心创意",
+};
 const sourceRendered = {
   ...artifact("artifact:source:rendered", "source_rendered"),
   created_at: "2026-07-20T09:30:00Z",
@@ -243,7 +246,7 @@ async function fillHumanDraft(user: ReturnType<typeof userEvent.setup>) {
   );
   await user.click(within(human).getByRole("checkbox", { name: "economy" }));
   await user.click(within(human).getByRole("checkbox", { name: "rewards" }));
-  await user.click(within(human).getByRole("checkbox", { name: /原始策划材料 · 2026-07-19/ }));
+  await user.click(within(human).getByRole("checkbox", { name: /天空港核心创意/ }));
   await user.type(within(human).getByLabelText("Human rationale"), "Keep gold inflation bounded.");
   fireEvent.change(within(human).getByLabelText("Typed constraints JSON"), {
     target: {
@@ -267,7 +270,7 @@ async function fillAgentDraft(
 ) {
   const profileSelect = await openAgentSettings(user);
   const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
-  await user.click(within(agent).getByRole("checkbox", { name: /原始策划材料 · 2026-07-19/ }));
+  await user.click(within(agent).getByRole("checkbox", { name: /天空港核心创意/ }));
   await user.selectOptions(
     within(agent).getByLabelText("基于哪个现有规则版本（可选）"),
     "artifact:constraint:base",
@@ -347,7 +350,7 @@ describe("SpecEntryPanels", () => {
     const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
     expect(
       within(agent).getByRole("checkbox", {
-        name: /原始策划材料 · 2026-07-19/,
+        name: /天空港核心创意/,
       }),
     ).toBeVisible();
     expect(
@@ -688,5 +691,14 @@ describe("SpecEntryPanels", () => {
     if (kind === "reauth") {
       expect(screen.getByRole("link", { name: "重新登录" })).toHaveAttribute("href", "/login");
     }
+  });
+
+  it("names planning material by what the planner typed", async () => {
+    renderPanels(api());
+
+    const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
+    // The planner named this material; kind and ordinal identify nothing to them.
+    expect(within(agent).getByRole("checkbox", { name: /天空港核心创意/u })).toBeVisible();
+    expect(within(agent).queryByRole("checkbox", { name: /^原始策划材料 · /u })).not.toBeInTheDocument();
   });
 });

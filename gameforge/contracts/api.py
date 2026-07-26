@@ -18,6 +18,7 @@ from gameforge.contracts.diff import (
     SnapshotDiffEntry,
 )
 from gameforge.contracts.dsl import Constraint
+from gameforge.contracts.projects import BoundedName
 from gameforge.contracts.execution_profiles import (
     ExecutionProfileViewV1,
     MAX_PREPARED_OUTCOME_BYTES_V1,
@@ -126,6 +127,9 @@ class ArtifactSummaryV1(_FrozenModel):
     payload_schema_id: BoundedId | None = None
     domain_scope: DomainScopeValue
     created_at: Annotated[str, StringConstraints(min_length=1, max_length=128)] | None = None
+    # What a planner named this thing. Retained Artifacts created before the title
+    # existed have none, and every surface falls back to its structural label.
+    display_title: BoundedName | None = None
 
     @model_validator(mode="after")
     def _canonical_parents(self) -> "ArtifactSummaryV1":

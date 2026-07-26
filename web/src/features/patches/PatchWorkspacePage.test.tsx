@@ -117,7 +117,13 @@ describe("Patch workspace", () => {
     const patchLedger = await screen.findByRole("region", {
       name: "内容修改记录",
     });
-    expect(await within(patchLedger).findByText("内容修改 · 第 3 版")).toBeVisible();
+    // A planner scans this ledger for WHAT each change does; the revision number
+    // alone made every row read "内容修改 · 第 N 版" and told them nothing.
+    expect(
+      await within(patchLedger).findByText("调整奖励与经济数值，使资源产出回到安全范围内"),
+    ).toBeVisible();
+    expect(within(patchLedger).getByText(/^第 3 版 · /u)).toBeVisible();
+    expect(within(patchLedger).queryByText("内容修改 · 第 3 版")).not.toBeInTheDocument();
     expect(within(patchLedger).getByText("已验证 · 流程版本 7")).toBeVisible();
     expect(within(patchLedger).getByText(PATCH_ID)).not.toBeVisible();
     expect(within(patchLedger).getByRole("link", { name: "查看修改" })).toHaveAttribute(

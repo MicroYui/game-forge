@@ -1726,6 +1726,8 @@ export interface components {
             artifact_id: string;
             /** Created At */
             created_at?: string | null;
+            /** Display Title */
+            display_title?: string | null;
             /** Domain Scope */
             domain_scope: components["schemas"]["DomainScope"] | "all" | null;
             /**

@@ -3,7 +3,8 @@ from __future__ import annotations
 from pydantic import ValidationError
 import pytest
 
-from gameforge.contracts.api import GenerationProposeRequestV1
+from gameforge.contracts.api import ArtifactSummaryV1, GenerationProposeRequestV1
+from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.execution_profiles import ProfileRefV1
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
@@ -382,3 +383,37 @@ def test_project_publication_draft_is_bound_to_one_exact_source_extraction() -> 
                 if key != "source_extraction_id"
             }
         )
+
+
+def test_artifact_summary_carries_the_planner_facing_title() -> None:
+    """A planner picks material by the name they typed, not by kind and ordinal."""
+
+    summary = ArtifactSummaryV1(
+        artifact_id="artifact:material:1",
+        lineage_schema_version="lineage@2",
+        kind="source_raw",
+        version_tuple=VersionTuple(tool_version="project-material@1"),
+        parent_artifact_ids=(),
+        payload_hash="a" * 64,
+        payload_schema_id="project-material-original@1",
+        domain_scope="all",
+        created_at="2026-07-26T00:00:00Z",
+        display_title="天空港核心创意",
+    )
+
+    assert summary.display_title == "天空港核心创意"
+    # Older Artifacts predate the title and stay readable without one.
+    assert (
+        ArtifactSummaryV1(
+            artifact_id="artifact:material:0",
+            lineage_schema_version="lineage@2",
+            kind="source_raw",
+            version_tuple=VersionTuple(tool_version="project-material@1"),
+            parent_artifact_ids=(),
+            payload_hash="b" * 64,
+            payload_schema_id="project-material-original@1",
+            domain_scope="all",
+            created_at="2026-07-26T00:00:00Z",
+        ).display_title
+        is None
+    )

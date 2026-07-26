@@ -412,4 +412,23 @@ describe("SpecWorkspacePage", () => {
     expect(css).toMatch(/\.gf-specs__workspace-grid[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
     expect(css).toMatch(/\.gf-specs__entry-grid[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   });
+
+  it("names a content version by its title instead of an ordinal", async () => {
+    const named = api();
+    const original = named.listSpecs;
+    named.listSpecs = vi.fn(async (...args: Parameters<typeof original>) => {
+      const page = await original(...args);
+      return {
+        ...page,
+        items: page.items.map((item) => ({
+          ...item,
+          artifact: { ...item.artifact, display_title: "天空港计划 · 初始空内容" },
+        })),
+      };
+    });
+    renderPage(named);
+
+    expect(await screen.findByText("天空港计划 · 初始空内容")).toBeVisible();
+    expect(screen.queryByText(/^未发布内容 · 第 /u)).not.toBeInTheDocument();
+  });
 });

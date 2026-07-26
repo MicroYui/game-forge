@@ -212,6 +212,12 @@ function knownSourceOptions(catalogs: SpecEntryCatalogs): { id: string; label: s
   const ordinals = new Map<string, number>();
   for (const source of catalogs.sources) {
     const kindLabel = source.kind === "source_raw" ? "原始策划材料" : "已解析策划材料";
+    // A planner recognises material by the name they gave it. Kind and ordinal are
+    // only a fallback for material published before names were recorded.
+    if (source.display_title) {
+      values.set(source.artifact_id, `${source.display_title} · ${kindLabel}`);
+      continue;
+    }
     const createdAt = source.created_at?.slice(0, 10) ?? "时间未知";
     const ordinal = (ordinals.get(kindLabel) ?? 0) + 1;
     ordinals.set(kindLabel, ordinal);
