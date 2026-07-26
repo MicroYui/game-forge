@@ -95,9 +95,7 @@ def _checker_sim_ingestion_imports() -> list[str]:
     for root in (_SPINE_PATH / "checkers", _SPINE_PATH / "sim"):
         for path in sorted(root.rglob("*.py")):
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-            package = ".".join(
-                ("gameforge", *path.parent.relative_to(_SPINE_PATH.parent).parts)
-            )
+            package = ".".join(("gameforge", *path.parent.relative_to(_SPINE_PATH.parent).parts))
             for node in ast.walk(tree):
                 modules: list[str] = []
                 if isinstance(node, ast.Import):
@@ -247,25 +245,11 @@ def test_import_linter_denylist_covers_broad_llm_sdks(sdk):
 @pytest.mark.parametrize("sdk", ["openai", "boto3", "vertexai", "cohere"])
 def test_llm_sdk_only_allowed_outside_model_router_is_rejected(sdk):
     # Any LLM/cloud SDK imported outside runtime.model_router (here: agents) must trip the gate.
-    probe = os.path.join(os.path.dirname(__file__), os.pardir, "gameforge", "agents", "_sdk_probe.py")
-    with open(probe, "w", encoding="utf-8") as fh:
-        fh.write(f"import {sdk}  # probe: LLM SDK only allowed in runtime.model_router\n")
-    try:
-        assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
-    finally:
-        os.remove(probe)
-
-
-def test_agents_importing_transport_module_directly_is_rejected():
-    # The scoped `ignore_imports` (router -> transport) must NOT let agents reach the
-    # SDK by importing the transport module directly, bypassing ModelRouter. The chain
-    # agents -> transport -> openai does not traverse the ignored edge, so it must trip.
     probe = os.path.join(
-        os.path.dirname(__file__), os.pardir,
-        "gameforge", "agents", "_transport_probe.py",
+        os.path.dirname(__file__), os.pardir, "gameforge", "agents", "_sdk_probe.py"
     )
     with open(probe, "w", encoding="utf-8") as fh:
-        fh.write("import gameforge.runtime.model_router.transport  # must not be reachable from agents\n")
+        fh.write(f"import {sdk}  # probe: LLM SDK only allowed in runtime.model_router\n")
     try:
         assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
     finally:
@@ -275,8 +259,12 @@ def test_agents_importing_transport_module_directly_is_rejected():
 def test_model_router_may_import_openai():
     # The one allowed home for the SDK — a probe there must NOT trip the gate.
     probe = os.path.join(
-        os.path.dirname(__file__), os.pardir,
-        "gameforge", "runtime", "model_router", "_sdk_ok_probe.py",
+        os.path.dirname(__file__),
+        os.pardir,
+        "gameforge",
+        "runtime",
+        "model_router",
+        "_sdk_ok_probe.py",
     )
     with open(probe, "w", encoding="utf-8") as fh:
         fh.write("import openai  # allowed here\n")

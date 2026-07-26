@@ -1040,6 +1040,22 @@ class SqlCostRepository:
         )
         return parsed
 
+    def list_model_catalogs(self) -> tuple[ModelCatalogSnapshotV1, ...]:
+        """Every retained catalog, oldest first — what a re-seed must not overwrite."""
+
+        rows = self._session.scalars(
+            select(ModelCatalogSnapshotRow).order_by(ModelCatalogSnapshotRow.catalog_version)
+        ).all()
+        return tuple(
+            _parse_payload(
+                row.payload,
+                ModelCatalogSnapshotV1,
+                label="model catalog",
+                identity=str(row.catalog_version),
+            )
+            for row in rows
+        )
+
     def get_model_catalogs_many(
         self,
         exact_refs: Sequence[tuple[int, str]],

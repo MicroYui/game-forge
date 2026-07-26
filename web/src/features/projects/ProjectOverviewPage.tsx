@@ -153,44 +153,63 @@ export function ProjectOverviewPage({
 
       <section aria-labelledby="project-next-title" className="gf-project-overview__actions">
         <h2 id="project-next-title">继续创作</h2>
-        <ul>
-          <li>
-            <Link aria-label="从策划材料生成内容" to={authoringHref(project.project_id)}>
-              <BookOpenText aria-hidden="true" size={18} />
-              <span>
-                <strong>从策划材料生成内容</strong>
-                <small>上传或粘贴策划案，AI 提取实体与关系，确认后发布新版本</small>
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link aria-label="生成与维护规则" to={projectLink("/specs", project, materials)}>
-              <ScrollText aria-hidden="true" size={18} />
-              <span>
-                <strong>生成与维护规则</strong>
-                <small>建立任务、经济、战斗等确定性约束</small>
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link aria-label="进入自动试玩" to={projectLink("/playtest", project, materials)}>
-              <Gamepad2 aria-hidden="true" size={18} />
-              <span>
-                <strong>进入自动试玩</strong>
-                <small>{published ? "让 Agent 按当前内容跑一遍任务链" : "发布首个内容版本后可用"}</small>
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link aria-label="继续生成内容" to={projectLink("/generation", project, materials)}>
-              <Sparkles aria-hidden="true" size={18} />
-              <span>
-                <strong>继续生成内容</strong>
-                <small>在当前内容基础上让 AI 补充 NPC、任务或数值</small>
-              </span>
-            </Link>
-          </li>
-        </ul>
+        {materialQuery.isPending ? (
+          <StatePanel description="正在读取这个游戏的策划材料。" state="loading" title="正在加载" />
+        ) : materialQuery.error ? (
+          <StatePanel
+            action={
+              <button
+                className="gf-secondary-button"
+                onClick={() => void materialQuery.refetch()}
+                type="button"
+              >
+                重新读取
+              </button>
+            }
+            description="读不出这个游戏的策划材料，所以暂时给不出会带上材料的入口；稍后重试。"
+            state="error"
+            title="材料读取失败"
+          />
+        ) : (
+          <ul>
+            <li>
+              <Link aria-label="从策划材料生成内容" to={authoringHref(project.project_id)}>
+                <BookOpenText aria-hidden="true" size={18} />
+                <span>
+                  <strong>从策划材料生成内容</strong>
+                  <small>上传或粘贴策划案，AI 提取实体与关系，确认后发布新版本</small>
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link aria-label="生成与维护规则" to={projectLink("/specs", project, materials)}>
+                <ScrollText aria-hidden="true" size={18} />
+                <span>
+                  <strong>生成与维护规则</strong>
+                  <small>建立任务、经济、战斗等确定性约束</small>
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link aria-label="进入自动试玩" to={projectLink("/playtest", project, materials)}>
+                <Gamepad2 aria-hidden="true" size={18} />
+                <span>
+                  <strong>进入自动试玩</strong>
+                  <small>{published ? "让 Agent 按当前内容跑一遍任务链" : "发布首个内容版本后可用"}</small>
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link aria-label="继续生成内容" to={projectLink("/generation", project, materials)}>
+                <Sparkles aria-hidden="true" size={18} />
+                <span>
+                  <strong>继续生成内容</strong>
+                  <small>在当前内容基础上让 AI 补充 NPC、任务或数值</small>
+                </span>
+              </Link>
+            </li>
+          </ul>
+        )}
       </section>
     </div>
   );

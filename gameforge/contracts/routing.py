@@ -29,6 +29,11 @@ PositiveInt = Annotated[int, Field(gt=0)]
 NonNegativeInt = Annotated[int, Field(ge=0)]
 MAX_ROUTING_FALLBACKS = 3
 
+# Providers do not share one request surface, and a single gateway exposes several:
+# a model rejected by /chat/completions may answer only on /responses. Every model
+# identity in this module carries the surface it speaks so no caller has to guess.
+ApiFlavor = Literal["chat_completions", "responses", "anthropic_messages"]
+
 
 class _FrozenModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, validate_default=True)
@@ -64,6 +69,43 @@ def canonical_model_snapshot_id(snapshot: ModelSnapshot) -> str:
     return f"{provider}:sha256:{digest}"
 
 
+class GatewayModelV1(_FrozenModel):
+    """One model the gateway reports as callable, in the gateway's own words.
+
+    This is a *reading* of an external listing, not a product decision: the catalog
+    below is derived from it, and the planner-facing model picker shows it. Keeping
+    the two derived from one reading is what stops the surface a model actually
+    serves from drifting away from the surface we send it.
+    """
+
+    gateway_model_schema_version: Literal["gateway-model@1"] = "gateway-model@1"
+    model: NonEmptyStr
+    display_name: NonEmptyStr
+    vendor: NonEmptyStr
+    served_version: NonEmptyStr
+    tier: NonEmptyStr
+    api_flavor: ApiFlavor
+    capabilities: tuple[NonEmptyStr, ...]
+    context_limit: PositiveInt
+    max_output_tokens: PositiveInt
+    prompt_cache_support: bool
+    preview: bool
+
+    @field_validator("capabilities")
+    @classmethod
+    def _canonical_capabilities(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        canonical = tuple(sorted(set(value)))
+        if len(canonical) != len(value):
+            raise ValueError("gateway model capabilities must be unique")
+        return canonical
+
+    @model_validator(mode="after")
+    def _bounded_output(self) -> GatewayModelV1:
+        if self.max_output_tokens > self.context_limit:
+            raise ValueError("max output tokens cannot exceed model context limit")
+        return self
+
+
 class ModelDescriptorV1(_FrozenModel):
     descriptor_schema_version: Literal["model-descriptor@1"] = "model-descriptor@1"
     provider: ProviderId
@@ -74,12 +116,7 @@ class ModelDescriptorV1(_FrozenModel):
     max_output_tokens: PositiveInt
     prompt_cache_support: bool
     status: Literal["active", "disabled"]
-    # Providers do not share one surface, and a gateway can expose several: a model
-    # rejected by /chat/completions may answer only on /responses. The descriptor
-    # states which one this model answers on so no caller has to guess.
-    api_flavor: Literal["chat_completions", "responses", "anthropic_messages"] = (
-        "chat_completions"
-    )
+    api_flavor: ApiFlavor = "chat_completions"
 
     @field_validator("capabilities")
     @classmethod
@@ -313,6 +350,8 @@ def validate_policy_catalog_closure(
 
 __all__ = [
     "MAX_ROUTING_FALLBACKS",
+    "ApiFlavor",
+    "GatewayModelV1",
     "ModelCatalogSnapshotV1",
     "ModelDescriptorV1",
     "RoutingBudgetPredicateV1",

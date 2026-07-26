@@ -1,17 +1,20 @@
-"""LLM transport — the ONLY module allowed to import an LLM SDK (import-linter).
+"""HTTP transports for the OpenAI-compatible `/chat/completions` surface.
 
-OpenAITransport talks to the OpenAI-compatible gateway (localhost:4141). The
-underlying client is injectable so unit tests exercise response-mapping with a
-fake and never touch the network. StubTransport serves canned responses keyed by
-request_hash for deterministic router/agent tests.
+`OpenAITransport` is the sibling of `OpenAIResponsesTransport` and
+`AnthropicMessagesTransport`: same package, same injectable `httpx` client, one
+surface each. Gemini models on this gateway serve only `/chat/completions`, so a
+worker that can reach every catalogued model needs all three.
+
+`StubTransport` serves canned responses keyed by request_hash for deterministic
+router/agent tests.
 """
 
 from __future__ import annotations
 
 import time
-from typing import Protocol
+from typing import Any, Protocol
 
-import openai  # the one allowed SDK import (import-linter contract)
+import httpx
 
 from gameforge.contracts.model_router import ModelRequest, ModelResponse, request_hash
 
@@ -21,11 +24,13 @@ class LlmTransport(Protocol):
 
 
 class OpenAITransport:
-    def __init__(self, base_url: str, api_key: str, client=None) -> None:
-        self._client = client or openai.OpenAI(base_url=base_url, api_key=api_key)
+    def __init__(self, base_url: str, api_key: str, client: Any | None = None) -> None:
+        self._url = f"{base_url.rstrip('/')}/chat/completions"
+        self._api_key = api_key
+        self._client = client if client is not None else httpx.Client(timeout=60.0)
 
     def complete(self, req: ModelRequest) -> ModelResponse:
-        return self._complete(req, client=self._client)
+        return self._complete(req, timeout_s=None)
 
     def complete_with_timeout(
         self,
@@ -35,27 +40,43 @@ class OpenAITransport:
     ) -> ModelResponse:
         if timeout_s <= 0:
             raise TimeoutError("transport deadline has elapsed")
-        client = self._client.with_options(timeout=timeout_s)
-        return self._complete(req, client=client)
+        return self._complete(req, timeout_s=timeout_s)
 
-    @staticmethod
-    def _complete(req: ModelRequest, *, client) -> ModelResponse:
-        started = time.monotonic()
-        resp = client.chat.completions.create(
-            model=req.model_snapshot.model,
-            messages=[m.model_dump(exclude_none=True) for m in req.messages],
+    def close(self) -> None:
+        close = getattr(self._client, "close", None)
+        if callable(close):
+            close()
+
+    def _complete(self, req: ModelRequest, *, timeout_s: float | None) -> ModelResponse:
+        body = {
+            "model": req.model_snapshot.model,
+            "messages": [message.model_dump(exclude_none=True) for message in req.messages],
             **req.params,
-        )
-        choice = resp.choices[0]
-        usage = resp.usage.model_dump() if getattr(resp, "usage", None) else {}
-        tool_calls = getattr(choice.message, "tool_calls", None) or []
+        }
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+        }
+
+        started = time.monotonic()
+        kwargs: dict[str, Any] = {"json": body, "headers": headers}
+        if timeout_s is not None:
+            kwargs["timeout"] = timeout_s
+        response = self._client.post(self._url, **kwargs)
+        response.raise_for_status()
+        payload = response.json()
+        latency_ms = int((time.monotonic() - started) * 1000)
+
+        choice = (payload.get("choices") or [{}])[0]
+        message = choice.get("message") or {}
+        usage = payload.get("usage") or {}
         return ModelResponse(
-            response_normalized=choice.message.content or "",
-            raw_response=resp.model_dump() if hasattr(resp, "model_dump") else {},
-            latency_ms=int((time.monotonic() - started) * 1000),
-            token_usage={k: int(v) for k, v in usage.items() if isinstance(v, int)},
-            finish_reason=getattr(choice, "finish_reason", "") or "",
-            tool_calls=[tc if isinstance(tc, dict) else tc.model_dump() for tc in tool_calls],
+            response_normalized=message.get("content") or "",
+            raw_response=payload,
+            latency_ms=latency_ms,
+            token_usage={key: value for key, value in usage.items() if type(value) is int},
+            finish_reason=choice.get("finish_reason") or "",
+            tool_calls=list(message.get("tool_calls") or []),
         )
 
 

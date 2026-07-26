@@ -86,6 +86,30 @@
 
 选中一个实体时：它自身放大并填充高亮，`closedNeighborhood()` 内的内容与关系一起点亮，其余淡到 14%，180ms 过渡；`prefers-reduced-motion: reduce` 下过渡为 0（canvas 由 cytoscape 绘制，不吃 CSS 变量，所以在 JS 里读偏好）。
 
+## 片 7：模型可选（产品负责人 2026-07-26 提出）
+
+本地栈跑的是 hermetic 替身传输，AI 提取返回的是写死的固定结果。产品负责人要求「一会儿想用 gpt5.6sol，一会儿想用 opus5」，且「点开的时候自动获取，然后用户可选」。分四层推进。
+
+### 层 1：按模型实际应答的协议分派（✅）
+
+实测：`gpt-5.6-sol` 只在 `/responses` 应答（`/chat/completions` 返回 `unsupported_api_for_model`），`claude-opus-5` 在 `/v1/messages` 与 `/chat/completions` 都应答。新增 `ApiFlavorRoutedTransport`：按模型声明的 surface 分派，未声明或无对应传输一律 fail closed。
+
+### 层 2：多模型目录 + 每模型路由策略 + 真实网关（✅）
+
+网关的 `/v1/models` 自己报告每个模型的 `supported_endpoints`、上下文与输出上限、能力和分级。新增 `GatewayModelV1` + `parse_gateway_models()`/`fetch_gateway_models()` 读取它，**一次读取同时派生**三样东西，因此三者不可能互相漂移：
+
+- `ModelCatalogSnapshotV1`（run 冻结的版本化目录，每个 descriptor 带 `api_flavor`）
+- 每个可选模型一份 `RoutingPolicyV1`（规则的 primary 就是该模型，无 fallback）——因为 worker 的 router 永远取规则的 primary，所以「策划选哪个模型」在既有契约里就等于「选哪份路由策略」
+- 部署的 `StructuredModelSnapshotManifestV1`（binding 增加 `api_flavor`，worker 据此组装 `ApiFlavorRoutedTransport`）
+
+达不到 Agent 图声明能力（当前为 `reasoning`）的模型不进目录：提供出来只会让策划选完在计划校验处被拒。目录版本按内容复用，模型集合变了才升版；策略版本按 `catalog_version` 分段，跨目录版本永不撞号。
+
+同时按硬规则 7 清掉三处遗留：层 1 那个按 `provider:model` 拆 id 的 dispatch 表（产品目录用的是不可逆 `provider:sha256:…`，那个假设本来就不成立）；`OpenAITransport` 的 openai SDK 实现改为与两个兄弟传输一致的 httpx（否则 `apps` 组合三种传输会撞 import-linter，而它们本来就该同形）；随之失效的 `router -> transport` 定向豁免与那条只测该豁免的用例。
+
+### 层 3：可用模型读端点（待做）
+
+### 层 4：启动卡上的模型选择器（待做）
+
 ## 完成定义
 
 Task 1–9 全部完成、以策划视角实跑闭合、无剩余 P0/P1，且门禁全绿，才算该 goal 完成。

@@ -5,29 +5,55 @@ import json
 
 from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.apps.worker.components import WorkerArtifactBlobReader
-from tests.e2e.m4c.test_agent_draft_terminal_audit import _execution_plan, _model_authorities
+from gameforge.contracts.routing import canonical_model_snapshot_id
+from gameforge.platform.registry.defaults import build_builtin_registry
+from gameforge.platform.routing.gateway_catalog import gateway_model_snapshot
+from gameforge.platform.runs.execution_plan import build_execution_version_plan
 from tests.e2e.m4c.test_journey_b import _headers, _login, _start_api, _stop_api
 from tests.e2e.m4c.test_journey_b import _drive
 from tests.e2e.m4d_support.project_live import (
     ADMIN_LOGIN,
     ADMIN_PASSWORD,
-    _ProjectTransport,
+    DEFAULT_MODEL,
+    STUB_MODELS,
+    _default_routing_policy,
     _prepare_workspace,
     _project_api_config,
+    _ProjectTransport,
+    _stub_authorities,
 )
 
 
-def test_project_launcher_provisions_a_real_platform_admin_and_retained_model_authority(
-    tmp_path,
-) -> None:
-    harness, authorities = _prepare_workspace(
+def _stub_stack(tmp_path):
+    """The launcher's stub composition: real seeding, a stand-in for the model."""
+
+    harness, seed = _prepare_workspace(
         tmp_path,
         tmp_path / "project-live-manifest.json",
-        tmp_path / "project-live-transport.log",
+        STUB_MODELS,
     )
+    authorities = _stub_authorities(
+        tmp_path,
+        transport_log=tmp_path / "project-live-transport.log",
+    )
+    return harness, seed, authorities
+
+
+def test_project_launcher_seeds_every_model_the_gateway_serves(tmp_path) -> None:
+    harness, seed, authorities = _stub_stack(tmp_path)
     assert isinstance(authorities.transport, _ProjectTransport)
 
-    api = _start_api(_project_api_config(harness))
+    # Every callable model is catalogued, and each one has a policy that routes the
+    # whole run to it — that is how a planner's model choice is expressed.
+    assert len(seed.catalog.models) == len(STUB_MODELS)
+    assert len(seed.policies) == len(STUB_MODELS)
+    default = _default_routing_policy(seed, STUB_MODELS)
+    wanted = canonical_model_snapshot_id(
+        gateway_model_snapshot(next(m for m in STUB_MODELS if m.model == DEFAULT_MODEL))
+    )
+    assert {rule.primary_model_snapshot for rule in default.rules} == {wanted}
+
+    api = _start_api(_project_api_config(harness, default))
     try:
         admin = _login(api, ADMIN_LOGIN, ADMIN_PASSWORD)
         response = admin.client.post(
@@ -51,12 +77,9 @@ def test_project_launcher_provisions_a_real_platform_admin_and_retained_model_au
 def test_project_launcher_drives_feishu_material_to_a_normalized_editable_draft(
     tmp_path,
 ) -> None:
-    harness, authorities = _prepare_workspace(
-        tmp_path,
-        tmp_path / "project-live-manifest.json",
-        tmp_path / "project-live-transport.log",
-    )
-    api = _start_api(_project_api_config(harness))
+    harness, seed, authorities = _stub_stack(tmp_path)
+    default_policy = _default_routing_policy(seed, STUB_MODELS)
+    api = _start_api(_project_api_config(harness, default_policy))
     worker = build_worker_process(
         harness.worker_config(),
         model_execution_authorities=authorities,
@@ -154,7 +177,16 @@ def test_project_launcher_drives_feishu_material_to_a_normalized_editable_draft(
         # the successful Agent run just materialized.  A missing read grant used to
         # make this collection silently look empty even though the Artifact and its
         # ApprovalItem were both retained correctly.
-        _unused_authorities, catalog, routing = _model_authorities()
+        constraint_graph = next(
+            graph
+            for graph in build_builtin_registry().list_agent_execution_graphs()
+            if graph.run_kind.kind == "constraint_proposal.propose" and graph.status == "active"
+        )
+        constraint_plan = build_execution_version_plan(
+            graph=constraint_graph,
+            catalog=seed.catalog,
+            policy=default_policy,
+        )
         constraint = admin.client.post(
             "/api/v1/constraint-proposals:propose",
             json={
@@ -169,7 +201,7 @@ def test_project_launcher_drives_feishu_material_to_a_normalized_editable_draft(
                     "version": 1,
                 },
                 "llm_execution_mode": "record",
-                "execution_version_plan": _execution_plan(catalog, routing).model_dump(mode="json"),
+                "execution_version_plan": constraint_plan.model_dump(mode="json"),
                 "cassette_artifact_id": None,
             },
             headers=_headers(

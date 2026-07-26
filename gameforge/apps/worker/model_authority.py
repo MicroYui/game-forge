@@ -30,10 +30,11 @@ from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.cost import PriceBook
 from gameforge.contracts.model_router import ModelSnapshot
 from gameforge.contracts.routing import canonical_model_snapshot_id
-from gameforge.contracts.routing import RoutingDecisionV1
+from gameforge.contracts.routing import ApiFlavor, GatewayModelV1, RoutingDecisionV1
 from gameforge.contracts.reliability import CircuitBreakerConfigV1
 from gameforge.apps.worker.prompt_rendering import CanonicalPromptRendererAuthority
 from gameforge.platform.registry.defaults import build_builtin_registry
+from gameforge.platform.routing.gateway_catalog import gateway_model_snapshot
 from gameforge.platform.run_handlers.model_routing import ExactModelCatalogSnapshotResolver
 from gameforge.runtime.cassette.legacy_authority_manifest import (
     LEGACY_IMPORT_AUTHORITY_MANIFEST_PATH_ENV,
@@ -43,7 +44,10 @@ from gameforge.runtime.cassette.legacy_authority_manifest import (
 from gameforge.runtime.cassette.legacy_import import LegacyImportAuthority
 from gameforge.runtime.clock import SystemUtcClock
 from gameforge.runtime.cost.price_book import UnavailablePriceBook
+from gameforge.runtime.model_router.anthropic_transport import AnthropicMessagesTransport
 from gameforge.runtime.model_router.openai_responses_transport import OpenAIResponsesTransport
+from gameforge.runtime.model_router.routed_transport import ApiFlavorRoutedTransport
+from gameforge.runtime.model_router.transport import OpenAITransport
 from gameforge.runtime.model_router.typed_transport import TypedLlmTransport
 from gameforge.runtime.model_router.typed_transport import LegacyTypedTransportAdapter
 from gameforge.runtime.reliability.breaker import CircuitBreaker
@@ -107,6 +111,9 @@ class StructuredModelSnapshotBindingV1(BaseModel):
 
     model_snapshot_id: NonEmptyStr
     snapshot: ModelSnapshot
+    # Which surface this deployment reaches the model on. Providers do not share
+    # one: a model rejected by /chat/completions may answer only on /responses.
+    api_flavor: ApiFlavor
 
     @model_validator(mode="after")
     def _canonical_preimage(self) -> "StructuredModelSnapshotBindingV1":
@@ -186,6 +193,7 @@ class StaticStructuredModelSnapshotAuthority:
             )
         self.manifest = self.manifests[0]
         self._by_id: dict[str, ModelSnapshot] = {}
+        self._flavors: dict[str, ApiFlavor] = {}
         for shard in self.manifests:
             for item in shard.bindings:
                 if item.model_snapshot_id in self._by_id:
@@ -196,6 +204,12 @@ class StaticStructuredModelSnapshotAuthority:
                 self._by_id[item.model_snapshot_id] = ModelSnapshot.model_validate(
                     item.snapshot.model_dump(mode="python")
                 )
+                declared = self._flavors.setdefault(item.snapshot.model, item.api_flavor)
+                if declared != item.api_flavor:
+                    raise IntegrityViolation(
+                        "deployment reaches one model on two different API surfaces",
+                        model=item.snapshot.model,
+                    )
 
     def get_model_snapshot(self, model_snapshot_id: str) -> ModelSnapshot | None:
         retained = self._by_id.get(model_snapshot_id)
@@ -208,6 +222,12 @@ class StaticStructuredModelSnapshotAuthority:
     @property
     def model_snapshot_ids(self) -> tuple[str, ...]:
         return tuple(sorted(self._by_id))
+
+    @property
+    def api_flavors(self) -> dict[str, ApiFlavor]:
+        """Model name -> surface, keyed by the name a transport sends."""
+
+        return dict(self._flavors)
 
 
 class StaticCircuitBreakerAuthority:
@@ -265,6 +285,36 @@ class WorkerModelSnapshotResolver:
                 catalog_digest=catalog_digest,
                 model_snapshot_id=model_snapshot_id,
             )
+
+
+def gateway_snapshot_manifest(
+    models: Sequence[GatewayModelV1],
+    *,
+    authority_version: str,
+) -> StructuredModelSnapshotManifestV1:
+    """Materialise one gateway reading as this deployment's snapshot authority.
+
+    The same reading also produces the model catalog a run freezes, so the identity
+    a plan names and the request this worker builds always describe one model.
+    """
+
+    snapshots = {model.model: gateway_model_snapshot(model) for model in models}
+    bindings = tuple(
+        {
+            "model_snapshot_id": canonical_model_snapshot_id(snapshots[model.model]),
+            "snapshot": snapshots[model.model].model_dump(mode="json"),
+            "api_flavor": model.api_flavor,
+        }
+        for model in models
+    )
+    body: dict[str, object] = {
+        "manifest_schema_version": "structured-model-snapshots@1",
+        "authority_version": authority_version,
+        "bindings": sorted(bindings, key=lambda item: item["model_snapshot_id"]),
+    }
+    return StructuredModelSnapshotManifestV1.model_validate(
+        {**body, "manifest_digest": canonical_sha256(body)}
+    )
 
 
 def parse_structured_model_snapshot_manifest(
@@ -355,7 +405,17 @@ def load_local_model_execution_authorities(
         required_plan_keys=required_prompt_plan_keys,
     )
     transport = LegacyTypedTransportAdapter(
-        OpenAIResponsesTransport(base_url=base_url, api_key=api_key)
+        ApiFlavorRoutedTransport(
+            flavors=snapshots.api_flavors,
+            transports={
+                "chat_completions": OpenAITransport(base_url=base_url, api_key=api_key),
+                "responses": OpenAIResponsesTransport(base_url=base_url, api_key=api_key),
+                "anthropic_messages": AnthropicMessagesTransport(
+                    base_url=base_url,
+                    api_key=api_key,
+                ),
+            },
+        )
     )
     try:
         return WorkerModelExecutionAuthorities(
@@ -483,6 +543,7 @@ __all__ = [
     "StructuredModelSnapshotManifestV1",
     "WorkerModelExecutionAuthorities",
     "WorkerModelSnapshotResolver",
+    "gateway_snapshot_manifest",
     "load_local_model_execution_authorities",
     "load_structured_model_snapshot_authority",
     "parse_structured_model_snapshot_manifest",

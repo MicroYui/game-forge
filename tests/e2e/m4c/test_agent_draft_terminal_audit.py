@@ -231,6 +231,7 @@ def _model_authorities() -> tuple[
             {
                 "model_snapshot_id": model_id,
                 "snapshot": _MODEL_SNAPSHOT.model_dump(mode="json"),
+                "api_flavor": "responses",
             }
         ],
     }

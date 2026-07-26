@@ -2,31 +2,19 @@
 
 Providers do not agree on one surface, and the same gateway can expose several:
 `gpt-5.6-sol` is rejected by `/chat/completions` and answers only on `/responses`,
-`claude-opus-5` answers on `/chat/completions` and `/messages`. The model catalog
-declares the flavour; this transport dispatches on that declaration instead of
-letting each call site pick an endpoint that may not accept the chosen model.
+`claude-opus-5` answers on `/chat/completions` and `/v1/messages`. The deployment
+declares which surface it reaches each model on — read once from the gateway's own
+listing — and this transport dispatches on that declaration instead of letting each
+call site pick an endpoint that may not accept the chosen model.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Literal
 
 from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.model_router import ModelRequest, ModelResponse
-from gameforge.contracts.routing import ModelCatalogSnapshotV1
 from gameforge.runtime.model_router.transport import LlmTransport
-
-ApiFlavor = Literal["chat_completions", "responses", "anthropic_messages"]
-
-
-def api_flavors_from_catalog(catalog: ModelCatalogSnapshotV1) -> dict[str, str]:
-    """Model name -> declared API flavour, taken from the catalog that is authority."""
-
-    return {
-        descriptor.model_snapshot.split(":", 1)[1]: descriptor.api_flavor
-        for descriptor in catalog.models
-    }
 
 
 class ApiFlavorRoutedTransport:
@@ -62,7 +50,7 @@ class ApiFlavorRoutedTransport:
         flavor = self._flavors.get(model)
         if flavor is None:
             raise IntegrityViolation(
-                "model catalog declares no api flavour for this model",
+                "this deployment declares no api flavour for this model",
                 model=model,
             )
         transport = self._transports.get(flavor)
@@ -75,4 +63,4 @@ class ApiFlavorRoutedTransport:
         return transport
 
 
-__all__ = ["ApiFlavor", "ApiFlavorRoutedTransport", "api_flavors_from_catalog"]
+__all__ = ["ApiFlavorRoutedTransport"]

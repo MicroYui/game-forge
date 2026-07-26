@@ -24,6 +24,7 @@ def _manifest(
         {
             "model_snapshot_id": canonical_model_snapshot_id(snapshot),
             "snapshot": snapshot.model_dump(mode="json"),
+            "api_flavor": "responses",
         }
         for snapshot in snapshots
     ]
@@ -40,7 +41,7 @@ def _write_manifest(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
 
 
-def test_manifest_file_loader_remains_backward_compatible(tmp_path: Path) -> None:
+def test_manifest_path_may_be_one_file(tmp_path: Path) -> None:
     snapshot = ModelSnapshot(provider="openai", model="gpt", snapshot_tag="v1")
     manifest_path = tmp_path / "model-snapshots.json"
     _write_manifest(manifest_path, _manifest([snapshot]))

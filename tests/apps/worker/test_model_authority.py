@@ -17,20 +17,25 @@ from gameforge.apps.worker.model_authority import (
     StructuredModelSnapshotManifestV1,
     WorkerModelSnapshotResolver,
     WorkerModelExecutionAuthorities,
+    gateway_snapshot_manifest,
     load_local_model_execution_authorities,
     parse_structured_model_snapshot_manifest,
 )
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.errors import IntegrityViolation
-from gameforge.contracts.model_router import ModelSnapshot
+from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapshot
 from gameforge.contracts.routing import (
+    GatewayModelV1,
     ModelCatalogSnapshotV1,
     ModelDescriptorV1,
     canonical_model_snapshot_id,
     compute_model_catalog_digest,
 )
 from gameforge.contracts.reliability import CircuitBreakerConfigV1
+from gameforge.platform.routing.gateway_catalog import gateway_model_snapshot
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.model_router.anthropic_transport import AnthropicMessagesTransport
+from gameforge.runtime.model_router.routed_transport import ApiFlavorRoutedTransport
 from gameforge.runtime.cassette.legacy_authority_manifest import (
     LegacyCallToolVersionBindingV1,
     LegacyFrozenVersionTupleBindingV1,
@@ -42,7 +47,7 @@ from gameforge.runtime.reliability.breaker import CircuitBreaker
 from tests.platform.m4c.test_replay_admission import _legacy_verified_fixture
 
 
-def _manifest(snapshot: ModelSnapshot) -> dict[str, object]:
+def _manifest(snapshot: ModelSnapshot, *, api_flavor: str = "responses") -> dict[str, object]:
     payload: dict[str, object] = {
         "manifest_schema_version": "structured-model-snapshots@1",
         "authority_version": "deployment-models@1",
@@ -50,6 +55,7 @@ def _manifest(snapshot: ModelSnapshot) -> dict[str, object]:
             {
                 "model_snapshot_id": canonical_model_snapshot_id(snapshot),
                 "snapshot": snapshot.model_dump(mode="json"),
+                "api_flavor": api_flavor,
             }
         ],
     }
@@ -401,6 +407,115 @@ def test_local_loader_builds_all_non_network_authority_before_opening_http_clien
                 MODEL_GATEWAY_API_KEY_ENV: "test-only-secret",
             }
         )
+
+
+def _gateway_model(name: str, *, vendor: str, flavor: str) -> GatewayModelV1:
+    return GatewayModelV1(
+        model=name,
+        display_name=name,
+        vendor=vendor,
+        served_version=name,
+        tier="powerful",
+        api_flavor=flavor,
+        capabilities=("reasoning",),
+        context_limit=1_000_000,
+        max_output_tokens=64_000,
+        prompt_cache_support=True,
+        preview=False,
+    )
+
+
+def test_one_gateway_reading_becomes_the_deployment_snapshot_authority() -> None:
+    manifest = gateway_snapshot_manifest(
+        (
+            _gateway_model("gpt-5.6-sol", vendor="OpenAI", flavor="responses"),
+            _gateway_model("claude-opus-5", vendor="Anthropic", flavor="anthropic_messages"),
+        ),
+        authority_version="gateway-models@1",
+    )
+    authority = StaticStructuredModelSnapshotAuthority(manifest)
+
+    assert authority.api_flavors == {
+        "gpt-5.6-sol": "responses",
+        "claude-opus-5": "anthropic_messages",
+    }
+    # The catalog names models by the same canonical identity this authority resolves.
+    assert set(authority.model_snapshot_ids) == {
+        canonical_model_snapshot_id(
+            gateway_model_snapshot(
+                _gateway_model("gpt-5.6-sol", vendor="OpenAI", flavor="responses")
+            )
+        ),
+        canonical_model_snapshot_id(
+            gateway_model_snapshot(
+                _gateway_model("claude-opus-5", vendor="Anthropic", flavor="anthropic_messages")
+            )
+        ),
+    }
+
+
+def test_a_deployment_reaching_one_model_two_ways_fails_closed() -> None:
+    snapshot = ModelSnapshot(provider="openai", model="gpt-5.6-sol", snapshot_tag="a")
+    other = ModelSnapshot(provider="openai", model="gpt-5.6-sol", snapshot_tag="b")
+    payload: dict[str, object] = {
+        "manifest_schema_version": "structured-model-snapshots@1",
+        "authority_version": "deployment-models@1",
+        "bindings": sorted(
+            (
+                {
+                    "model_snapshot_id": canonical_model_snapshot_id(snapshot),
+                    "snapshot": snapshot.model_dump(mode="json"),
+                    "api_flavor": "responses",
+                },
+                {
+                    "model_snapshot_id": canonical_model_snapshot_id(other),
+                    "snapshot": other.model_dump(mode="json"),
+                    "api_flavor": "chat_completions",
+                },
+            ),
+            key=lambda item: item["model_snapshot_id"],
+        ),
+    }
+    manifest = StructuredModelSnapshotManifestV1.model_validate(
+        {**payload, "manifest_digest": canonical_sha256(payload)}
+    )
+
+    with pytest.raises(IntegrityViolation, match="two different API surfaces"):
+        StaticStructuredModelSnapshotAuthority(manifest)
+
+
+def test_the_loader_sends_each_model_to_the_surface_it_answers_on(tmp_path) -> None:
+    opus = ModelSnapshot(provider="anthropic", model="claude-opus-5", snapshot_tag="v1")
+    manifest_path = tmp_path / "model-snapshots.json"
+    manifest_path.write_text(
+        json.dumps(_manifest(opus, api_flavor="anthropic_messages")),
+        encoding="utf-8",
+    )
+
+    authority = load_local_model_execution_authorities(
+        environment={
+            MODEL_SNAPSHOT_MANIFEST_PATH_ENV: str(manifest_path),
+            MODEL_GATEWAY_API_KEY_ENV: "test-only-secret",
+        }
+    )
+    try:
+        routed = authority.transport._transport  # type: ignore[attr-defined]
+        assert isinstance(routed, ApiFlavorRoutedTransport)
+        # Opus is served by the Anthropic Messages API; the Responses transport the
+        # worker used to hardcode would have been rejected outright.
+        assert isinstance(
+            routed._transport_for(  # type: ignore[attr-defined]
+                ModelRequest(
+                    model_snapshot=opus,
+                    messages=[Message(role="user", content="ping")],
+                    agent_node_id="generation",
+                    prompt_version="generation@7",
+                )
+            ),
+            AnthropicMessagesTransport,
+        )
+    finally:
+        authority.transport.close()  # type: ignore[attr-defined]
 
 
 def test_manifest_rejects_tampered_digest_and_non_preimage_binding() -> None:

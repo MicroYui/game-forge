@@ -185,4 +185,37 @@ describe("ProjectOverviewPage", () => {
     const generation = within(actions).getByRole("link", { name: "继续生成内容" });
     expect(generation.getAttribute("href")).toContain("constraint=");
   });
+
+  it("does not hand out an entry before it knows the material it promises to bind", async () => {
+    // The project loads first; a link built while the material list is still in
+    // flight silently binds zero sources, and the run it starts sees no material.
+    let releaseMaterials: (value: unknown) => void = () => {};
+    const pending = new Promise((resolve) => {
+      releaseMaterials = resolve;
+    });
+    renderPage(
+      api({
+        listMaterials: vi.fn().mockReturnValue(
+          pending.then(() => ({
+            items: [
+              {
+                material_id: "material:1",
+                rendered_source_artifact_id: "artifact:rendered:1",
+              },
+            ],
+            next_cursor: null,
+            page_schema_version: "project-material-page@1" as const,
+          })),
+        ),
+      }),
+    );
+
+    expect(await screen.findByRole("heading", { level: 1, name: "天空港计划" })).toBeVisible();
+    expect(screen.queryByRole("link", { name: "继续生成内容" })).not.toBeInTheDocument();
+
+    releaseMaterials(null);
+
+    const generation = await screen.findByRole("link", { name: "继续生成内容" });
+    expect(generation.getAttribute("href")).toContain("source=artifact%3Arendered%3A1");
+  });
 });
