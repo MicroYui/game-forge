@@ -251,27 +251,33 @@ def _endpoint(
     return None
 
 
-def normalize_typed_ops(
-    base_snapshot: Snapshot,
-    operations: Iterable[TypedOp],
-    *,
-    declared_aliases: Mapping[str, str] | None = None,
-) -> IdentityNormalizationResult:
-    """Normalize a proposal against one exact base snapshot.
+@dataclass(frozen=True, slots=True)
+class IdentityAliasIndex:
+    """Every spelling that resolves to a base-snapshot entity id.
 
-    Output ordering is canonical.  Equal lexical aliases merge; unequal values
-    remain visible as blocking conflicts and publication must not proceed until a
-    human resolves them.
-
-    ``declared_aliases`` carries names no lexical rule could ever reach — 岩王帝君
-    and 钟离 share no characters, so only a person can say they are one thing.
-    Once said, applying it is deterministic and no model is in the path.
+    The dicts are mutable on purpose: ``normalize_typed_ops`` extends them with
+    proposal-local ids as it walks the ``add_entity`` ops.  Each caller therefore
+    gets its OWN index — sharing one would make a later consumer's answer depend
+    on an earlier consumer's model output, which is neither deterministic nor
+    replayable.
     """
 
-    input_ops = tuple(operations)
-    conflicts: list[IdentityConflictV1] = []
-    aliases: dict[str, set[str]] = {}
-    entity_groups: dict[str, list[_EntityCandidate]] = {}
+    exact_aliases: dict[str, str]
+    unqualified_aliases: dict[str, set[str]]
+    existing_ids: set[str]
+
+
+def build_identity_alias_index(
+    base_snapshot: Snapshot,
+    *,
+    declared_aliases: Mapping[str, str] | None = None,
+) -> IdentityAliasIndex:
+    """Index one base snapshot plus the names its project declared for it.
+
+    Declared aliases enter ``exact_aliases`` only.  They are exact statements by
+    a person, never a source of the unqualified ambiguity ``_endpoint`` reports.
+    """
+
     exact_aliases: dict[str, str] = {}
     unqualified_aliases: dict[str, set[str]] = {}
     existing_ids = set(base_snapshot.entities)
@@ -298,6 +304,39 @@ def normalize_typed_ops(
             )
         exact_aliases[alias] = entity_id
         exact_aliases[_canonical_namespaced(alias)] = entity_id
+
+    return IdentityAliasIndex(
+        exact_aliases=exact_aliases,
+        unqualified_aliases=unqualified_aliases,
+        existing_ids=existing_ids,
+    )
+
+
+def normalize_typed_ops(
+    base_snapshot: Snapshot,
+    operations: Iterable[TypedOp],
+    *,
+    declared_aliases: Mapping[str, str] | None = None,
+) -> IdentityNormalizationResult:
+    """Normalize a proposal against one exact base snapshot.
+
+    Output ordering is canonical.  Equal lexical aliases merge; unequal values
+    remain visible as blocking conflicts and publication must not proceed until a
+    human resolves them.
+
+    ``declared_aliases`` carries names no lexical rule could ever reach — 岩王帝君
+    and 钟离 share no characters, so only a person can say they are one thing.
+    Once said, applying it is deterministic and no model is in the path.
+    """
+
+    input_ops = tuple(operations)
+    conflicts: list[IdentityConflictV1] = []
+    aliases: dict[str, set[str]] = {}
+    entity_groups: dict[str, list[_EntityCandidate]] = {}
+    index = build_identity_alias_index(base_snapshot, declared_aliases=declared_aliases)
+    exact_aliases = index.exact_aliases
+    unqualified_aliases = index.unqualified_aliases
+    existing_ids = index.existing_ids
 
     other_ops: list[TypedOp] = []
     for operation in input_ops:
@@ -516,7 +555,10 @@ def normalize_typed_ops(
 
 __all__ = [
     "IDENTITY_NORMALIZATION_POLICY_VERSION",
+    "IdentityAliasIndex",
     "IdentityNormalizationResult",
+    "build_identity_alias_index",
+    "canonical_identity_reference",
     "canonical_identity_token",
     "normalize_typed_ops",
 ]

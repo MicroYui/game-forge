@@ -34,7 +34,9 @@ AGENT_PROMPT_CONTEXT_RENDERER_VERSION = "agent-prompt-context-renderer@1"
 # itself retained authority: the corresponding production request has no system
 # message and the renderer must not manufacture one.
 _BUILTIN_SYSTEM_PROMPTS: dict[tuple[str, str], str | None] = {
-    ("generation", "generation@7"): "generation.system",
+    # generation-graph@8 is replay_only and still names generation@7.
+    ("generation", "generation@7"): "generation.v7.system",
+    ("generation", "generation@8"): "generation.system",
     ("repair", "repair@4"): "repair.system",
     ("extraction", "extraction@1"): "extraction.system",
     ("review-triage", "review-triage@1"): None,
@@ -271,6 +273,7 @@ def build_builtin_agent_prompt_context_authority(
     routed_output_bound_prompts = {
         ("bench-agent-case", "bench-agent@1"),
         ("generation", "generation@7"),
+        ("generation", "generation@8"),
         ("review-triage", "review-triage@1"),
     }
     bindings: list[CanonicalPromptBindingV1] = []

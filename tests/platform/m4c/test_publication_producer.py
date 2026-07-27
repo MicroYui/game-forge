@@ -206,7 +206,7 @@ def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -
         ),
         domain_scope=DomainScope(domain_ids=("content",)),
         target=RefReadBindingV1(ref_name="ref:content"),
-        generation_policy=ProfileRefV1(profile_id="builtin.generation", version=2),
+        generation_policy=ProfileRefV1(profile_id="builtin.generation", version=3),
         candidate_export_profiles=(profile,),
     )
     resolved = ResolvedExecutionProfileBindingV1(

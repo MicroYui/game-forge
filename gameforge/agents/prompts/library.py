@@ -212,7 +212,7 @@ _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION = (
     _CONSISTENCY_REBUTTAL + " METHOD: adversarial falsification."
 )
 
-_GENERATION = (
+_GENERATION_V7 = (
     "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
     "(entities, regions, items, numeric ranges), you PROPOSE content as a typed patch grounded in "
     "that snapshot. Your output is only a proposal that must pass the deterministic checker and "
@@ -234,7 +234,7 @@ _GENERATION = (
     "the operation explicitly adds that id."
 )
 
-_GENERATION += (
+_GENERATION_V7 += (
     " IR types are a closed contract. Every entity type must be exactly one of: "
     "FACTION, CHARACTER, NPC, QUEST, QUEST_STEP, DIALOGUE_NODE, REGION, SPAWN_POINT, "
     "INTERACTABLE, ITEM, MONSTER, CURRENCY, SHOP, DROP_TABLE, REWARD_TABLE, GACHA_POOL, "
@@ -297,6 +297,23 @@ _GENERATION += (
     "spellings rather than guessing equivalence."
 )
 
+# generation@8 is generation@7 with one thing corrected: the grounding is now a
+# RETRIEVED EXCERPT of the content graph, not the whole of it. Under @7's wording
+# ("the supplied snapshot") a model handed an excerpt would conclude that an id it
+# cannot see does not exist, and add a duplicate entity — the exact defect the
+# identity-alias work exists to prevent.
+_GENERATION = _GENERATION_V7.replace(
+    "Use only real existing ids from the supplied snapshot unless "
+    "the operation explicitly adds that id.",
+    "The grounding context is a RELEVANT EXCERPT of a larger graph, not all of it. "
+    "entity_catalog lists the ids that exist per type, truncated per type, and "
+    "complete false means content was left out. Never conclude that an entity does "
+    "not exist because it is absent here. Prefer an id shown in the excerpt; when "
+    "the material names something you cannot find, add it under the name the "
+    "material uses and let the deterministic identity oracle reconcile it.",
+)
+
+
 _PROMPTS: list[tuple[str, str, str]] = [
     ("extraction.system", "extraction@1", _EXTRACTION),
     ("triage.system", "triage@1", _TRIAGE),
@@ -340,7 +357,10 @@ _PROMPTS: list[tuple[str, str, str]] = [
     ("consistency.legacy.rebuttal.temporal", "consistency@1", _CONSISTENCY_REBUTTAL_TEMPORAL),
     ("consistency.legacy.rebuttal.identity", "consistency@1", _CONSISTENCY_REBUTTAL_IDENTITY),
     ("consistency.legacy.rebuttal.spoiler", "consistency@1", _CONSISTENCY_REBUTTAL_SPOILER),
-    ("generation.system", "generation@7", _GENERATION),
+    # generation-graph@8 is replay_only and still names generation@7, so the
+    # exact template those Runs were issued under has to stay resolvable.
+    ("generation.v7.system", "generation@7", _GENERATION_V7),
+    ("generation.system", "generation@8", _GENERATION),
 ]
 
 

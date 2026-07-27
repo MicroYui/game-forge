@@ -77,7 +77,7 @@ const executionPlan: components["schemas"]["ExecutionVersionPlanV1"] = {
     {
       agent_node_id: "generate",
       allowed_model_snapshots: ["openai/gpt-5.6-sol/m4@1"],
-      prompt_version: "generation@7",
+      prompt_version: "generation@8",
       tool_version: "patch-drafter@2",
     },
   ],

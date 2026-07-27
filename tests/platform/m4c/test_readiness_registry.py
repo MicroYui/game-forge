@@ -161,8 +161,12 @@ def test_generation_has_one_current_execution_graph() -> None:
     assert _shape(historical) == [
         ("generation-graph@7", "replay_only", "generation@7", "generation@1"),
     ]
+    # @8 issued its Runs under the prompt that described the whole graph; grounding
+    # is now a retrieved excerpt, so those Runs replay against generation@7 while
+    # everything new speaks generation@8.
     assert _shape(current) == [
-        ("generation-graph@8", "active", "generation@7", "generation@1"),
+        ("generation-graph@8", "replay_only", "generation@7", "generation@1"),
+        ("generation-graph@9", "active", "generation@8", "generation@1"),
     ]
 
 
@@ -209,10 +213,31 @@ def test_task11_execution_profile_catalog_remains_byte_identical() -> None:
     assert len(canonical_json(catalog.model_dump(mode="json")).encode("utf-8")) == 23_745
 
 
+def test_every_retained_catalog_digest_is_frozen() -> None:
+    """A catalog digest is written into every Run admitted against it.
+
+    So a retained catalog is not merely "old code we keep around" — changing one
+    byte of v1..v4 makes every Run that references it unresolvable, and the server
+    refuses to boot against a workspace that holds one. The v1 assertion above
+    predates this; every later catalog needs the same guard, because the next
+    version is always minted by a function that also builds the earlier ones.
+    """
+
+    digests = {
+        catalog.catalog_version: catalog.catalog_digest
+        for catalog in build_builtin_registry().list_execution_profile_catalogs()
+    }
+
+    assert digests[1] == "6473a8a4fe0d92133c97f57005e668881743b69206481d7dedec854f248647e4"
+    assert digests[2] == "c698864821f380b33923e576de6c77b2855649d8aeb8c9d61a3dd32b21e07a83"
+    assert digests[3] == "1db12ddb54184c12a613701cf7b363bfebd3c6d3a5927180b4a7b69108bd7b37"
+    assert digests[4] == "17859067c1a7d645ac6f3a6b2cd21f73021edce657d803cf08859ed45ca0b693"
+
+
 def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -> None:
     catalogs = build_builtin_registry().list_execution_profile_catalogs()
 
-    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3, 4]
+    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3, 4, 5]
     old_checker = next(
         definition
         for definition in catalogs[0].definitions

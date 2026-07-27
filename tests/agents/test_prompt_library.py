@@ -11,7 +11,8 @@ def test_all_agent_prompts_registered():
         ("repair.refine", "repair@4"),
         ("consistency.system", "consistency@3"),
         ("consistency.legacy.system", "consistency@1"),
-        ("generation.system", "generation@7"),
+        ("generation.system", "generation@8"),
+        ("generation.v7.system", "generation@7"),
     ]:
         v, tmpl = get_prompt(name)
         assert v == ver
@@ -44,7 +45,7 @@ def test_generation_prompt_declares_the_exact_typed_op_target_contract():
 
     version, text = get_prompt("generation.system")
 
-    assert version == "generation@7"
+    assert version == "generation@8"
     for op in (
         "add_entity",
         "delete_entity",
@@ -65,7 +66,7 @@ def test_generation_prompt_freezes_ir_types_and_material_extraction_shape():
 
     version, prompt = get_prompt("generation.system")
 
-    assert version == "generation@7"
+    assert version == "generation@8"
     assert "EVENT" in prompt
     assert "QUEST_STEP" in prompt
     assert "LOCATED_IN" in prompt

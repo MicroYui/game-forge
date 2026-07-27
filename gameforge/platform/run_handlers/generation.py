@@ -50,6 +50,7 @@ from gameforge.contracts.jobs import (
     ResolvedArtifactRequirementV1,
 )
 from gameforge.contracts.lineage import ArtifactKind
+from gameforge.spine.ir.grounding import GroundingBudget, GroundingProjectionBudget
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.patch import PatchRejected, apply_patch
 from gameforge.spine.sim.economy import EconomyModel
@@ -132,6 +133,20 @@ class GenerationSourceContext:
     text: str
 
 
+# The built-in generation profile's own values. A Run always carries the budget
+# its profile declared; this exists so the M2 agent harness, which has no profile,
+# still grounds the same way.
+_DEFAULT_GROUNDING_BUDGET = GroundingBudget(
+    projection=GroundingProjectionBudget(
+        max_focus_entities=64,
+        max_incident_relations=512,
+        max_neighbor_entities=256,
+        max_catalog_ids_per_type=50,
+    ),
+    max_grounding_bytes=256 * 1024,
+)
+
+
 @dataclass(frozen=True, slots=True)
 class GenerationRunRequest:
     """Fully-resolved inputs for one generation-gate agent invocation."""
@@ -150,6 +165,9 @@ class GenerationRunRequest:
     router: BridgeModelRouter
     source_contexts: tuple[GenerationSourceContext, ...] = ()
     declared_identity_aliases: tuple[tuple[str, str], ...] = ()
+    grounding_budget: GroundingBudget = _DEFAULT_GROUNDING_BUDGET
+    max_material_chunk_bytes: int = 64 * 1024
+    max_material_model_calls: int = 128
 
 
 @dataclass(frozen=True, slots=True)
@@ -190,6 +208,9 @@ class GenerationExecutionConfig:
     max_prompt_message_bytes: int = 16 * 1024 * 1024
     max_candidate_export_profiles: int = 16
     max_total_prepared_artifact_bytes: int = 128 * 1024 * 1024
+    grounding_budget: GroundingBudget = _DEFAULT_GROUNDING_BUDGET
+    max_material_chunk_bytes: int = 64 * 1024
+    max_material_model_calls: int = 128
 
 
 class GenerationExecutionConfigResolver(Protocol):
@@ -351,6 +372,9 @@ class GenerationProposalHandler:
                 router=router,
                 source_contexts=source_contexts,
                 declared_identity_aliases=self._declared_identity_aliases(payload),
+                grounding_budget=execution_config.grounding_budget,
+                max_material_chunk_bytes=execution_config.max_material_chunk_bytes,
+                max_material_model_calls=execution_config.max_material_model_calls,
             )
         )
         self._validate_preview_replay(snapshot, outcome)

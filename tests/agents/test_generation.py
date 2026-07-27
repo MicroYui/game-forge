@@ -376,8 +376,42 @@ def test_grounding_shows_existing_relations_not_only_entities() -> None:
         },
     )
 
-    summary = ContentGenerator(snapshot, ())._snapshot_summary()
+    grounding = ContentGenerator(snapshot, ())._grounding("老陶还在锻造区吗？")
 
-    assert "npc:tao" in summary
-    assert "rel:tao_in_forge" in summary
-    assert "LOCATED_IN" in summary
+    assert "npc:tao" in grounding
+    assert "rel:tao_in_forge" in grounding
+    assert "LOCATED_IN" in grounding
+
+
+def test_grounding_carries_the_named_entity_and_leaves_the_rest_out() -> None:
+    """The prompt used to carry the entire graph, re-sent once per material chunk.
+
+    Both halves matter and only one of them is loud: too little grounding makes
+    the model duplicate what already exists, and too much makes the request
+    unsendable. So this asserts a size AND an absence, not merely that nothing
+    raised — a regression that quietly went back to dumping everything would
+    otherwise pass.
+    """
+
+    from gameforge.contracts.ir import Entity, NodeType
+    from gameforge.spine.ir.snapshot import Snapshot
+
+    snapshot = Snapshot.from_entities_relations(
+        [Entity(id="npc:tao", type=NodeType("NPC"), attrs={"name": "老陶"})]
+        + [
+            Entity(
+                id=f"quest:q{index:03d}",
+                type=NodeType("QUEST"),
+                attrs={"name": f"任务{index}", "lore": "背景" * 200},
+            )
+            for index in range(500)
+        ],
+        [],
+    )
+
+    grounding = ContentGenerator(snapshot, ())._grounding("老陶接手了新的订单。")
+
+    assert "npc:tao" in grounding
+    assert len(grounding.encode("utf-8")) < 8 * 1024
+    # The catalog still names the other quests, but none of their content is here.
+    assert "背景背景" not in grounding

@@ -225,7 +225,7 @@ AUDIT_CHAIN_ID = "platform-authority"
 CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
 SIMULATION_PROFILE = ProfileRefV1(profile_id="builtin.simulation", version=1)
 WORKLOAD_PROFILE = ProfileRefV1(profile_id="builtin.workload", version=1)
-GENERATION_PROFILE = ProfileRefV1(profile_id="builtin.generation", version=2)
+GENERATION_PROFILE = ProfileRefV1(profile_id="builtin.generation", version=3)
 REVIEW_PROFILE = ProfileRefV1(profile_id="builtin.review", version=1)
 LLM_TRIAGE_PROFILE = ProfileRefV1(profile_id="builtin.llm_triage", version=1)
 CONFIG_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=2)
@@ -4916,9 +4916,9 @@ def test_generation_mints_source_raw_and_hides_naked_text(tmp_path: Path) -> Non
     )
     run = harness.run_record(accepted.run_id)
     assert run is not None and run.status == "queued"
-    assert run.payload.version_tuple.prompt_version == "generation@7"
+    assert run.payload.version_tuple.prompt_version == "generation@8"
     assert run.payload.version_tuple.model_snapshot == "test:model@1"
-    assert run.payload.version_tuple.agent_graph_version == "generation-graph@8"
+    assert run.payload.version_tuple.agent_graph_version == "generation-graph@9"
     assert run.payload.version_tuple.tool_version == "generation@1"
     # the payload references only the source_raw artifact id/hash, never the text
     goal_binding = run.payload.params.objective_goal

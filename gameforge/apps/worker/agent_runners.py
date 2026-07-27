@@ -423,7 +423,12 @@ class M2GenerationAgentRunner:
         if request.prompt_version != GENERATION_PROMPT_VERSION:
             raise IntegrityViolation("generation Run does not use the current prompt authority")
         checkers = self.checker_factory(request.snapshot, request.constraints)
-        generator = ContentGenerator(request.snapshot, checkers)
+        generator = ContentGenerator(
+            request.snapshot,
+            checkers,
+            grounding_budget=request.grounding_budget,
+            declared_aliases=dict(request.declared_identity_aliases),
+        )
         goal = request.goal
         if request.findings:
             goal = goal.model_copy(
@@ -443,6 +448,8 @@ class M2GenerationAgentRunner:
                 materials=tuple(
                     (source.artifact_id, source.text) for source in request.source_contexts
                 ),
+                max_chunk_bytes=request.max_material_chunk_bytes,
+                max_model_calls=request.max_material_model_calls,
                 execute_local_gate=False,
             )
         else:

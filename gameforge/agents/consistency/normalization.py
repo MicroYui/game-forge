@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import unicodedata
 from collections import Counter
 from collections.abc import Collection, Iterable
 from dataclasses import dataclass
 
 from gameforge.contracts.agent_io import ConsistencyHint
+from gameforge.spine.text_fold import fold_for_match, fold_with_ranges
 
 MATCHER_VERSION = "narrative-span@1"
 _SENTENCE_BOUNDARIES = frozenset(".?!。！？\n")
@@ -35,37 +35,6 @@ class HintKey:
 class NormalizedHint:
     key: HintKey
     hint: ConsistencyHint
-
-
-def _clusters(text: str) -> Iterable[tuple[str, int, int]]:
-    """Yield base-plus-combining clusters with original source bounds."""
-
-    start = 0
-    for index in range(1, len(text)):
-        if not unicodedata.combining(text[index]):
-            yield text[start:index], start, index
-            start = index
-    if text:
-        yield text[start:], start, len(text)
-
-
-def _fold_with_ranges(text: str) -> tuple[str, list[tuple[int, int]]]:
-    folded: list[str] = []
-    ranges: list[tuple[int, int]] = []
-    for cluster, start, end in _clusters(text):
-        for character in unicodedata.normalize("NFKC", cluster).casefold():
-            if character.isspace():
-                if folded and folded[-1] != " ":
-                    folded.append(" ")
-                    ranges.append((start, end))
-                continue
-            folded.append(character)
-            ranges.append((start, end))
-    return "".join(folded), ranges
-
-
-def _fold(text: str) -> str:
-    return _fold_with_ranges(text)[0].strip()
 
 
 def _unique_occurrence(text: str, needle: str) -> int | None:
@@ -118,8 +87,8 @@ def normalize_hint(
     if not set(hint.constraint_ids) <= set(allowed_constraint_ids):
         return None
 
-    folded_dialogue, source_ranges = _fold_with_ranges(dialogue)
-    folded_quote = _fold(hint.span)
+    folded_dialogue, source_ranges = fold_with_ranges(dialogue)
+    folded_quote = fold_for_match(hint.span)
     if not folded_quote:
         return None
     occurrence = _unique_occurrence(folded_dialogue, folded_quote)

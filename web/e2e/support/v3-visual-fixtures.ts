@@ -216,7 +216,7 @@ const derivationProfileRef = {
 } as const;
 
 const executionProfiles = [
-  executionProfile("builtin.generation", 2, "generation", "generation.propose", {
+  executionProfile("builtin.generation", 3, "generation", "generation.propose", {
     stochastic: true,
   }),
   executionProfile("builtin.aureus_env", 1, "environment", "playtest.run", {

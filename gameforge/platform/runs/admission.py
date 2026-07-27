@@ -34,7 +34,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from itertools import islice
-from typing import Any, Literal, Protocol
+from types import MappingProxyType
+from typing import Any, Literal, Mapping, Protocol
 
 from gameforge.contracts.api import (
     ConstraintValidationAdmissionRequestV1,
@@ -101,6 +102,7 @@ from gameforge.contracts.execution_profiles import (
     ExecutionProfileKindV1,
     FixedResolvedPolicyRequirementConfigV1,
     GenerationProfileConfigV1,
+    GenerationProfileConfigV2,
     MigrationProfileDetailsV1,
     PatchRepairProfileConfigV1,
     PlaytestPlannerProfileConfigV2,
@@ -1274,6 +1276,18 @@ class DrRecoveryManifestAuthority(Protocol):
         recovery_catalog_entry_id: str,
         expected_checkpoint_id: str,
     ) -> ArtifactV2: ...
+
+
+# The profile configs that carry a ``resolved_policy`` an admission can expand.
+_RESOLVED_POLICY_CONFIG_MODELS: Mapping[
+    str, type[GenerationProfileConfigV1 | PatchRepairProfileConfigV1]
+] = MappingProxyType(
+    {
+        "generation-profile-config@1": GenerationProfileConfigV1,
+        "generation-profile-config@2": GenerationProfileConfigV2,
+        "patch_repair-profile-config@1": PatchRepairProfileConfigV1,
+    }
+)
 
 
 class RunAdmissionEngine:
@@ -3511,18 +3525,16 @@ class RunAdmissionEngine:
         resolved_profiles: tuple[ResolvedExecutionProfileBindingV1, ...],
         catalog: ExecutionProfileCatalogSnapshotV1,
     ) -> tuple[ResolvedPolicySnapshotV1, ...]:
-        profile_contract: tuple[str, type[GenerationProfileConfigV1 | PatchRepairProfileConfigV1]]
         if isinstance(params, GenerationProposePayloadV1):
-            profile_contract = ("/params/generation_policy", GenerationProfileConfigV1)
+            field_path = "/params/generation_policy"
         elif isinstance(params, PatchRepairPayloadV1):
-            profile_contract = ("/params/repair_policy", PatchRepairProfileConfigV1)
+            field_path = "/params/repair_policy"
         else:
             raise IntegrityViolation(
                 "resolved-policy bindings lack a supported admission resolver",
                 run_payload_schema=params.schema_version,
             )
 
-        field_path, config_model = profile_contract
         source_binding = next(
             (binding for binding in resolved_profiles if binding.field_path == field_path),
             None,
@@ -3543,6 +3555,15 @@ class RunAdmissionEngine:
         ):
             raise IntegrityViolation(
                 "resolved-policy source profile differs from the exact catalog binding"
+            )
+        # The model follows the profile's own declared config schema, not the Run
+        # payload type: one profile kind may serve several config versions at once
+        # while older catalogs keep the version they were minted with.
+        config_model = _RESOLVED_POLICY_CONFIG_MODELS.get(profile_definition.config_schema_id)
+        if config_model is None:
+            raise IntegrityViolation(
+                "resolved-policy source profile declares an unsupported config schema",
+                config_schema_id=profile_definition.config_schema_id,
             )
         try:
             profile_config = config_model.model_validate(profile_definition.config)

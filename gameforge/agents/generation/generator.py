@@ -13,7 +13,7 @@ against the exact content it was grounded in.
 
 from __future__ import annotations
 
-import json
+from typing import Mapping
 
 from gameforge.agents.base import AgentParseError, call_model, parse_json_block
 from gameforge.agents.generation.gate import gate_proposal
@@ -22,15 +22,33 @@ from gameforge.agents.prompts.registry import get_prompt
 from gameforge.contracts.agent_io import AgentNodeResult, ContentProposal, DesignGoalInput
 from gameforge.runtime.model_router.router import ModelRouter
 from gameforge.spine.checkers.base import Checker
+from gameforge.spine.ir.grounding import (
+    GroundingBudget,
+    GroundingProjectionBudget,
+    GroundingRetriever,
+)
 from gameforge.spine.ir.snapshot import Snapshot
 
 register_all_prompts()
 
-GENERATION_PROMPT_VERSION = "generation@7"
+GENERATION_PROMPT_VERSION = "generation@8"
 GENERATION_PROMPT_NAME = "generation.system"
 
 DEFAULT_MATERIAL_CHUNK_BYTES = 64 * 1024
 MAX_MATERIAL_MODEL_CALLS = 128
+
+# The built-in generation profile's own grounding budget.  A Run always carries
+# the one its profile declared; this is what the M2 harness, which has no
+# profile, grounds with.
+DEFAULT_GROUNDING_BUDGET = GroundingBudget(
+    projection=GroundingProjectionBudget(
+        max_focus_entities=64,
+        max_incident_relations=512,
+        max_neighbor_entities=256,
+        max_catalog_ids_per_type=50,
+    ),
+    max_grounding_bytes=256 * 1024,
+)
 
 
 class ModelOutputTruncated(AgentParseError):
@@ -95,9 +113,20 @@ def split_material_text(
 class ContentGenerator:
     node_id = "generation"
 
-    def __init__(self, snapshot: Snapshot, checkers: list[Checker]) -> None:
+    def __init__(
+        self,
+        snapshot: Snapshot,
+        checkers: list[Checker],
+        *,
+        grounding_budget: GroundingBudget = DEFAULT_GROUNDING_BUDGET,
+        declared_aliases: Mapping[str, str] | None = None,
+    ) -> None:
         self._snapshot = snapshot
         self._checkers = checkers
+        self._grounding_budget = grounding_budget
+        # Indexed once per Run, queried once per material chunk. The old summary
+        # rebuilt (and deep-copied) the whole graph on every model call.
+        self._retriever = GroundingRetriever(snapshot, declared_aliases=declared_aliases)
 
     def run(
         self,
@@ -309,8 +338,9 @@ class ContentGenerator:
                 "Extract every explicit entity, attribute, and relation in this chunk. Use only the "
                 "closed IR types from the system message and one add operation per item.",
                 "",
-                "Existing content in the grounding snapshot (entities and the relations between them):",
-                self._snapshot_summary(),
+                "Existing content relevant to this material (a bounded excerpt of a "
+                "larger graph, with the ids that exist per type):",
+                self._grounding(goal.goal + "\n" + text),
                 "",
                 f'<planning-material source_id="{source_id}" chunk="{chunk_label}">',
                 text,
@@ -323,27 +353,20 @@ class ContentGenerator:
             f"Design goal: {goal.goal}",
             f"grounding_snapshot_id: {goal.grounding_snapshot_id}",
             "",
-            "Existing content in the grounding snapshot (entities and the relations between them):",
-            self._snapshot_summary(),
+            "Existing content relevant to this goal (a bounded excerpt of a larger "
+            "graph, with the ids that exist per type):",
+            self._grounding(goal.goal),
         ]
         return "\n".join(parts)
 
-    def _snapshot_summary(self) -> str:
-        """Compact JSON of what the graph already is — entities with their
-        (id, type, attrs), and the edges between them.
+    def _grounding(self, query_text: str) -> str:
+        """The part of the graph this text is about, not the whole of it.
 
-        Relations belong here for the same reason entities do: without them the
-        model cannot see that "老陶 LOCATED_IN 锻造区" already exists, so it
-        re-proposes the same edge under a new id, and no lexical rule can merge
-        two spellings of one edge after the fact. Endpoints only — attributes of
-        a relation are not grounding, they are content."""
-        graph = self._snapshot.to_graph()
-        nodes = [
-            {"id": e.id, "type": e.type.value, "attrs": e.attrs}
-            for e in sorted(graph.all_entities(), key=lambda e: e.id)
-        ]
-        edges = [
-            {"id": r.id, "type": r.type.value, "src_id": r.src_id, "dst_id": r.dst_id}
-            for r in sorted(graph.all_relations(), key=lambda r: r.id)
-        ]
-        return json.dumps({"entities": nodes, "relations": edges}, sort_keys=True, default=str)
+        Sending everything diluted the signal and, past a certain game size, made
+        the prompt unsendable outright.  Which part is "about" is decided
+        deterministically — by the names the text uses and the aliases a person
+        declared for them — so the same text grounds the same way forever.
+        """
+
+        slice_ = self._retriever.retrieve(query_text, budget=self._grounding_budget)
+        return slice_.to_prompt_json()

@@ -33,6 +33,8 @@ from gameforge.contracts.execution_profiles import (
     ExecutionProfileLifecycleV1,
     GenericProfileDetailsV1,
     GenerationProfileConfigV1,
+    GenerationProfileConfigV2,
+    GroundingRetrievalProfileConfigV1,
     MigrationCapabilityMatrixRefV1,
     MigrationCapabilityMatrixRegistryV1,
     MigrationCapabilityMatrixV1,
@@ -2533,6 +2535,20 @@ def _profile_compatibility(
     }
 
 
+_PROFILE_CONTRACT_VERSION: Mapping[tuple[ExecutionProfileKindV1, int], int] = MappingProxyType(
+    {
+        # Which handler/config contract each built-in profile VERSION speaks.
+        # Deliberately keyed on the exact pair rather than on the kind: a kind-wide
+        # rule would retroactively change the contract a profile in an ALREADY
+        # RETAINED catalog declares, moving that catalog's digest and stranding
+        # every Run admitted against it.
+        ("playtest_planner", 2): 2,
+        ("task_suite_derivation", 2): 2,
+        ("generation", 3): 2,
+    }
+)
+
+
 def _resolved_policy_profile_config(
     profile_kind: ExecutionProfileKindV1,
     *,
@@ -2608,7 +2624,30 @@ def _resolved_policy_profile_config(
             max_output_bytes=8 * 1024 * 1024,
         ).model_dump(mode="json")
     if profile_kind == "generation":
-        config = GenerationProfileConfigV1(
+        generation_model = (
+            GenerationProfileConfigV2 if profile_version == 3 else GenerationProfileConfigV1
+        )
+        grounding: dict[str, Any] = (
+            {
+                "grounding_retrieval": GroundingRetrievalProfileConfigV1(
+                    max_focus_entities=64,
+                    max_incident_relations=512,
+                    max_neighbor_entities=256,
+                    # Matches the repair drafter's long-standing per-type cap, which
+                    # is the same judgement about how many ids a model can use.
+                    max_catalog_ids_per_type=50,
+                    max_grounding_bytes=256 * 1024,
+                ),
+                # The values the agent used as module constants before a profile
+                # could govern them.
+                "max_material_chunk_bytes": 64 * 1024,
+                "max_material_model_calls": 128,
+            }
+            if profile_version == 3
+            else {}
+        )
+        config = generation_model(
+            **grounding,
             max_prompt_message_bytes=16 * 1024 * 1024,
             max_checker_constraint_count=256,
             max_checker_work_units=2_000_000,
@@ -2762,6 +2801,7 @@ def _execution_profile_definition(
         profile_kind,
         profile_version=profile_version,
     )
+    contract_version = _PROFILE_CONTRACT_VERSION.get((profile_kind, profile_version), 1)
     return ExecutionProfileDefinitionV1(
         profile=profile,
         profile_kind=profile_kind,
@@ -2775,8 +2815,8 @@ def _execution_profile_definition(
         output_schema_ids=PROFILE_OUTPUT_SCHEMA_REQUIREMENTS[profile_kind],
         required_capabilities=(),
         display_name=f"Built-in {profile_kind.replace('_', ' ')} profile",
-        handler_key=f"builtin_{profile_kind}_profile@{profile_version if profile_kind in {'playtest_planner', 'task_suite_derivation'} else 1}",
-        config_schema_id=f"{profile_kind}-profile-config@{profile_version if profile_kind in {'playtest_planner', 'task_suite_derivation'} else 1}",
+        handler_key=f"builtin_{profile_kind}_profile@{contract_version}",
+        config_schema_id=f"{profile_kind}-profile-config@{contract_version}",
         config=config,
         config_hash=canonical_config_hash(config),
         details=details,
@@ -2991,6 +3031,56 @@ def _execution_profile_catalog_v4() -> ExecutionProfileCatalogSnapshotV1:
     )
 
 
+def _execution_profile_catalog_v5() -> ExecutionProfileCatalogSnapshotV1:
+    """Ground generation in a retrieved slice instead of the whole content graph.
+
+    Only the generation profile moves: ``config_export@2`` already serves
+    ``generation.propose@2`` and its own config is unchanged, so re-minting it
+    would churn a digest for nothing.
+    """
+
+    previous = _execution_profile_catalog_v4()
+    compatibility = _profile_compatibility(catalog_version=5)
+    generation_v3 = _execution_profile_definition(
+        profile_kind="generation",
+        run_kinds=compatibility["generation"],
+        profile_version=3,
+    )
+    definitions = (*previous.definitions, generation_v3)
+    previous_lifecycle = {item.profile: item for item in previous.lifecycle}
+    changed_at = "2026-07-28T00:00:00Z"
+
+    def _lifecycle(definition: ExecutionProfileDefinitionV1) -> ExecutionProfileLifecycleV1:
+        if definition.profile_kind == "generation" and definition.profile.version == 2:
+            return ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="disabled",
+                revision=previous_lifecycle[definition.profile].revision + 1,
+                reason_code="superseded_by_grounding_retrieval",
+                changed_at=changed_at,
+            )
+        return previous_lifecycle.get(
+            definition.profile,
+            ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="active",
+                revision=1,
+                changed_at=changed_at,
+            ),
+        )
+
+    lifecycle = tuple(_lifecycle(definition) for definition in definitions)
+    payload = {
+        "catalog_version": 5,
+        "definitions": definitions,
+        "lifecycle": lifecycle,
+    }
+    return ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
 def _profile_requirements() -> dict[RunKindIdentity, tuple[ProfileRequirement, ...]]:
     return {
         run_kind: tuple(
@@ -3037,9 +3127,17 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
             "generation-graph@8",
             ("generation.propose", 2),
             "generation_proposer@1",
-            "active",
+            "replay_only",
             None,
             (("generation", "generation@7", "generation@1"),),
+        ),
+        (
+            "generation-graph@9",
+            ("generation.propose", 2),
+            "generation_proposer@1",
+            "active",
+            None,
+            (("generation", "generation@8", "generation@1"),),
         ),
         (
             "repair-graph@1",
@@ -3265,6 +3363,7 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
             _execution_profile_catalog_v2(),
             _execution_profile_catalog_v3(),
             _execution_profile_catalog_v4(),
+            _execution_profile_catalog_v5(),
         ),
         migration_capability_registries=(migration_registry,),
         profile_requirements=_profile_requirements(),

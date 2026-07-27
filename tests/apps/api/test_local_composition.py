@@ -1046,7 +1046,6 @@ def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_
     database_url = f"sqlite:///{tmp_path / 'profile-history.db'}"
     _seed_and_bootstrap(database_url)
     builtin_catalogs = build_builtin_registry().list_execution_profile_catalogs()
-    base = builtin_catalogs[0]
     current = builtin_catalogs[-1]
     lifecycle = tuple(
         item.model_copy(
@@ -1074,7 +1073,12 @@ def test_local_composition_retains_profile_history_and_reads_latest_catalog(tmp_
     engine = get_engine(database_url)
     with Session(engine) as session, session.begin():
         policies = SqlPolicySnapshotRepository(session, clock=SystemUtcClock())
-        policies.put_execution_profile_catalog(base)
+        # The whole retained history, the way a deployment persists it. A profile's
+        # lifecycle must start at revision 1 in the first catalog that carries it,
+        # so skipping the middle of the history strands any profile that has since
+        # been superseded.
+        for catalog in builtin_catalogs:
+            policies.put_execution_profile_catalog(catalog)
         policies.put_execution_profile_catalog(latest)
     engine.dispose()
 

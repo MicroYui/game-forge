@@ -270,7 +270,7 @@ test.describe("project-first-authoring", () => {
         await generationAdvanced.getByText("高级设置", { exact: true }).click();
       }
       await page.getByLabel("AI 运行方式").selectOption("record");
-      await page.getByLabel("AI 生成方案").selectOption("builtin.generation@2");
+      await page.getByLabel("AI 生成方案").selectOption("builtin.generation@3");
       await page.getByLabel("试玩环境").selectOption("builtin.environment@1");
       const exportProfile = page.getByRole("group", { name: "候选配置格式" }).getByRole("checkbox");
       if (!(await exportProfile.isChecked())) await exportProfile.check();

@@ -335,7 +335,7 @@ async function fillGenerationReplayForm(
   await page.getByLabel("本次遵守的规则").selectOption(manifest.constraint_artifact_id);
   await page.getByText("高级设置", { exact: true }).click();
   await page.getByLabel("AI 运行方式").selectOption("replay");
-  await page.getByLabel("AI 生成方案").selectOption("builtin.generation@2");
+  await page.getByLabel("AI 生成方案").selectOption("builtin.generation@3");
   await page.getByLabel("试玩环境").selectOption("builtin.environment@1");
   await page.getByRole("group", { name: "候选配置格式" }).getByRole("checkbox").check();
   await page.getByRole("group", { name: "内容领域" }).getByRole("checkbox", { name: "内置规则域" }).check();

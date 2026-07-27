@@ -215,7 +215,7 @@ class ProjectAuthoringService:
         run_admission: Any | None = None,
         default_generation_policy: ProfileRefV1 = ProfileRefV1(
             profile_id="builtin.generation",
-            version=2,
+            version=3,
         ),
     ) -> None:
         for value in (role_policy_version, role_policy_digest, audit_chain_id):

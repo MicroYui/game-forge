@@ -288,7 +288,7 @@ def _context(
     bridge: FakeModelBridge,
     *,
     payload: GenerationProposePayloadV1 | None = None,
-    prompt_version: str = "generation@7",
+    prompt_version: str = "generation@8",
 ):
     actual_payload = payload or _payload()
     requirements = tuple(
@@ -976,7 +976,7 @@ def test_generation_nested_reward_edit_reaches_confirmed_cap_finding() -> None:
     assert cap["status"] == "confirmed"
     assert cap["constraint_id"] == "side_quest_reward_gold_cap"
     request = bridge.requests[0].model_request
-    assert request.prompt_version == "generation@7"
+    assert request.prompt_version == "generation@8"
     assert "set_entity_attr" in request.messages[0].content
     assert "Do NOT include the literal segment attrs" in request.messages[0].content
 

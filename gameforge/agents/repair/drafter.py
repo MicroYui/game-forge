@@ -25,8 +25,8 @@ from gameforge.agents.prompts.library import register_all_prompts
 from gameforge.agents.prompts.registry import get_prompt, render
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.findings import Finding, Patch, TypedOp
-from gameforge.contracts.ir import EdgeType
 from gameforge.runtime.model_router.router import ModelRouter
+from gameforge.spine.ir.grounding import project_focus_context
 from gameforge.spine.ir.snapshot import Snapshot
 
 register_all_prompts()
@@ -60,56 +60,19 @@ def _patch_id(request_hash: str, base_snapshot_id: str, ops: list[TypedOp]) -> s
 
 
 def build_repair_ir_context(finding: Finding, snapshot: Snapshot) -> str:
-    """Build the exact bounded IR-context JSON embedded in a repair prompt."""
+    """Build the exact bounded IR-context JSON embedded in a repair prompt.
 
-    graph = snapshot.to_graph()
-
-    focus_ids = [entity_id for entity_id in finding.entities if graph.get_node(entity_id)]
-    focus_set = set(focus_ids)
-    focus_nodes = []
-    for entity_id in focus_ids:
-        node = graph.get_node(entity_id)
-        if node is not None:
-            focus_nodes.append({"id": node.id, "type": node.type.value, "attrs": node.attrs})
-
-    incident_relations = []
-    neighbor_ids: set[str] = set()
-    for relation in graph.all_relations():
-        if relation.src_id in focus_set or relation.dst_id in focus_set:
-            incident_relations.append(
-                {
-                    "id": relation.id,
-                    "type": relation.type.value,
-                    "src_id": relation.src_id,
-                    "dst_id": relation.dst_id,
-                }
-            )
-            neighbor_ids.add(relation.src_id)
-            neighbor_ids.add(relation.dst_id)
-    neighbor_ids -= focus_set
-
-    neighbor_nodes = []
-    for neighbor_id in sorted(neighbor_ids):
-        node = graph.get_node(neighbor_id)
-        if node is not None:
-            neighbor_nodes.append(
-                {"id": node.id, "type": node.type.value, "name": node.attrs.get("name")}
-            )
-
-    entity_catalog: dict[str, list[str]] = {}
-    for entity in graph.all_entities():
-        bucket = entity_catalog.setdefault(entity.type.value, [])
-        if len(bucket) < _CATALOG_CAP:
-            bucket.append(entity.id)
+    These bytes are inside twelve retained cassettes, so the projection is shared
+    with generation's grounding rather than reimplemented: one implementation
+    cannot drift away from the other and quietly miss every replay.
+    """
 
     return json.dumps(
-        {
-            "focus_nodes": focus_nodes,
-            "incident_relations": incident_relations,
-            "neighbor_nodes": neighbor_nodes,
-            "entity_catalog": entity_catalog,
-            "edge_types": [edge_type.value for edge_type in EdgeType],
-        },
+        project_focus_context(
+            snapshot.to_graph(),
+            [entity_id for entity_id in finding.entities if entity_id in snapshot.entities],
+            max_catalog_ids_per_type=_CATALOG_CAP,
+        ),
         sort_keys=True,
         default=str,
     )

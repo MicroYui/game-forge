@@ -219,7 +219,7 @@ def test_direct_empty_builtin_prompts_require_the_routed_output_token_bound() ->
     authority = build_builtin_agent_prompt_context_authority(
         required_plan_keys=(
             ("bench-agent-case", "bench-agent@1", "bench@1"),
-            ("generation", "generation@7", "generation@1"),
+            ("generation", "generation@8", "generation@1"),
             ("review-triage", "review-triage@1", "review-triage@1"),
         )
     )

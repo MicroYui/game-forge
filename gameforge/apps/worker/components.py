@@ -39,7 +39,7 @@ from gameforge.contracts.execution_profiles import (
     ConstraintExtractionProfileConfigV1,
     EnvironmentProfileDetailsV1,
     ExecutionProfileDefinitionV1,
-    GenerationProfileConfigV1,
+    GenerationProfileConfigV2,
     PatchRepairProfileConfigV1,
     ProfileRefV1,
     ResolvedExecutionProfileBindingV1,
@@ -100,6 +100,7 @@ from gameforge.platform.run_handlers.constraint_proposal import (
     ConstraintExtractionExecutionConfig,
 )
 from gameforge.platform.run_handlers.generation import ConfigExporter, GenerationExecutionConfig
+from gameforge.spine.ir.grounding import GroundingBudget, GroundingProjectionBudget
 from gameforge.platform.run_handlers.patch_validation import (
     ExactLinkedFindingRevision,
     PatchValidationHandler,
@@ -179,6 +180,7 @@ _WORKER_PROFILE_HANDLER_KEYS = (
     "builtin_dr_verifier_profile@1",
     "builtin_environment_profile@1",
     "builtin_generation_profile@1",
+    "builtin_generation_profile@2",
     "builtin_impact_analysis_profile@1",
     "builtin_llm_triage_profile@1",
     "builtin_patch_repair_profile@1",
@@ -631,8 +633,8 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
         frozenset((False,)),
     ),
     "generation": (
-        "builtin_generation_profile@1",
-        "generation-profile-config@1",
+        "builtin_generation_profile@2",
+        "generation-profile-config@2",
         frozenset(("generation-propose@2",)),
         frozenset(
             (
@@ -922,10 +924,10 @@ def _build_generation_execution_config_resolver(registry: ImmutablePlatformRegis
             registry,
             binding,
             expected_kind="generation",
-            handler_key="builtin_generation_profile@1",
-            config_schema_id="generation-profile-config@1",
+            handler_key="builtin_generation_profile@2",
+            config_schema_id="generation-profile-config@2",
         )
-        config = GenerationProfileConfigV1.model_validate(definition.config)
+        config = GenerationProfileConfigV2.model_validate(definition.config)
         return GenerationExecutionConfig(
             max_prompt_message_bytes=config.max_prompt_message_bytes,
             max_constraint_count=config.max_checker_constraint_count,
@@ -936,6 +938,17 @@ def _build_generation_execution_config_resolver(registry: ImmutablePlatformRegis
             max_simulation_work_units=config.max_simulation_work_units,
             max_candidate_export_profiles=config.max_candidate_export_profiles,
             max_total_prepared_artifact_bytes=config.max_total_prepared_artifact_bytes,
+            grounding_budget=GroundingBudget(
+                projection=GroundingProjectionBudget(
+                    max_focus_entities=config.grounding_retrieval.max_focus_entities,
+                    max_incident_relations=config.grounding_retrieval.max_incident_relations,
+                    max_neighbor_entities=config.grounding_retrieval.max_neighbor_entities,
+                    max_catalog_ids_per_type=config.grounding_retrieval.max_catalog_ids_per_type,
+                ),
+                max_grounding_bytes=config.grounding_retrieval.max_grounding_bytes,
+            ),
+            max_material_chunk_bytes=config.max_material_chunk_bytes,
+            max_material_model_calls=config.max_material_model_calls,
         )
 
     return resolve

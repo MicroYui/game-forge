@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 from gameforge.contracts.findings import TypedOp
-from gameforge.spine.identity_normalization import canonical_identity_token, normalize_typed_ops
+from gameforge.contracts.errors import IntegrityViolation
+from gameforge.contracts.ir import Entity, NodeType
+from gameforge.spine.identity_normalization import (
+    build_identity_alias_index,
+    canonical_identity_token,
+    normalize_typed_ops,
+)
 from gameforge.spine.ir.snapshot import Snapshot
 
 
@@ -194,3 +200,72 @@ def test_a_declared_alias_never_overrides_an_entity_that_already_exists() -> Non
             (_op("a", "npc:morax", entity_type="NPC", attrs={}),),
             declared_aliases={"npc:morax": "npc:zhongli"},
         )
+
+
+def _zhongli() -> Snapshot:
+    return Snapshot.from_entities_relations(
+        [Entity(id="npc:zhongli", type=NodeType.NPC, attrs={"name": "钟离"})],
+        [],
+    )
+
+
+def test_the_alias_index_carries_ids_canonical_spellings_and_declarations() -> None:
+    index = build_identity_alias_index(
+        _zhongli(),
+        declared_aliases={"岩王帝君": "npc:zhongli"},
+    )
+
+    assert index.existing_ids == {"npc:zhongli"}
+    assert index.exact_aliases["npc:zhongli"] == "npc:zhongli"
+    assert index.exact_aliases["岩王帝君"] == "npc:zhongli"
+    # A declared alias is an exact statement by a person. It must NOT become a
+    # source of the unqualified ambiguity `_endpoint` reports.
+    assert index.unqualified_aliases == {"zhongli": {"npc:zhongli"}}
+
+
+def test_two_indexes_over_one_snapshot_do_not_share_mutable_state() -> None:
+    """Normalization extends its index as it walks the proposal's add_entity ops.
+
+    If two consumers shared one index, a later consumer's answer would depend on
+    an earlier consumer's MODEL OUTPUT — the grounding a material chunk sees would
+    silently depend on what the model said about the chunk before it. That is not
+    replayable, so every caller gets its own.
+    """
+
+    snapshot = _zhongli()
+    first = build_identity_alias_index(snapshot)
+    second = build_identity_alias_index(snapshot)
+
+    first.exact_aliases["invented"] = "npc:zhongli"
+    first.unqualified_aliases.setdefault("invented", set()).add("npc:zhongli")
+    first.existing_ids.add("npc:invented")
+
+    assert "invented" not in second.exact_aliases
+    assert "invented" not in second.unqualified_aliases
+    assert "npc:invented" not in second.existing_ids
+
+
+def test_the_index_rejects_a_declaration_that_names_nothing() -> None:
+    try:
+        build_identity_alias_index(_zhongli(), declared_aliases={"岩王帝君": "npc:morax"})
+    except IntegrityViolation as error:
+        assert "does not have" in str(error)
+    else:
+        raise AssertionError("a declaration pointing at no entity must fail closed")
+
+
+def test_the_index_rejects_a_declaration_shadowing_an_entity_of_its_own() -> None:
+    snapshot = Snapshot.from_entities_relations(
+        [
+            Entity(id="npc:zhongli", type=NodeType.NPC, attrs={}),
+            Entity(id="npc:morax", type=NodeType.NPC, attrs={}),
+        ],
+        [],
+    )
+
+    try:
+        build_identity_alias_index(snapshot, declared_aliases={"npc:morax": "npc:zhongli"})
+    except IntegrityViolation as error:
+        assert "already names an entity" in str(error)
+    else:
+        raise AssertionError("a declaration shadowing a real entity must fail closed")

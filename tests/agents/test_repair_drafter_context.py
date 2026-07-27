@@ -8,7 +8,11 @@ import json
 
 import pytest
 
-from gameforge.agents.repair.drafter import RepairDrafter, build_repair_user_prompt
+from gameforge.agents.repair.drafter import (
+    RepairDrafter,
+    build_repair_ir_context,
+    build_repair_user_prompt,
+)
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.findings import Finding
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
@@ -109,6 +113,48 @@ def test_ir_context_still_includes_focus_node_attrs():
     ctx = json.loads(RepairDrafter()._ir_context(_finding(snap, ["q"]), snap))
     focus = {n["id"]: n for n in ctx["focus_nodes"]}
     assert focus["q"]["attrs"]["reward_gold"] == 120
+
+
+def test_repair_ir_context_bytes_are_frozen():
+    """These bytes are inside a recorded repair request, so they are cassette identity.
+
+    Twelve retained repair cassettes replay against prompts built from this context.
+    Change one byte — a key, a separator, an escape, the order two entities are
+    emitted in — and every one of them misses. Those replay tests skip themselves
+    when ``cassettes/`` is absent, so a checkout without it goes falsely green and
+    the miss surfaces only as a live-network call somewhere else.
+
+    If this fails you are re-recording twelve cassettes against the gateway, not
+    fixing a test.
+    """
+
+    entities = [
+        Entity(id="npc:tao", type=NodeType.NPC, attrs={"name": "老陶", "mood": {"calm": 1}}),
+        Entity(id="region:forge", type=NodeType.REGION, attrs={"name": "锻造区"}),
+        Entity(id="item:hammer", type=NodeType.ITEM, attrs={}),
+    ]
+    # 60 of one type proves the per-type catalog cap is still 50 and still cuts
+    # at the same place.
+    entities += [
+        Entity(id=f"quest:q{index:03d}", type=NodeType.QUEST, attrs={"name": f"q{index}"})
+        for index in range(60)
+    ]
+    relations = [
+        Relation(
+            id="rel:tao_in_forge",
+            type=EdgeType.LOCATED_IN,
+            src_id="npc:tao",
+            dst_id="region:forge",
+        )
+    ]
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+
+    context = build_repair_ir_context(_finding(snapshot, ["npc:tao"]), snapshot)
+
+    assert len(context.encode("utf-8")) == 1459
+    assert hashlib.sha256(context.encode("utf-8")).hexdigest() == (
+        "b129c7d3a15f4926c4e332e014de3d69d980e031ef2076208ec984a0eb0f9409"
+    )
 
 
 class _FixedOpsTransport:

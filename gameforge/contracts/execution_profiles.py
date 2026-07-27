@@ -50,6 +50,15 @@ MAX_EXTRACTION_TOTAL_INPUT_BYTES_V1 = 16 * 1024 * 1024
 MAX_EXTRACTION_PROPOSALS_V1 = 256
 MAX_EXTRACTION_OUTPUT_BYTES_V1 = 8 * 1024 * 1024
 MAX_AGENT_PROMPT_MESSAGE_BYTES_V1 = 17 * 1024 * 1024
+# Grounding is a retrieved slice of the content graph, so its cost is bounded by
+# policy rather than by however large the game happens to be.
+MAX_GROUNDING_FOCUS_ENTITIES_V1 = 1024
+MAX_GROUNDING_INCIDENT_RELATIONS_V1 = 8192
+MAX_GROUNDING_NEIGHBOR_ENTITIES_V1 = 4096
+MAX_GROUNDING_CATALOG_IDS_PER_TYPE_V1 = 512
+MAX_GROUNDING_BYTES_V1 = 8 * 1024 * 1024
+MAX_MATERIAL_CHUNK_BYTES_V1 = 4 * 1024 * 1024
+MAX_MATERIAL_MODEL_CALLS_V1 = 4096
 MAX_ENVIRONMENT_NAVIGATION_GRID_CELLS_V1 = 1_000_000
 MAX_TASK_SUITE_SCENARIOS_V1 = 1024
 MAX_PLAYTEST_EPISODES_V1 = 1024
@@ -275,6 +284,57 @@ class GenerationProfileConfigV1(_FrozenModel):
             > self.max_simulation_work_units
         ):
             raise ValueError("generation simulation defaults exceed the v1 work envelope")
+        return self
+
+
+class GroundingRetrievalProfileConfigV1(_FrozenModel):
+    """How much of the content graph one extraction prompt may be grounded in.
+
+    The policy version names the retrieval ALGORITHM — what "relevant" means. These
+    numbers say how much of its answer fits. Both are retained authority, so a Run
+    records the exact terms it was grounded under.
+    """
+
+    config_schema_version: Literal["grounding-retrieval-config@1"] = "grounding-retrieval-config@1"
+    retrieval_policy_version: Literal["grounding-retrieval@1"] = "grounding-retrieval@1"
+    max_focus_entities: int = Field(ge=1, le=MAX_GROUNDING_FOCUS_ENTITIES_V1)
+    max_incident_relations: int = Field(ge=0, le=MAX_GROUNDING_INCIDENT_RELATIONS_V1)
+    max_neighbor_entities: int = Field(ge=0, le=MAX_GROUNDING_NEIGHBOR_ENTITIES_V1)
+    max_catalog_ids_per_type: int = Field(ge=1, le=MAX_GROUNDING_CATALOG_IDS_PER_TYPE_V1)
+    max_grounding_bytes: int = Field(ge=1024, le=MAX_GROUNDING_BYTES_V1)
+
+
+class GenerationProfileConfigV2(GenerationProfileConfigV1):
+    """Bind the grounding slice and the material call budget to the profile.
+
+    Material chunking used to be two module constants inside the agent. A ceiling
+    on how many model calls one Run may make is execution authority like every
+    other budget here, and the envelope validator below can only close if the
+    chunk size and the grounding size are governed by the same object.
+    """
+
+    config_schema_version: Literal["generation-profile-config@2"] = (  # type: ignore[assignment]
+        "generation-profile-config@2"
+    )
+    grounding_retrieval: GroundingRetrievalProfileConfigV1
+    max_material_chunk_bytes: int = Field(ge=1024, le=MAX_MATERIAL_CHUNK_BYTES_V1)
+    max_material_model_calls: int = Field(ge=1, le=MAX_MATERIAL_MODEL_CALLS_V1)
+
+    @model_validator(mode="after")
+    def _prompt_envelope_closes(self) -> "GenerationProfileConfigV2":
+        """One material chunk plus its grounding must fit in one prompt message.
+
+        Otherwise an oversized prompt is discovered as an ``IntegrityViolation`` at
+        routing — after admission, after the Run is queued, with a budget hold
+        taken. A profile that cannot produce a sendable request should not
+        validate.
+        """
+
+        if (
+            self.max_material_chunk_bytes + self.grounding_retrieval.max_grounding_bytes
+            >= self.max_prompt_message_bytes
+        ):
+            raise ValueError("material chunk plus grounding exceeds the prompt envelope")
         return self
 
 
@@ -599,7 +659,6 @@ class ExecutionProfileDefinitionV1(_FrozenModel):
         if self.details.details_kind != expected_details:
             raise ValueError("details variant does not match profile_kind")
         config_models = {
-            "generation": ("generation-profile-config@1", GenerationProfileConfigV1),
             "patch_repair": ("patch_repair-profile-config@1", PatchRepairProfileConfigV1),
             "review": ("review-profile-config@1", ReviewProfileConfigV1),
             "constraint_extraction": (
@@ -620,6 +679,10 @@ class ExecutionProfileDefinitionV1(_FrozenModel):
                 BenchmarkEvaluatorProfileConfigV1,
             )
         versioned_config_models = {
+            "generation": {
+                "generation-profile-config@1": GenerationProfileConfigV1,
+                "generation-profile-config@2": GenerationProfileConfigV2,
+            },
             "task_suite_derivation": {
                 "task_suite_derivation-profile-config@1": TaskSuiteDerivationProfileConfigV1,
                 "task_suite_derivation-profile-config@2": TaskSuiteDerivationProfileConfigV2,

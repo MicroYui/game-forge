@@ -466,7 +466,7 @@ def _generation_body(
         "objective_goal_text": "Raise the caravan emblem requirement from three to four.",
         "domain_scope": _DOMAIN_JSON,
         "target": {"ref_name": REF_NAME, "expected_ref": expected_ref},
-        "generation_policy": {"profile_id": "builtin.generation", "version": 2},
+        "generation_policy": {"profile_id": "builtin.generation", "version": 3},
         "candidate_export_profiles": [{"profile_id": "builtin.config_export", "version": 2}],
         "llm_execution_mode": mode,
         "execution_version_plan": plan.model_dump(mode="json"),
@@ -885,7 +885,7 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
             if item["status"] == "active"
         }
         assert {
-            ("builtin.generation", 2),
+            ("builtin.generation", 3),
             ("builtin.config_export", 2),
             ("builtin.review", 1),
             ("builtin.simulation", 1),

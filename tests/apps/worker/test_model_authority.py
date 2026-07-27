@@ -185,7 +185,10 @@ def test_local_model_authority_loader_closes_exact_environment_configuration(
     assert authority.prompt_renderer.binding_plan_keys == (
         ("bench-agent-case", "bench-agent@1", "bench@1"),
         ("extraction", "extraction@1", "extraction@1"),
+        # Both: replay_only generation graphs still name generation@7, and the
+        # worker must retain every prompt an executable graph can ask for.
         ("generation", "generation@7", "generation@1"),
+        ("generation", "generation@8", "generation@1"),
         ("playtest.executor", "playtest@2", "playtest@1"),
         ("playtest.memory", "playtest.memory.compact@1", "playtest@1"),
         ("playtest.planner", "playtest@1", "playtest@1"),
@@ -509,7 +512,7 @@ def test_the_loader_sends_each_model_to_the_surface_it_answers_on(tmp_path) -> N
                     model_snapshot=opus,
                     messages=[Message(role="user", content="ping")],
                     agent_node_id="generation",
-                    prompt_version="generation@7",
+                    prompt_version="generation@8",
                 )
             ),
             AnthropicMessagesTransport,
