@@ -133,7 +133,6 @@ from gameforge.contracts.jobs import (
     ConstraintValidationPayloadV1,
     DrDrillPayloadV1,
     ExecutionVersionPlanV1,
-    DeclaredIdentityAliasV1,
     GenerationProposePayloadV1,
     MAX_COLLECTION_ITEMS,
     PatchRepairPayloadV1,
@@ -1879,7 +1878,6 @@ class RunAdmissionEngine:
         llm_execution_mode: Literal["live", "record", "replay"] = "record",
         execution_version_plan: ExecutionVersionPlanV1 | None = None,
         cassette_artifact_id: str | None = None,
-        declared_identity_aliases: tuple[DeclaredIdentityAliasV1, ...] = (),
     ) -> RunAcceptedV1:
         source = self._mint_goal_source(
             actor=actor,
@@ -1899,7 +1897,6 @@ class RunAdmissionEngine:
             target=target,
             generation_policy=generation_policy,
             candidate_export_profiles=candidate_export_profiles,
-            declared_identity_aliases=declared_identity_aliases,
         )
         return self._admit_public(
             kind=RunKindRef(kind="generation.propose", version=1),

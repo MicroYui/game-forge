@@ -42,7 +42,6 @@ from gameforge.contracts.identity import (
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.jobs import (
-    DeclaredIdentityAliasV1,
     GenerationProposePayloadV1,
     RefReadBindingV1,
     RunFailureV1,
@@ -1170,9 +1169,6 @@ class ProjectAuthoringService:
                 )
             if project.status == "archived":
                 raise Conflict("archived project cannot start extraction", project_id=project_id)
-            # Frozen here like every other run input: the aliases that applied when
-            # the run was admitted are the ones it normalizes against.
-            declared_alias_table = self._declared_aliases(transaction, project_id)
             projects = _required(transaction.projects, "projects")
             materials = []
             for material_id in request.material_ids:
@@ -1243,22 +1239,10 @@ class ProjectAuthoringService:
             )
             execution_version_plan = option.execution_version_plan
 
-        declared_identity_aliases = tuple(
-            DeclaredIdentityAliasV1(
-                canonical_alias=canonical_alias,
-                canonical_entity_id=entity_id,
-            )
-            for canonical_alias, entity_id in sorted(declared_alias_table.items())
-        )
         run_request_hash = canonical_sha256(
             {
                 "request_hash_schema_version": "project-extraction-run-request@1",
                 "project_id": project_id,
-                # Two runs over the same material with different declared aliases
-                # are different requests: they normalize to different content.
-                "declared_identity_aliases": [
-                    item.model_dump(mode="json") for item in declared_identity_aliases
-                ],
                 "base_snapshot_artifact_id": base_snapshot_artifact_id,
                 "source_artifact_ids": source_artifact_ids,
                 "constraint_snapshot_artifact_id": constraint_snapshot_artifact_id,
@@ -1292,7 +1276,6 @@ class ProjectAuthoringService:
             target=target,
             generation_policy=generation_policy,
             candidate_export_profiles=request.candidate_export_profiles,
-            declared_identity_aliases=declared_identity_aliases,
             actor=context.actor,
             server=AdmissionRequestContext(
                 idempotency_key=run_key,

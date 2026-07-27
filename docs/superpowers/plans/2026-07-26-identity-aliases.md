@@ -32,7 +32,13 @@
 项目级 `identity_alias` 资源：`alias`（策划写的称呼）、`canonical_entity_id`、声明人、声明时间。强 ETag + 幂等 + 审计，和 `rename_material` 同形。撤回是显式动作，不是删除历史。迁移 0017。
 
 **片 C：接进两条归一路径**
-AI 提取（`projects/service.py::create_extraction` → generation run）与人工图谱草案（`platform/projects/graph_draft.py`）都要拿到同一份别名表——否则人工编辑会把 AI 刚归一好的东西又拆开。
+人工图谱草案（`platform/projects/graph_draft.py`）已接通。
+
+**AI 提取这条没做到，原因要记下来。** 第一次实现把别名塞进了 `GenerationProposePayloadV1`，结果打穿了**每一条已保留的 Run**：run payload 是内容哈希的不可变记录，加一个带默认值的字段也会改掉它的 canonical 形态。这是硬规则 7 唯一的例外（已持久化的不可变工件与审计记录），已撤回。
+
+正确做法是升 `generation.propose@2`：`_RUN_KIND_PAYLOAD_SCHEMAS` 把 `(kind, version)` 绑死到唯一一个 payload schema，所以新增字段必须是新的 payload schema，而新的 payload schema 必须配新的 run kind 版本，会连带动执行图、执行方案与任务套件。那是一次独立的里程碑级改动。
+
+**这个缺陷是重启真实服务、发现项目列表 500 才发现的，全量门禁没抓住它**——测试全部从新建工作区起步，没有跨版本的历史数据。
 
 **片 D：策划怎么声明**
 提取结果复核界面里，看到两个实体是同一个时给一个「这两个是同一个」的动作，落成别名声明。项目页给一份已声明别名的列表，可撤回。
@@ -42,4 +48,6 @@ AI 提取（`projects/service.py::create_extraction` → generation run）与人
 
 ## 完成定义
 
-片 A–E 全部完成，且能实跑证明：在「原神」项目里声明「岩王帝君 = 钟离」，再上传一份只写「岩王帝君」的策划案，提取结果指向的是同一个 `npc:钟离`，没有新增重复实体。全量门禁绿。
+片 A、B、D、E 完成；片 C 只完成人工编辑那一半。
+
+**因此原定的完成定义尚未满足**：声明「岩王帝君 = 钟离」之后，人工编辑图谱会归一，但**新上传策划案的 AI 提取还不会**。要闭合它需要先做 `generation.propose@2`。
