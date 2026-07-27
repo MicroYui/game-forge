@@ -25,6 +25,7 @@ from gameforge.apps.worker.dispatch import build_worker_process
 from gameforge.contracts.execution_profiles import RunKindRef
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.runtime.clock import SystemUtcClock
+from gameforge.runtime.persistence import migrations_api
 from gameforge.runtime.persistence.engine import get_engine
 from gameforge.runtime.persistence.models import ArtifactRow
 from tests.e2e.m4c.test_agent_draft_terminal_audit import _model_authorities
@@ -205,6 +206,10 @@ def _retained_harness(workspace: Path) -> _Harness:
     harness.approval_policy = apply_testkit._approval_policy()
     harness.role_policy = _journey_a_role_policy(harness.registry)
     harness.catalog = build_builtin_registry().list_execution_profile_catalogs()[-1]
+    # A retained workspace is a database that outlived the code that made it.
+    # Bringing it to head is what a deployment does on start; skipping it here
+    # makes every schema change look like a product bug on the next hands-on run.
+    migrations_api.upgrade(harness.database_url)
     engine = get_engine(harness.database_url)
     try:
         with Session(engine) as session:
