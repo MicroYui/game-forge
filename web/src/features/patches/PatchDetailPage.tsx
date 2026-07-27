@@ -34,7 +34,12 @@ import {
 } from "./authority";
 import { patchWorkflowApi, type PatchWorkflowApi, type VersionedResource } from "./api";
 import "./patches.css";
-import { profileBusinessContext, profileBusinessLabel, profileKey } from "../execution-profiles";
+import {
+  profileBusinessContext,
+  profileBusinessLabel,
+  profileKey,
+  supportsRunKind,
+} from "../execution-profiles";
 
 type ApprovalView = components["schemas"]["ApprovalViewV1"];
 type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
@@ -218,10 +223,6 @@ function patchRationaleLabel(rationale: string): string {
     return "调整奖励与经济数值，使资源产出回到安全范围内。";
   }
   return "根据检查结果调整内容，并在应用前重新验证。";
-}
-
-function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
-  return profile.compatible_run_kinds.some((candidate) => candidate.kind === kind && candidate.version === 1);
 }
 
 function profileCoversDomains(profile: ExecutionProfile, requiredDomainIds: readonly string[]): boolean {

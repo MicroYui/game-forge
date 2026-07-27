@@ -5,7 +5,7 @@ type ArtifactSummary = components["schemas"]["ArtifactSummaryV1"];
 
 export type GenerationRunKind = {
   kind: "generation.propose" | "patch.repair";
-  version: 1;
+  version: number;
 };
 
 export type GenerationManifestParent = {
@@ -173,9 +173,14 @@ export function generationManifestArtifactIds(
 }
 
 function parseRunKind(value: unknown): GenerationRunKind | null {
-  if (!isRecord(value) || value.version !== 1) return null;
-  if (value.kind !== "generation.propose" && value.kind !== "patch.repair") return null;
-  return { kind: value.kind, version: 1 };
+  // A terminal manifest is the server's own immutable record of a Run, including
+  // Runs of a Run-kind version this build no longer admits. Read the version it
+  // wrote; re-asserting one here only hides retained evidence from the planner.
+  if (!isRecord(value)) return null;
+  const { kind, version } = value;
+  if (kind !== "generation.propose" && kind !== "patch.repair") return null;
+  if (typeof version !== "number" || !Number.isInteger(version) || version < 1) return null;
+  return { kind, version };
 }
 
 function parseAttemptNo(value: unknown): number | null | undefined {

@@ -130,7 +130,7 @@ def _bootstrap_workspace(
     base_id, constraint_id, expected_ref = harness.seed_authoring_inputs()
     authorities, transport, catalog, routing = _seed_model_authority(harness)
     generation_plan = _execution_plan(
-        kind=RunKindRef(kind="generation.propose", version=1),
+        kind=RunKindRef(kind="generation.propose", version=2),
         catalog=catalog,
         routing=routing,
     )

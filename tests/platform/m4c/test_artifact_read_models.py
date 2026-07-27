@@ -203,7 +203,7 @@ def test_reads_verified_payload_through_local_store_and_ignores_payload_claims(
 def _config_export_package() -> ConfigExportPackageV1:
     content = b'[{"id":"quest:1"}]'
     return ConfigExportPackageV1(
-        export_profile=ProfileRefV1(profile_id="builtin.config_export", version=1),
+        export_profile=ProfileRefV1(profile_id="builtin.config_export", version=2),
         target_environment_profile=ProfileRefV1(profile_id="builtin.environment", version=1),
         env_contract_version="generic-agent-env@1",
         source_preview_artifact_id="artifact:preview",

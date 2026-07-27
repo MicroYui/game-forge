@@ -260,7 +260,10 @@ class ReviewProducerBindingViewV1(_FrozenModel):
     def _terminal_occurrence(self) -> "ReviewProducerBindingViewV1":
         if (self.run_kind.kind, self.run_kind.version) not in {
             ("review.run", 1),
+            # Retained generation Runs are immutable audit records; @1 predates
+            # declared identity aliases and still projects its gate Review.
             ("generation.propose", 1),
+            ("generation.propose", 2),
         }:
             raise ValueError("Review producer Run kind is not supported")
         succeeded = self.terminal_status == "succeeded"
@@ -753,7 +756,7 @@ class RunSubmissionRequestV1(_FrozenModel):
 
 
 class GenerationProposeRequestV1(_FrozenModel):
-    """``POST /generation:propose`` — fixes ``generation.propose@1``.
+    """``POST /generation:propose`` — fixes ``generation.propose@2``.
 
     The naked ``objective_goal_text`` is turned into an authenticated ``source_raw``
     Artifact by the composition root before the Run is created.
@@ -941,7 +944,7 @@ def _prospective_run_kind(
     if isinstance(request, ProspectiveGenerationProposeRequestV1):
         return (
             "propose_generation_api_v1_generation_propose_post",
-            RunKindRef(kind="generation.propose", version=1),
+            RunKindRef(kind="generation.propose", version=2),
         )
     if isinstance(request, ProspectivePatchRepairRequestV1):
         return (

@@ -809,7 +809,6 @@ class _ReviewProducerBindingAuthority:
         run = self._runs.get(run_id)
         if (
             run is None
-            or run.kind.version != 1
             or run.kind.kind not in self._SUPPORTED_RUN_KINDS
             or run.status not in {"succeeded", "failed", "cancelled", "timed_out"}
         ):

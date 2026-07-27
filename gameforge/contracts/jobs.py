@@ -600,6 +600,23 @@ class GenerationProposePayloadV1(_FrozenModel):
         return self
 
 
+class GenerationProposePayloadV2(GenerationProposePayloadV1):
+    """Bind the project's declared identity aliases to one extraction.
+
+    Writing-form differences the normalizer already resolves on its own.  岩王帝君
+    and 钟离 share no characters, so a person declares once that they name one
+    thing, and every later extraction applies that declaration deterministically
+    with no model in the decision.
+
+    The declared set is minted as its own immutable artifact rather than inlined:
+    a payload is the content-hashed record of a Run, and a thousand inline
+    aliases would sit in every one of them forever.
+    """
+
+    schema_version: Literal["generation-propose@2"] = "generation-propose@2"  # type: ignore[assignment]
+    identity_alias_artifact_id: BoundedId | None = None
+
+
 class PatchRepairPayloadV1(_FrozenModel):
     schema_version: Literal["patch-repair@1"] = "patch-repair@1"
     subject_patch_artifact_id: BoundedId
@@ -883,6 +900,7 @@ class DrDrillPayloadV1(_FrozenModel):
 
 RunKindPayload: TypeAlias = Annotated[
     GenerationProposePayloadV1
+    | GenerationProposePayloadV2
     | PatchRepairPayloadV1
     | ConstraintProposalProposePayloadV1
     | ReviewRunPayloadV1
@@ -945,6 +963,7 @@ def _referenced_input_artifact_ids(params: RunKindPayload) -> tuple[str, ...]:
             params.objective_goal.source_artifact_id,
             _target_artifact_id(params.target),
             *(binding.evidence_artifact_id for binding in params.findings),
+            identity_alias_artifact_id(params),
         ]
     elif isinstance(params, PatchRepairPayloadV1):
         ids = [
@@ -1039,8 +1058,23 @@ def referenced_input_artifact_ids(params: RunKindPayload) -> tuple[str, ...]:
     return _referenced_input_artifact_ids(params)
 
 
+def identity_alias_artifact_id(params: GenerationProposePayloadV1) -> str | None:
+    """The declared-alias set bound to one extraction, if it has one.
+
+    This is the single place that reads across the ``generation-propose`` payload
+    versions.  Retained ``@1`` payloads predate project identity aliases and are
+    immutable audit records, so they carry none and are never rewritten; every
+    other code path sees one shape.
+    """
+
+    if isinstance(params, GenerationProposePayloadV2):
+        return params.identity_alias_artifact_id
+    return None
+
+
 _RUN_KIND_PAYLOAD_SCHEMAS: dict[tuple[str, int], str] = {
     ("generation.propose", 1): "generation-propose@1",
+    ("generation.propose", 2): "generation-propose@2",
     ("patch.repair", 1): "patch-repair@1",
     ("constraint_proposal.propose", 1): "constraint-proposal-propose@1",
     ("review.run", 1): "review-run@1",

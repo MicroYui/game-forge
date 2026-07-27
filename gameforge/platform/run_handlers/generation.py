@@ -24,6 +24,7 @@ gate evidence — NO ``config_export``, NO workflow subject. The rejected Patch 
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field, replace
 from typing import Callable, Literal, Mapping, Protocol
 
@@ -42,6 +43,7 @@ from gameforge.contracts.findings import Finding, PatchV2, TypedOp
 from gameforge.contracts.jobs import (
     AttemptProgressDataV1,
     GenerationProposePayloadV1,
+    identity_alias_artifact_id,
     PreparedArtifact,
     PreparedRunFailure,
     PreparedRunOutcome,
@@ -147,6 +149,7 @@ class GenerationRunRequest:
     max_simulation_work_units: int
     router: BridgeModelRouter
     source_contexts: tuple[GenerationSourceContext, ...] = ()
+    declared_identity_aliases: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -284,7 +287,7 @@ class GenerationProposalHandler:
     def __call__(self, context: ExecutorContextLike) -> PreparedRunOutcome:
         payload = context.payload.params
         if not isinstance(payload, GenerationProposePayloadV1):
-            raise TypeError("generation_proposer@1 requires a generation-propose@1 payload")
+            raise TypeError("generation_proposer@1 requires a generation-propose payload")
 
         profile_bindings = require_exact_profile_bindings(
             context,
@@ -347,6 +350,7 @@ class GenerationProposalHandler:
                 max_simulation_work_units=execution_config.max_simulation_work_units,
                 router=router,
                 source_contexts=source_contexts,
+                declared_identity_aliases=self._declared_identity_aliases(payload),
             )
         )
         self._validate_preview_replay(snapshot, outcome)
@@ -432,6 +436,18 @@ class GenerationProposalHandler:
                 raise ValueError("generation context source must be non-empty")
             contexts.append(GenerationSourceContext(artifact_id=artifact_id, text=text))
         return tuple(contexts)
+
+    def _declared_identity_aliases(
+        self,
+        payload: GenerationProposePayloadV1,
+    ) -> tuple[tuple[str, str], ...]:
+        """The names a person declared to mean one thing, frozen at admission."""
+
+        artifact_id = identity_alias_artifact_id(payload)
+        if artifact_id is None:
+            return ()
+        entries = json.loads(self.blobs.read_bytes(artifact_id).decode("utf-8"))
+        return tuple((str(entry["alias"]), str(entry["canonical_entity_id"])) for entry in entries)
 
     @staticmethod
     def _generation_prompt_version(context: ExecutorContextLike) -> str:

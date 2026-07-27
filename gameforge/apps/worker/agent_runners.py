@@ -483,7 +483,11 @@ class M2GenerationAgentRunner:
                 typed_ops = []
             if rejection_reason is None:
                 proposed_typed_ops = list(typed_ops)
-                normalization = normalize_typed_ops(request.snapshot, typed_ops)
+                normalization = normalize_typed_ops(
+                    request.snapshot,
+                    typed_ops,
+                    declared_aliases=dict(request.declared_identity_aliases),
+                )
                 if normalization.blocking_conflicts:
                     rejection_reason = "identity_conflict"
                     # A rejected candidate is evidence, not workflow authority. Keep

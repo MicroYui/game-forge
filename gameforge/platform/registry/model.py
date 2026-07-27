@@ -131,6 +131,21 @@ FROZEN_RUN_KIND_SHAPES: Mapping[RunKindIdentity, FrozenRunKindShape] = MappingPr
             None,
             None,
         ),
+        ("generation.propose", 2): FrozenRunKindShape(
+            "generation-propose@2",
+            "resource_endpoint_only",
+            _CANCEL_ONLY,
+            "propose",
+            "patch",
+            True,
+            "generation_proposer@1",
+            "publish_gated_patch_preview@1",
+            "llm_transient",
+            _LLM,
+            "forbidden",
+            None,
+            None,
+        ),
         ("patch.repair", 1): FrozenRunKindShape(
             "patch-repair@1",
             "resource_endpoint_only",
@@ -352,6 +367,10 @@ FROZEN_PROFILE_REQUIREMENT_SHAPES: Mapping[RunKindIdentity, tuple[tuple[str, str
                 ("/params/generation_policy", "generation", "one"),
                 ("/params/candidate_export_profiles", "config_export", "many"),
             ),
+            ("generation.propose", 2): (
+                ("/params/generation_policy", "generation", "one"),
+                ("/params/candidate_export_profiles", "config_export", "many"),
+            ),
             ("patch.repair", 1): (
                 ("/params/repair_policy", "patch_repair", "one"),
                 ("/params/checker_profiles", "checker", "many"),
@@ -405,7 +424,18 @@ FROZEN_PROFILE_REQUIREMENT_SHAPES: Mapping[RunKindIdentity, tuple[tuple[str, str
     )
 )
 
-FROZEN_ACTIVE_RUN_KIND_IDENTITIES: frozenset[RunKindIdentity] = frozenset(FROZEN_RUN_KIND_SHAPES)
+FROZEN_DISABLED_RUN_KIND_IDENTITIES: frozenset[RunKindIdentity] = frozenset(
+    {
+        # ``generation.propose@1`` predates project identity aliases.  Its
+        # definition stays in the registry because retained Runs and the
+        # execution-profile catalogs they were admitted against still reference
+        # it; it is no longer admittable.
+        ("generation.propose", 1),
+    }
+)
+FROZEN_ACTIVE_RUN_KIND_IDENTITIES: frozenset[RunKindIdentity] = (
+    frozenset(FROZEN_RUN_KIND_SHAPES) - FROZEN_DISABLED_RUN_KIND_IDENTITIES
+)
 FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxyType(
     {
         ("artifact.migrate", 1): "bf8c117dc2e532b50b7f702533d0744f47d01d6ed6a65226dd1af78800024cef",
@@ -422,8 +452,8 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
         ("dr.drill", 1): "f3bbbccc696d329dd0ac62f0819c50c9829429cc7402e443fbcb963c0fe6b16d",
         (
             "generation.propose",
-            1,
-        ): "d589f884a98ab3361eed7de1812113b36b5c019810515de67133e44b85a1957b",
+            2,
+        ): "5c2fbe3bbffa05df7302df38ded362ffd35265d9a78e711b753676d5d09fc2d1",
         ("patch.repair", 1): "48e96d0526705361c0a0d7c46828e4099bceb733d17aa3de4ee3ed54733a62a1",
         ("patch.validate", 1): "dea532d0bdbd3d9b2a1a71aa8f1181736040a5e528a70c61bc4231d4a38e930d",
         ("playtest.run", 1): "1e94cb0700e8b4256d90682fde79b9cef665ed14a648f6f4400c619b15c660d8",
@@ -441,13 +471,14 @@ FROZEN_RUN_KIND_DEFINITION_DIGESTS: Mapping[RunKindIdentity, str] = MappingProxy
 )
 if set(FROZEN_PROFILE_REQUIREMENT_SHAPES) != set(FROZEN_RUN_KIND_SHAPES):
     raise RuntimeError("frozen Run kind and profile requirement tables differ")
-if set(FROZEN_RUN_KIND_DEFINITION_DIGESTS) != set(FROZEN_RUN_KIND_SHAPES):
-    raise RuntimeError("frozen Run kind shape and definition-digest tables differ")
+if set(FROZEN_RUN_KIND_DEFINITION_DIGESTS) != FROZEN_ACTIVE_RUN_KIND_IDENTITIES:
+    raise RuntimeError("frozen definition digests must cover exactly the active Run kinds")
 
 
 __all__ = [
     "FROZEN_ACTIVE_RUN_KIND_IDENTITIES",
     "FROZEN_PROFILE_REQUIREMENT_SHAPES",
+    "FROZEN_DISABLED_RUN_KIND_IDENTITIES",
     "FROZEN_RUN_KIND_DEFINITION_DIGESTS",
     "FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA",
     "FROZEN_RUN_KIND_SHAPES",

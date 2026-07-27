@@ -41,8 +41,8 @@ from gameforge.spine.ir.loader import load_scenario
 from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
 
 _ENV_PROFILE = ProfileRefV1(profile_id="builtin.environment", version=1)
-_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=1)
-_OTHER_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=2)
+_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=2)
+_OTHER_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=1)
 
 _DETAILS = ConfigExportProfileDetailsV1(
     target_environment_profile=_ENV_PROFILE,
@@ -110,7 +110,7 @@ def _export(profile: ProfileRefV1 = _EXPORT_PROFILE) -> ConfigExportPackageV1:
     return _exporter().export(
         export_profile=profile,
         export_profile_binding=_binding(profile),
-        run_kind=RunKindRef(kind="generation.propose", version=1),
+        run_kind=RunKindRef(kind="generation.propose", version=2),
         llm_execution_mode="replay",
         preview_snapshot_id="snapshot:preview",
         preview_payload=_preview_payload(),
@@ -173,7 +173,7 @@ def test_export_rejects_a_package_the_target_environment_cannot_execute() -> Non
         _exporter().export(
             export_profile=_EXPORT_PROFILE,
             export_profile_binding=_binding(_EXPORT_PROFILE),
-            run_kind=RunKindRef(kind="generation.propose", version=1),
+            run_kind=RunKindRef(kind="generation.propose", version=2),
             llm_execution_mode="replay",
             preview_snapshot_id=preview.snapshot_id,
             preview_payload=preview.content_payload,
@@ -230,7 +230,7 @@ def test_loader_preview_export_decodes_to_an_executable_round_trip() -> None:
     package = build_aureus_config_exporter(registry).export(
         export_profile=_EXPORT_PROFILE,
         export_profile_binding=binding,
-        run_kind=RunKindRef(kind="generation.propose", version=1),
+        run_kind=RunKindRef(kind="generation.propose", version=2),
         llm_execution_mode="replay",
         preview_snapshot_id=source.snapshot_id,
         preview_payload=source.content_payload,
@@ -292,8 +292,11 @@ def test_one_package_per_requested_profile() -> None:
 def test_details_resolver_uses_the_exact_frozen_catalog_binding() -> None:
     builtin = build_builtin_registry()
     first = builtin.list_execution_profile_catalogs()[-1]
+    active = {item.profile for item in first.lifecycle if item.state == "active"}
     original = next(
-        definition for definition in first.definitions if definition.profile_kind == "config_export"
+        definition
+        for definition in first.definitions
+        if definition.profile_kind == "config_export" and definition.profile in active
     )
     changed = original.model_copy(
         update={
@@ -342,7 +345,7 @@ def test_details_resolver_uses_the_exact_frozen_catalog_binding() -> None:
 
     details = resolver(
         binding,
-        run_kind=RunKindRef(kind="generation.propose", version=1),
+        run_kind=RunKindRef(kind="generation.propose", version=2),
         llm_execution_mode="replay",
     )
 
@@ -367,6 +370,6 @@ def test_details_resolver_rejects_a_forged_profile_payload_hash() -> None:
     with pytest.raises(IntegrityViolation, match="frozen Run binding"):
         resolver(
             binding,
-            run_kind=RunKindRef(kind="generation.propose", version=1),
+            run_kind=RunKindRef(kind="generation.propose", version=2),
             llm_execution_mode="replay",
         )

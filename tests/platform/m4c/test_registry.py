@@ -33,6 +33,7 @@ from gameforge.contracts.lineage import VersionTuple
 from gameforge.contracts.playtest import CompletionOracleRegistryRefV1
 from gameforge.platform.registry import build_builtin_registry
 from gameforge.platform.registry.model import (
+    FROZEN_DISABLED_RUN_KIND_IDENTITIES,
     FROZEN_RUN_KIND_IDENTITIES_BY_PAYLOAD_SCHEMA,
     FROZEN_RUN_KIND_SHAPES,
 )
@@ -63,6 +64,20 @@ _ALL_MODES = ("not_applicable", "live", "record", "replay")
 _EXPECTED_RUN_KINDS: dict[tuple[str, int], _ExpectedRunKind] = {
     ("generation.propose", 1): _ExpectedRunKind(
         "generation-propose@1",
+        "resource_endpoint_only",
+        _CANCEL_ONLY,
+        "propose",
+        "patch",
+        "generation_proposer@1",
+        "publish_gated_patch_preview@1",
+        "llm_transient",
+        _LLM,
+        "forbidden",
+        None,
+        None,
+    ),
+    ("generation.propose", 2): _ExpectedRunKind(
+        "generation-propose@2",
         "resource_endpoint_only",
         _CANCEL_ONLY,
         "propose",
@@ -270,12 +285,14 @@ def test_builtin_registry_materializes_exact_frozen_run_kind_projection() -> Non
     definitions = registry.list_run_kinds()
 
     assert {(item.kind, item.version) for item in definitions} == set(_EXPECTED_RUN_KINDS)
-    assert len(definitions) == 14
+    assert len(definitions) == 15
 
     for key, expected in _EXPECTED_RUN_KINDS.items():
         definition = registry.get_run_kind(_ref(key))
         assert definition is not None
-        assert definition.status == "active"
+        assert definition.status == (
+            "disabled" if key in FROZEN_DISABLED_RUN_KIND_IDENTITIES else "active"
+        )
         assert definition.payload_schema_id == expected.payload_schema_id
         assert definition.prepared_result_schema_id == "prepared-run-result@1"
         assert definition.prepared_failure_schema_id == "prepared-run-failure@1"
@@ -342,6 +359,9 @@ def test_permission_templates_are_closed_by_trusted_domain_resolvers() -> None:
         resolver_key = registry.get_permission_resolver_key(_ref(key))
         if key == ("dr.drill", 1):
             assert definition.required_permission.domain_scope is None
+            assert resolver_key is None
+        elif key in FROZEN_DISABLED_RUN_KIND_IDENTITIES:
+            # A Run kind that can no longer be admitted needs no resolver.
             assert resolver_key is None
         else:
             # `all` is a registry-only marker. Readiness requires a trusted resolver
@@ -720,7 +740,7 @@ def test_exact_history_getters_never_substitute_current_aliases() -> None:
     definition = registry.get_run_kind(RunKindRef(kind="generation.propose", version=1))
     assert definition is not None
 
-    assert registry.get_run_kind(RunKindRef(kind=definition.kind, version=2)) is None
+    assert registry.get_run_kind(RunKindRef(kind=definition.kind, version=99)) is None
     assert (
         registry.get_retry_policy(
             definition.retry_policy.model_copy(
@@ -774,6 +794,9 @@ def test_profile_oracle_and_event_metadata_are_exactly_addressable() -> None:
         requirements = registry.get_profile_requirements(
             RunKindRef(kind=definition.kind, version=definition.version)
         )
+        if (definition.kind, definition.version) in FROZEN_DISABLED_RUN_KIND_IDENTITIES:
+            assert requirements is None
+            continue
         assert requirements is not None
         assert len({item.field_path for item in requirements}) == len(requirements)
 

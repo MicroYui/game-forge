@@ -36,7 +36,7 @@ import {
   type RollbackSnapshotDiff,
 } from "./RollbackContentComparison";
 import "./patches.css";
-import { profileKey } from "../execution-profiles";
+import { profileKey, supportsRunKind } from "../execution-profiles";
 
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
 type ProfileKind = ExecutionProfile["profile_kind"];
@@ -78,10 +78,6 @@ function unknownOutcome(error: Error): boolean {
 
 function sameRef(left: RefValue | null | undefined, right: RefValue | null | undefined): boolean {
   return left?.artifact_id === right?.artifact_id && left?.revision === right?.revision;
-}
-
-function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
-  return profile.compatible_run_kinds.some((candidate) => candidate.kind === kind && candidate.version === 1);
 }
 
 function profileCoversDomains(profile: ExecutionProfile, requiredDomainIds: readonly string[]): boolean {

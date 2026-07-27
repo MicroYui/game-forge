@@ -227,6 +227,7 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "patch@2",
         "generation@1",
         identity="required_for_llm_mode",
+        run_kind_version=2,
     ),
     *_fixed(
         "generation.propose",
@@ -237,6 +238,7 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "generation@1",
         snapshot="ir_content",
         identity="required_for_llm_mode",
+        run_kind_version=2,
     ),
     *_fixed(
         "generation.propose",
@@ -245,6 +247,7 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "config_export",
         "config-export-package@1",
         "config-export@1",
+        run_kind_version=2,
     ),
     *_fixed(
         "generation.propose",
@@ -253,6 +256,7 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "checker_run",
         "checker-report@1",
         "generation-gate@1",
+        run_kind_version=2,
     ),
     # generation.propose forbids a Run root seed, while its deterministic gate
     # executes the economy simulator with the frozen tool-local seed 0.  Keep
@@ -266,6 +270,7 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "simulation-result@1",
         "generation-gate@1",
         fixed_seed=0,
+        run_kind_version=2,
     ),
     *_fixed(
         "generation.propose",
@@ -274,6 +279,7 @@ BUILTIN_DOMAIN_PRODUCER_FACT_ENTRIES: tuple[DomainProducerRuleFacts, ...] = (
         "review_report",
         "review@1",
         "generation-gate@1",
+        run_kind_version=2,
     ),
     # Repair proposal and deterministic verifier.
     *_fixed(

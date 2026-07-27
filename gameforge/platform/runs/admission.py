@@ -134,6 +134,7 @@ from gameforge.contracts.jobs import (
     DrDrillPayloadV1,
     ExecutionVersionPlanV1,
     GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     MAX_COLLECTION_ITEMS,
     PatchRepairPayloadV1,
     PatchValidationPayloadV1,
@@ -158,6 +159,7 @@ from gameforge.contracts.jobs import (
     TaskSuiteDerivePayloadV1,
     ValidationSubjectBindingV1,
     patch_repair_requires_root_seed,
+    identity_alias_artifact_id,
     referenced_input_artifact_ids,
     resolved_policy_snapshot_digest,
     run_kind_definition_digest,
@@ -1078,6 +1080,7 @@ _PRODUCER_TOOL_VERSIONS: dict[str, str] = {
     "bench-run@1": "bench@1",
     "playtest-run@1": "playtest@1",
     "generation-propose@1": "generation@1",
+    "generation-propose@2": "generation@1",
     "constraint-proposal-propose@1": "extraction@1",
     "patch-repair@1": "repair@1",
     "patch-validation@1": "patch-validation@1",
@@ -1465,7 +1468,7 @@ class RunAdmissionEngine:
                 text=prospective.objective_goal_text,
                 domain_scope=prospective.domain_scope,
             )
-            params = GenerationProposePayloadV1(
+            params = GenerationProposePayloadV2(
                 base_snapshot_artifact_id=prospective.base_snapshot_artifact_id,
                 source_artifact_ids=prospective.source_artifact_ids,
                 constraint_snapshot_artifact_id=prospective.constraint_snapshot_artifact_id,
@@ -1878,13 +1881,23 @@ class RunAdmissionEngine:
         llm_execution_mode: Literal["live", "record", "replay"] = "record",
         execution_version_plan: ExecutionVersionPlanV1 | None = None,
         cassette_artifact_id: str | None = None,
+        declared_identity_aliases: tuple[tuple[str, str], ...] = (),
     ) -> RunAcceptedV1:
         source = self._mint_goal_source(
             actor=actor,
             text=objective_goal_text,
             domain_scope=domain_scope,
         )
-        params = GenerationProposePayloadV1(
+        aliases = (
+            self._mint_identity_alias_set(
+                actor=actor,
+                aliases=declared_identity_aliases,
+                domain_scope=domain_scope,
+            )
+            if declared_identity_aliases
+            else None
+        )
+        params = GenerationProposePayloadV2(
             base_snapshot_artifact_id=base_snapshot_artifact_id,
             source_artifact_ids=source_artifact_ids,
             constraint_snapshot_artifact_id=constraint_snapshot_artifact_id,
@@ -1897,9 +1910,12 @@ class RunAdmissionEngine:
             target=target,
             generation_policy=generation_policy,
             candidate_export_profiles=candidate_export_profiles,
+            identity_alias_artifact_id=(
+                None if aliases is None else aliases.minted.artifact.artifact_id
+            ),
         )
         return self._admit_public(
-            kind=RunKindRef(kind="generation.propose", version=1),
+            kind=RunKindRef(kind="generation.propose", version=2),
             creation_mode="resource_endpoint_only",
             params=params,
             actor=actor,
@@ -1909,7 +1925,7 @@ class RunAdmissionEngine:
             seed=None,
             execution_version_plan=execution_version_plan,
             cassette_artifact_id=cassette_artifact_id,
-            source_writes=(source,),
+            source_writes=(source,) if aliases is None else (source, aliases),
         )
 
     # ── constraint-proposals:propose (mints authenticated source_raw goal) ────
@@ -6933,6 +6949,7 @@ class RunAdmissionEngine:
                 add(source, ("source_raw", "source_rendered"))
             add(params.constraint_snapshot_artifact_id, ("constraint_snapshot",))
             add(params.objective_goal.source_artifact_id, ("source_raw",))
+            add(identity_alias_artifact_id(params), ("source_raw",))
             add_ref(params.target, ("ir_snapshot",))
             for binding in params.findings:
                 add(binding.evidence_artifact_id, _FINDING_EVIDENCE_KINDS)
@@ -7050,6 +7067,31 @@ class RunAdmissionEngine:
             created_at=_utc_text(_utc_now(self._clock)),
         )
         return _SourceWrite(minted=minted)
+
+    def _mint_identity_alias_set(
+        self,
+        *,
+        actor: ActorContext,
+        aliases: tuple[tuple[str, str], ...],
+        domain_scope: DomainScope,
+    ) -> _SourceWrite:
+        """Freeze the project's declared aliases as one content-addressed input.
+
+        Declaring an alias later must not change what an already-admitted Run does,
+        so the set is minted here and referenced by id.  The worker reads exactly
+        these bytes, which is what makes an extraction replayable.
+        """
+
+        return self._mint_goal_source(
+            actor=actor,
+            text=canonical_json(
+                [
+                    {"alias": alias, "canonical_entity_id": entity_id}
+                    for alias, entity_id in sorted(set(aliases))
+                ]
+            ),
+            domain_scope=domain_scope,
+        )
 
 
 @dataclass(frozen=True, slots=True)

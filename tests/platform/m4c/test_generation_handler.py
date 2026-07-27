@@ -27,6 +27,7 @@ from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.jobs import (
     AttemptProgressDataV1,
     GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     PreparedRunFailure,
     PreparedRunResult,
     PromptGoalBindingV1,
@@ -54,11 +55,12 @@ from tests.platform.m4c.handler_support import (
     snapshot_bytes,
 )
 
-GENERATION_KIND = RunKindRef(kind="generation.propose", version=1)
+GENERATION_KIND = RunKindRef(kind="generation.propose", version=2)
 MODEL_REF = "anthropic/claude-opus-4-8/m2a@1"
 SNAPSHOT_ID = "artifact:snapshot"
 CONSTRAINT_ID = "artifact:constraints"
 GOAL_ID = "artifact:goal"
+ALIAS_SET_ID = "artifact:identity-aliases"
 SOURCE_ID = "artifact:planning-material"
 _HEX = "a" * 64
 
@@ -233,8 +235,8 @@ class _SemanticCollisionChecker:
         ]
 
 
-def _payload() -> GenerationProposePayloadV1:
-    return GenerationProposePayloadV1(
+def _payload() -> GenerationProposePayloadV2:
+    return GenerationProposePayloadV2(
         base_snapshot_artifact_id=SNAPSHOT_ID,
         constraint_snapshot_artifact_id=CONSTRAINT_ID,
         findings=(),
@@ -306,7 +308,11 @@ def _context(
     )
     return build_context(
         params=actual_payload,
-        kind=GENERATION_KIND,
+        kind=RunKindRef(
+            kind="generation.propose",
+            # A retained @1 payload still executes; the harness follows the payload.
+            version=2 if isinstance(actual_payload, GenerationProposePayloadV2) else 1,
+        ),
         resolved_profiles=(
             resolved_binding(
                 "/params/generation_policy", profile_id="gen", version=1, kind="generation"
@@ -686,6 +692,94 @@ def test_generation_normalizes_lexical_entity_aliases_before_the_gate() -> None:
         }
     ]
     assert normalization["evidence"]["blocking_conflicts"] == []
+
+
+def test_generation_applies_a_declared_alias_no_lexical_rule_could_reach() -> None:
+    """岩王帝君 and 钟离 share no characters, so no writing-form rule can merge them.
+
+    A person declares once that they name one thing; the declaration is frozen into
+    the Run as its own artifact, and from there every extraction applies it
+    deterministically — the model is nowhere in this decision.
+    """
+
+    store = _store()
+    store.register(
+        ALIAS_SET_ID,
+        json.dumps([{"alias": "岩王帝君", "canonical_entity_id": "mob"}]).encode("utf-8"),
+    )
+    payload = _payload().model_copy(update={"identity_alias_artifact_id": ALIAS_SET_ID})
+    response = json.dumps(
+        [
+            {
+                "op": "set_entity_attr",
+                "target": "岩王帝君.gold_min",
+                "new_value": 70,
+                "old_value": 60,
+                "op_id": "alias-declared",
+            }
+        ]
+    )
+
+    outcome = _handler(store)(_context(FakeModelBridge(responses=(response,)), payload=payload))
+
+    patch_artifact = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
+    patch = PatchV2.model_validate(json.loads(store.read_prepared(patch_artifact.object_ref)))
+    assert [(operation.op, operation.target) for operation in patch.ops] == [
+        ("set_entity_attr", "mob.gold_min"),
+    ]
+
+
+def test_generation_without_a_declared_alias_leaves_the_name_alone() -> None:
+    """The same proposal, with nothing declared, must not be merged by guesswork."""
+
+    store = _store()
+    response = json.dumps(
+        [
+            {
+                "op": "set_entity_attr",
+                "target": "岩王帝君.gold_min",
+                "new_value": 70,
+                "old_value": 60,
+                "op_id": "alias-undeclared",
+            }
+        ]
+    )
+
+    outcome = _handler(store)(_context(FakeModelBridge(responses=(response,))))
+
+    patch_artifact = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
+    patch = PatchV2.model_validate(json.loads(store.read_prepared(patch_artifact.object_ref)))
+    assert [operation.target for operation in patch.ops] == ["岩王帝君.gold_min"]
+
+
+def test_a_retained_generation_propose_at_1_still_executes() -> None:
+    """Runs admitted before declared aliases existed are immutable audit records.
+
+    They carry no alias set and must keep running exactly as they did, which is the
+    one place in the system that reads across two payload versions.
+    """
+
+    store = _store()
+    payload = GenerationProposePayloadV1(
+        **_payload().model_dump(exclude={"schema_version", "identity_alias_artifact_id"})
+    )
+    response = json.dumps(
+        [
+            {
+                "op": "set_entity_attr",
+                "target": "mob.gold_min",
+                "new_value": 70,
+                "old_value": 60,
+                "op_id": "retained-v1",
+            }
+        ]
+    )
+
+    outcome = _handler(store)(_context(FakeModelBridge(responses=(response,)), payload=payload))
+
+    patch_artifact = next(artifact for artifact in outcome.artifacts if artifact.kind == "patch")
+    patch = PatchV2.model_validate(json.loads(store.read_prepared(patch_artifact.object_ref)))
+    assert [operation.target for operation in patch.ops] == ["mob.gold_min"]
 
 
 def test_generation_identity_value_conflict_fails_closed_with_complete_evidence() -> None:

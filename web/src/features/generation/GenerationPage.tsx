@@ -40,7 +40,7 @@ import {
 } from "./outcome";
 
 import "./generation.css";
-import { profileKey } from "../execution-profiles";
+import { profileKey, supportsRunKind } from "../execution-profiles";
 
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type LlmExecutionMode = ProspectiveGenerationProposeRequest["llm_execution_mode"];
@@ -249,12 +249,6 @@ function sameProfile(
   right: ExecutionProfile["profile"] | null | undefined,
 ): boolean {
   return left?.profile_id === right?.profile_id && left?.version === right?.version;
-}
-
-function supportsRunKind(profile: ExecutionProfile, kind: string, version = 1): boolean {
-  return profile.compatible_run_kinds.some(
-    (candidate) => candidate.kind === kind && candidate.version === version,
-  );
 }
 
 function domainLabel(domainId: string): string {
@@ -644,6 +638,12 @@ function GenerationAuthoring({
     ) {
       return;
     }
+    // The chosen profile already carries which Run kind version it serves. Reading
+    // it back beats naming a version here, which goes stale the moment one is minted.
+    const runKind = selectedGeneration.compatible_run_kinds.find(
+      (candidate) => candidate.kind === "generation.propose",
+    );
+    if (!runKind) return;
     const prospective: ProspectiveGenerationProposeRequest = {
       base_snapshot_artifact_id: selectedSpec.artifact.artifact_id,
       candidate_export_profiles: selectedExports.map((profile) => profile.profile),
@@ -668,7 +668,7 @@ function GenerationAuthoring({
       replay_source_run_id: mode === "replay" ? replaySourceRunId.trim() : null,
       request_schema_version: "execution-option-resolve-request@1",
       resource_operation_id: "propose_generation_api_v1_generation_propose_post",
-      run_kind: { kind: "generation.propose", version: 1 },
+      run_kind: runKind,
     };
     void execute({
       error: null,

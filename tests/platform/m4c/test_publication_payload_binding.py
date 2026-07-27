@@ -22,7 +22,7 @@ from gameforge.contracts.jobs import (
     CheckerRunPayloadV1,
     ConstraintProposalProposePayloadV1,
     ConstraintValidationPayloadV1,
-    GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     GraphSelectionV1,
     PatchRepairPayloadV1,
     PatchValidationPayloadV1,
@@ -535,7 +535,7 @@ def test_constraint_proposal_source_hash_must_match_exact_typed_parent() -> None
 
 
 def _generation_run(*, with_export: bool = False):
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         constraint_snapshot_artifact_id=("artifact:constraint" if with_export else None),
         findings=(),
@@ -551,7 +551,7 @@ def _generation_run(*, with_export: bool = False):
     )
     return build_run_record(
         build_envelope(params=params),
-        RunKindRef(kind="generation.propose", version=1),
+        RunKindRef(kind="generation.propose", version=2),
     )
 
 

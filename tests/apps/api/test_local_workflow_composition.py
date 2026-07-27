@@ -418,7 +418,7 @@ def test_real_local_composition_creates_patch_and_constraint_drafts(tmp_path: Pa
                 ],
                 "rationale": "Lower the quest reward within the approved envelope.",
                 "candidate_export_profiles": [
-                    {"profile_id": "builtin.config_export", "version": 1}
+                    {"profile_id": "builtin.config_export", "version": 2}
                 ],
             },
             headers=_headers("patch:draft:real"),

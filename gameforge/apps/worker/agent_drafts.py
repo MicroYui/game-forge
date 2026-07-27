@@ -726,8 +726,7 @@ class WorkerAgentDraftRunGateway:
             "constraint_proposal.propose": "constraint_proposal",
         }.get(run.kind.kind)
         if (
-            run.kind.version != 1
-            or expected_subject_kind is None
+            expected_subject_kind is None
             or facts.subject_kind != expected_subject_kind
             or facts.produced_by != "agent"
             or facts.producer_run_id != run.run_id
@@ -743,16 +742,11 @@ class WorkerAgentDraftRunGateway:
         """Fresh DB-only producer check after planning validated subject bytes."""
 
         run = self._running_producer_run(run_id=run_id, initiated_by=initiated_by)
-        if (
-            run is None
-            or run.kind.version != 1
-            or run.kind.kind
-            not in {
-                "generation.propose",
-                "patch.repair",
-                "constraint_proposal.propose",
-            }
-        ):
+        if run is None or run.kind.kind not in {
+            "generation.propose",
+            "patch.repair",
+            "constraint_proposal.propose",
+        }:
             raise IntegrityViolation("prepared Agent draft producer Run authority changed")
 
     def start_validation(

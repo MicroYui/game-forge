@@ -25,7 +25,7 @@ import {
   type RollbackSnapshotDiff,
 } from "./RollbackContentComparison";
 import "./patches.css";
-import { profileKey } from "../execution-profiles";
+import { profileKey, supportsRunKind } from "../execution-profiles";
 
 type ExecutionProfile = components["schemas"]["ExecutionProfileViewV1"];
 
@@ -58,10 +58,6 @@ function unknownOutcome(error: Error): boolean {
 
 function rollbackProfileBusinessLabel(profile: ExecutionProfile): string {
   return /\p{Script=Han}/u.test(profile.display_name) ? profile.display_name : "安全回退验证方案";
-}
-
-function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
-  return profile.compatible_run_kinds.some((candidate) => candidate.kind === kind && candidate.version === 1);
 }
 
 function profileCoversDomains(profile: ExecutionProfile, requiredDomainIds: readonly string[]): boolean {

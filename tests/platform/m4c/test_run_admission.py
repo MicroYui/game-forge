@@ -225,10 +225,10 @@ AUDIT_CHAIN_ID = "platform-authority"
 CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
 SIMULATION_PROFILE = ProfileRefV1(profile_id="builtin.simulation", version=1)
 WORKLOAD_PROFILE = ProfileRefV1(profile_id="builtin.workload", version=1)
-GENERATION_PROFILE = ProfileRefV1(profile_id="builtin.generation", version=1)
+GENERATION_PROFILE = ProfileRefV1(profile_id="builtin.generation", version=2)
 REVIEW_PROFILE = ProfileRefV1(profile_id="builtin.review", version=1)
 LLM_TRIAGE_PROFILE = ProfileRefV1(profile_id="builtin.llm_triage", version=1)
-CONFIG_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=1)
+CONFIG_EXPORT_PROFILE = ProfileRefV1(profile_id="builtin.config_export", version=2)
 ENVIRONMENT_PROFILE = ProfileRefV1(profile_id="builtin.environment", version=1)
 TASK_SUITE_PROFILE = ProfileRefV1(profile_id="builtin.task_suite_derivation", version=2)
 PLAYTEST_PLANNER_PROFILE = ProfileRefV1(profile_id="builtin.playtest_planner", version=2)
@@ -1631,7 +1631,7 @@ def _plan(
     graph = next(
         item
         for item in registry.list_agent_execution_graphs()
-        if item.run_kind == RunKindRef(kind=run_kind, version=1)
+        if item.run_kind.kind == run_kind
         and item.status == "active"
         and (selected_graph_version is None or item.agent_graph_version == selected_graph_version)
     )
@@ -2451,9 +2451,7 @@ def test_run_admission_freezes_and_reserves_every_applicable_budget_scope(
         principal.budget_id,
         system.budget_id,
     }
-    expected_shared_reservation = (
-        CostAmountV1(dimension="request", value=128, unit="request"),
-    )
+    expected_shared_reservation = (CostAmountV1(dimension="request", value=128, unit="request"),)
     by_budget_id = {item.budget_id: item for item in reservations}
     run_reservation = by_budget_id[f"budget:run:{accepted.run_id}"]
     assert {item.dimension: item.value for item in run_reservation.reserved} == {
@@ -2508,9 +2506,7 @@ def test_shared_budget_remains_usable_after_a_prior_request_is_consumed(
         for item in harness.budget_reservations(accepted.run_id)
         if item.budget_id == system.budget_id
     )
-    assert reservation.reserved == (
-        CostAmountV1(dimension="request", value=128, unit="request"),
-    )
+    assert reservation.reserved == (CostAmountV1(dimension="request", value=128, unit="request"),)
 
 
 def test_run_admission_freezes_every_budget_within_each_applicable_scope(
@@ -4866,6 +4862,40 @@ def test_rollback_validation_rejects_profile_binding_drift(tmp_path: Path) -> No
 
 
 # ── generation:propose mints source_raw BEFORE Run creation ──────────────────
+def test_generation_freezes_the_declared_alias_set_as_its_own_input(tmp_path: Path) -> None:
+    """A declared alias is an input, so it is minted and bound like every other one.
+
+    Freezing it here is what makes the extraction replayable: declaring another
+    alias tomorrow must not change what this Run already decided.
+    """
+
+    harness = Harness(tmp_path)
+    base = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
+    accepted = harness.engine_admission.admit_generation(
+        base_snapshot_artifact_id=base,
+        constraint_snapshot_artifact_id=None,
+        findings=(),
+        objective_goal_text="Name the Geo Archon consistently.",
+        domain_scope=DomainScope(domain_ids=("economy",)),
+        target=RefReadBindingV1(ref_name="content/head", expected_ref=None),
+        generation_policy=GENERATION_PROFILE,
+        candidate_export_profiles=(),
+        actor=_tooling_actor(),
+        server=_server("generation:aliases"),
+        llm_execution_mode="record",
+        execution_version_plan=_plan(),
+        declared_identity_aliases=(("岩王帝君", "npc:zhongli"),),
+    )
+
+    run = harness.run_record(accepted.run_id)
+    assert run is not None and run.status == "queued"
+    alias_artifact_id = run.payload.params.identity_alias_artifact_id
+    assert alias_artifact_id is not None
+    assert alias_artifact_id in run.payload.input_artifact_ids
+    artifact = harness.artifact_record(alias_artifact_id)
+    assert artifact is not None and artifact.kind == "source_raw"
+
+
 def test_generation_mints_source_raw_and_hides_naked_text(tmp_path: Path) -> None:
     harness = Harness(tmp_path)
     base = harness.seed_artifact(kind="ir_snapshot", tool_version="snap@1")
@@ -4888,7 +4918,7 @@ def test_generation_mints_source_raw_and_hides_naked_text(tmp_path: Path) -> Non
     assert run is not None and run.status == "queued"
     assert run.payload.version_tuple.prompt_version == "generation@7"
     assert run.payload.version_tuple.model_snapshot == "test:model@1"
-    assert run.payload.version_tuple.agent_graph_version == "generation-graph@7"
+    assert run.payload.version_tuple.agent_graph_version == "generation-graph@8"
     assert run.payload.version_tuple.tool_version == "generation@1"
     # the payload references only the source_raw artifact id/hash, never the text
     goal_binding = run.payload.params.objective_goal
@@ -6188,7 +6218,7 @@ def test_repair_freezes_exact_profile_verifier_requirements(tmp_path: Path) -> N
         )
         for requirement in snapshot.requirements
     } == {
-            ("checker", "builtin.checker@2", "/params/checker_profiles/0"),
+        ("checker", "builtin.checker@2", "/params/checker_profiles/0"),
         ("simulation", "builtin.simulation@1", "/params/simulation_profiles/0"),
         ("regression", regression, None),
     }
@@ -7227,10 +7257,7 @@ def test_patch_validation_rejects_role_policy_rotation_when_either_policy_denies
         "tooling": tuple(
             permission
             for permission in retained.grants["tooling"]
-            if not (
-                permission.action == "validate"
-                and permission.resource_kind == "patch"
-            )
+            if not (permission.action == "validate" and permission.resource_kind == "patch")
         ),
     }
     denied_version = f"role-policy@{denied_authority}-denies-patch-validation"

@@ -21,7 +21,11 @@ from gameforge.runtime.persistence.models import Base
 # (as overridden by migrations_api.py's `set_main_option` calls).
 config = context.config
 
-if config.config_file_name is not None:
+# `alembic.ini` carries a logging config, and applying it rewires the ROOT logger
+# for the whole process.  That is what a human running `alembic upgrade` wants and
+# what an in-process caller (the API, the worker, a machine-readable fixture tool)
+# must never have done to it, so `migrations_api` opts out explicitly.
+if config.config_file_name is not None and config.attributes.get("configure_logging", True):
     fileConfig(config.config_file_name)
 
 # Target metadata for 'autogenerate' support.

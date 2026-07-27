@@ -33,6 +33,8 @@ def _config(url: str) -> Config:
     config = Config(str(_ALEMBIC_INI))
     config.set_main_option("script_location", str(_MIGRATIONS_DIR))
     config.set_main_option("sqlalchemy.url", url)
+    # In-process callers keep their own logging; see env.py.
+    config.attributes["configure_logging"] = False
     return config
 
 

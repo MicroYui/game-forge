@@ -3,7 +3,7 @@
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
-    GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     PromptGoalBindingV1,
     RefReadBindingV1,
 )
@@ -28,7 +28,7 @@ def _parent(artifact_id: str, kind: str, schema: str) -> ParentInfo:
 
 
 def _run():
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         constraint_snapshot_artifact_id=None,
         findings=(),
@@ -44,13 +44,13 @@ def _run():
     )
     return build_run_record(
         build_envelope(params=params),
-        RunKindRef(kind="generation.propose", version=1),
+        RunKindRef(kind="generation.propose", version=2),
     )
 
 
 def _binding(rule_id: str):
     registry = build_builtin_registry()
-    definition = registry.get_run_kind(RunKindRef(kind="generation.propose", version=1))
+    definition = registry.get_run_kind(RunKindRef(kind="generation.propose", version=2))
     assert definition is not None
     policy = next(
         item for item in definition.outcome_policies if item.policy_id == "generation-gate-pass"
@@ -64,7 +64,7 @@ def _binding(rule_id: str):
 def test_generation_patch_and_preview_bind_exact_planning_material_parents() -> None:
     run = _run()
     params = run.payload.params
-    assert isinstance(params, GenerationProposePayloadV1)
+    assert isinstance(params, GenerationProposePayloadV2)
     inputs = {
         "artifact:base": _parent("artifact:base", "ir_snapshot", "ir-core@1"),
         "artifact:goal": _parent("artifact:goal", "source_raw", "source-raw@1"),

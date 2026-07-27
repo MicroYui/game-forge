@@ -58,7 +58,7 @@ const replayFailureManifest = {
     cause_code: "generation_gate_rejected",
     failure_schema_version: "run-failure@1",
     run_id: failedReplaySource.run_id,
-    run_kind: { kind: "generation.propose", version: 1 },
+    run_kind: { kind: "generation.propose", version: 2 },
   },
 } as unknown as ArtifactPayloadView;
 const patch = {
@@ -112,7 +112,7 @@ const resolveRequest: ExecutionOptionResolveRequest = {
   replay_source_run_id: null,
   request_schema_version: "execution-option-resolve-request@1",
   resource_operation_id: "propose_generation_api_v1_generation_propose_post",
-  run_kind: { kind: "generation.propose", version: 1 },
+  run_kind: { kind: "generation.propose", version: 2 },
 };
 
 const generationRequest: GenerationProposeRequest = {
@@ -189,7 +189,7 @@ describe("generation API", () => {
         ...failedReplaySource,
         completedAt: "2026-07-23T03:47:50Z",
         outcomeCode: "generation_gate_rejected",
-        runKind: { kind: "generation.propose", version: 1 },
+        runKind: { kind: "generation.propose", version: 2 },
       },
     ]);
     expect(get).toHaveBeenCalledWith("/api/v1/specs", { params: { query: { cursor } } });

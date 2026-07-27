@@ -12,6 +12,19 @@ export function profileKey(profile: ExecutionProfile): string {
   return profileRefKey(profile.profile);
 }
 
+/**
+ * Whether this profile serves the given Run kind.
+ *
+ * Deliberately not pinned to a Run kind version. Which version is current is the
+ * server's call, and the catalog already answers it: a superseded profile is
+ * disabled, so filtering on `status === "active"` leaves exactly one. Pinning a
+ * version here means the day a Run kind is versioned, every picker silently
+ * empties and the page offers the planner nothing.
+ */
+export function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
+  return profile.compatible_run_kinds.some((candidate) => candidate.kind === kind);
+}
+
 /** What this profile does, in the words a planner uses. */
 export function profileBusinessLabel(profile: ExecutionProfile): string {
   const labels: Partial<Record<ExecutionProfile["profile_kind"], string>> = {

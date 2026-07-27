@@ -164,7 +164,11 @@ export function createGenerationApi(client: GameForgeOpenApiClient = gameForgeAp
             params: { query: { ...cursorQuery(cursor) } },
           }),
         );
-        return projectReplaySourcePage(page, { kind: "generation.propose", version: 1 }, async (artifactId) =>
+        // Version matters here: REPLAY re-runs an exact recorded request, and
+        // admission compares the source payload to this one. A retained
+        // generation-propose@1 Run is readable evidence but is not replayable
+        // under @2, so offering it would only produce a guaranteed rejection.
+        return projectReplaySourcePage(page, { kind: "generation.propose", version: 2 }, async (artifactId) =>
           unwrapApiResponse<ArtifactPayloadView>(
             await client.GET("/api/v1/artifacts/{artifact_id}", {
               params: { path: { artifact_id: artifactId } },

@@ -466,8 +466,8 @@ def _generation_body(
         "objective_goal_text": "Raise the caravan emblem requirement from three to four.",
         "domain_scope": _DOMAIN_JSON,
         "target": {"ref_name": REF_NAME, "expected_ref": expected_ref},
-        "generation_policy": {"profile_id": "builtin.generation", "version": 1},
-        "candidate_export_profiles": [{"profile_id": "builtin.config_export", "version": 1}],
+        "generation_policy": {"profile_id": "builtin.generation", "version": 2},
+        "candidate_export_profiles": [{"profile_id": "builtin.config_export", "version": 2}],
         "llm_execution_mode": mode,
         "execution_version_plan": plan.model_dump(mode="json"),
         "cassette_artifact_id": cassette_artifact_id,
@@ -642,7 +642,7 @@ def _repair_body(
             "checker_profiles": [],
             "simulation_profiles": [],
             "regression_suite_artifact_ids": [regression_suite_artifact_id],
-            "candidate_export_profiles": [{"profile_id": "builtin.config_export", "version": 1}],
+            "candidate_export_profiles": [{"profile_id": "builtin.config_export", "version": 2}],
         },
         "seed": 19,
         "execution_version_plan": plan.model_dump(mode="json"),
@@ -864,7 +864,7 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
     base_id, constraint_id, expected_ref = harness.seed_authoring_inputs()
     authorities, transport, catalog, routing = _seed_model_authority(harness)
     plan = _execution_plan(
-        kind=RunKindRef(kind="generation.propose", version=1),
+        kind=RunKindRef(kind="generation.propose", version=2),
         catalog=catalog,
         routing=routing,
     )
@@ -885,8 +885,8 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
             if item["status"] == "active"
         }
         assert {
-            ("builtin.generation", 1),
-            ("builtin.config_export", 1),
+            ("builtin.generation", 2),
+            ("builtin.config_export", 2),
             ("builtin.review", 1),
             ("builtin.simulation", 1),
             ("builtin.llm_triage", 1),
@@ -901,9 +901,9 @@ def test_journey_a_authoring_happy_path_uses_native_replay(
             params={"limit": 100},
         )
         assert constraint_page.status_code == 200, constraint_page.text
-        assert [
-            item["artifact"]["artifact_id"] for item in constraint_page.json()["items"]
-        ] == [constraint_id]
+        assert [item["artifact"]["artifact_id"] for item in constraint_page.json()["items"]] == [
+            constraint_id
+        ]
 
         record = maker.client.post(
             "/api/v1/generation:propose",
@@ -1565,7 +1565,7 @@ def test_journey_a_gate_rejected_replay_is_evidence_only(tmp_path: Path) -> None
     base_id, constraint_id, expected_ref = harness.seed_authoring_inputs()
     authorities, transport, catalog, routing = _seed_model_authority(harness)
     plan = _execution_plan(
-        kind=RunKindRef(kind="generation.propose", version=1),
+        kind=RunKindRef(kind="generation.propose", version=2),
         catalog=catalog,
         routing=routing,
     )

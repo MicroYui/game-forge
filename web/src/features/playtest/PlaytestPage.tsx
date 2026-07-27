@@ -36,7 +36,7 @@ import { requireTaskSuiteAuthority, type TaskSuiteNavigationCandidate } from "./
 import { PlaytestTerminalPanel } from "./PlaytestTerminalPanel";
 
 import "./playtest.css";
-import { profileRefKey } from "../execution-profiles";
+import { profileRefKey, supportsRunKind } from "../execution-profiles";
 
 type ExecutionProfile = ExecutionProfilePage["items"][number];
 type LlmExecutionMode = ProspectivePlaytestRunRequest["llm_execution_mode"];
@@ -263,10 +263,6 @@ function requireConfigCandidate(
     environmentProfile: payload.target_environment_profile,
     previewArtifactId: payload.source_preview_artifact_id,
   };
-}
-
-function supportsRunKind(profile: ExecutionProfile, kind: string): boolean {
-  return profile.compatible_run_kinds.some((candidate) => candidate.kind === kind && candidate.version === 1);
 }
 
 async function loadCandidateContext(

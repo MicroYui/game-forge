@@ -139,20 +139,30 @@ def _permission_resolver_keys(registry: Any) -> set[str]:
 def test_generation_has_one_current_execution_graph() -> None:
     registry = build_builtin_registry()
 
-    graphs = registry.list_agent_execution_graphs_for_run_kind(
+    historical = registry.list_agent_execution_graphs_for_run_kind(
         RunKindRef(kind="generation.propose", version=1)
     )
+    current = registry.list_agent_execution_graphs_for_run_kind(
+        RunKindRef(kind="generation.propose", version=2)
+    )
 
-    assert [
-        (
-            graph.agent_graph_version,
-            graph.status,
-            graph.nodes[0].prompt_version,
-            graph.nodes[0].tool_version,
-        )
-        for graph in graphs
-    ] == [
-        ("generation-graph@7", "active", "generation@7", "generation@1"),
+    def _shape(graphs: Any) -> list[tuple[str, str, str, str]]:
+        return [
+            (
+                graph.agent_graph_version,
+                graph.status,
+                graph.nodes[0].prompt_version,
+                graph.nodes[0].tool_version,
+            )
+            for graph in graphs
+        ]
+
+    # @1 predates declared identity aliases and stays only to resolve retained Runs.
+    assert _shape(historical) == [
+        ("generation-graph@7", "replay_only", "generation@7", "generation@1"),
+    ]
+    assert _shape(current) == [
+        ("generation-graph@8", "active", "generation@7", "generation@1"),
     ]
 
 
@@ -202,7 +212,7 @@ def test_task11_execution_profile_catalog_remains_byte_identical() -> None:
 def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -> None:
     catalogs = build_builtin_registry().list_execution_profile_catalogs()
 
-    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3]
+    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3, 4]
     old_checker = next(
         definition
         for definition in catalogs[0].definitions
@@ -539,7 +549,7 @@ def test_readiness_rejects_run_kind_outcome_drift_from_frozen_digest() -> None:
     index = next(
         index
         for index, definition in enumerate(definitions)
-        if definition.kind == "generation.propose"
+        if definition.kind == "generation.propose" and definition.status == "active"
     )
     definition = definitions[index]
     definitions[index] = definition.model_copy(
@@ -770,19 +780,20 @@ def _with_historical_generation_graph(
     generation_definition = next(
         definition for definition in definitions if definition.kind == "generation.propose"
     )
+    # A synthetic version above every real one: the point is the lifecycle rule,
+    # not any particular generation.propose version.
+    synthetic = max(item.version for item in definitions if item.kind == "generation.propose") + 1
     historical_definition = generation_definition.model_copy(
-        update={"version": 2, "status": "disabled"}
+        update={"version": synthetic, "status": "disabled"}
     )
     graphs = tuple(registry.list_agent_execution_graphs())
     generation_graph = next(
-        graph
-        for graph in graphs
-        if graph.run_kind == RunKindRef(kind="generation.propose", version=1)
+        graph for graph in graphs if graph.run_kind.kind == "generation.propose"
     )
     historical_graph = _replace_graph(
         generation_graph,
-        agent_graph_version="generation-graph@historical-2",
-        run_kind=RunKindRef(kind="generation.propose", version=2),
+        agent_graph_version=f"generation-graph@historical-{synthetic}",
+        run_kind=RunKindRef(kind="generation.propose", version=synthetic),
         status="replay_only",
     )
     return (*definitions, historical_definition), (*graphs, historical_graph)
@@ -871,7 +882,7 @@ def test_permission_template_cannot_be_ready_without_its_trusted_resolver() -> N
     components = _components(registry)
     resolvers = dict(components.permission_domain_resolvers)
     resolver_key = registry.get_permission_resolver_key(
-        RunKindRef(kind="generation.propose", version=1)
+        RunKindRef(kind="generation.propose", version=2)
     )
     assert resolver_key is not None
     resolvers.pop(resolver_key)

@@ -181,13 +181,9 @@ def test_regression_fixture_cli_publishes_suite_from_exact_finding_revision(
         text=True,
     )
     assert completed.returncode == 0, completed.stderr
-    # Bringing a retained workspace to head logs at INFO; the CLI itself must say
-    # nothing else on stderr.
-    assert [
-        line
-        for line in completed.stderr.splitlines()
-        if line.strip() and not line.startswith("INFO  [alembic")
-    ] == []
+    # This CLI's whole contract is "print one suite id"; bringing the retained
+    # workspace to head is a precondition, not output.
+    assert completed.stderr == ""
     suite_id = completed.stdout.strip()
     assert suite_id.startswith("sha256:")
     engine = get_engine(harness.database_url)

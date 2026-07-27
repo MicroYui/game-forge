@@ -50,7 +50,7 @@ from gameforge.contracts.lineage import (
 )
 from gameforge.contracts.storage import RefValue
 from gameforge.contracts.jobs import (
-    GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     PromptGoalBindingV1,
     RefReadBindingV1,
 )
@@ -1597,7 +1597,7 @@ def test_terminal_agent_draft_direct_commit_keeps_its_own_single_audit_batch() -
         target_artifact_id=None,
         target_snapshot_id="snapshot:preview",
     )
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         findings=(),
         objective_goal=PromptGoalBindingV1(
@@ -1614,7 +1614,7 @@ def test_terminal_agent_draft_direct_commit_keeps_its_own_single_audit_batch() -
     )
     run = build_run_record(
         build_envelope(params=params),
-        RunKindRef(kind="generation.propose", version=1),
+        RunKindRef(kind="generation.propose", version=2),
         run_id="run:producer",
     ).model_copy(update={"initiated_by": prepared.approval_item.proposer})
     harness.runs.produced.add(
@@ -1708,7 +1708,7 @@ def test_terminal_agent_draft_adapter_failure_rolls_back_callers_uow() -> None:
 
     # The malformed request is rejected before the shared core mutates anything;
     # the outer terminal UoW remains the sole rollback owner.
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         findings=(),
         objective_goal=PromptGoalBindingV1(
@@ -1721,7 +1721,7 @@ def test_terminal_agent_draft_adapter_failure_rolls_back_callers_uow() -> None:
     )
     run = build_run_record(
         build_envelope(params=params),
-        RunKindRef(kind="generation.propose", version=1),
+        RunKindRef(kind="generation.propose", version=2),
         run_id="run:producer",
     ).model_copy(update={"initiated_by": prepared.approval_item.proposer})
     definition = build_builtin_registry().get_run_kind(run.kind)

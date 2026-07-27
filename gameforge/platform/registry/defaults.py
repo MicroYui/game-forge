@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from types import MappingProxyType
 from typing import Any, Literal, get_args
 
@@ -107,6 +107,7 @@ from gameforge.contracts.playtest import (
     compute_playtest_payload_schema_registry_digest,
 )
 from gameforge.platform.registry.model import (
+    FROZEN_DISABLED_RUN_KIND_IDENTITIES,
     FROZEN_PROFILE_REQUIREMENT_SHAPES,
     FROZEN_RUN_KIND_SHAPES,
     ProfileRequirement,
@@ -2485,13 +2486,44 @@ def _migration_registry() -> MigrationCapabilityMatrixRegistryV1:
     )
 
 
+_RUN_KIND_FIRST_CATALOG_VERSION: Mapping[RunKindIdentity, int] = MappingProxyType(
+    {
+        # generation.propose@2 binds the declared identity aliases.  Catalogs 1–3
+        # were admitted against and are digest-referenced by retained Runs, so the
+        # new Run kind may only appear from catalog 4 onward.
+        ("generation.propose", 2): 4,
+    }
+)
+
+_RUN_KIND_LAST_CATALOG_VERSION: Mapping[RunKindIdentity, int] = MappingProxyType(
+    {
+        # Superseded by @2 from catalog 4.  A profile that still advertised @1 would
+        # be claiming it serves a Run kind admission refuses, and a client reading
+        # `compatible_run_kinds` back would resolve the wrong version.
+        ("generation.propose", 1): 3,
+    }
+)
+
+
 def _profile_compatibility(
     *,
-    historical_v1_only: bool = False,
+    catalog_version: int,
 ) -> dict[ExecutionProfileKindV1, tuple[RunKindRef, ...]]:
+    """Which Run kinds each profile kind serves, as of one catalog version.
+
+    A profile definition names its compatible Run kinds, and every catalog is
+    content-hashed into the Runs admitted against it.  Bounding this by catalog
+    version is what lets a later Run-kind version exist without rewriting a digest
+    some retained Run still carries.
+    """
+
     by_kind: dict[str, set[RunKindIdentity]] = {}
     for run_kind, requirements in FROZEN_PROFILE_REQUIREMENT_SHAPES.items():
-        if historical_v1_only and run_kind[1] != 1:
+        if not (
+            _RUN_KIND_FIRST_CATALOG_VERSION.get(run_kind, 1)
+            <= catalog_version
+            <= _RUN_KIND_LAST_CATALOG_VERSION.get(run_kind, catalog_version)
+        ):
             continue
         for _field_path, profile_kind, _cardinality in requirements:
             by_kind.setdefault(profile_kind, set()).add(run_kind)
@@ -2754,7 +2786,7 @@ def _execution_profile_definition(
 def _execution_profile_catalog_v1() -> ExecutionProfileCatalogSnapshotV1:
     """Return the byte-identical Task 11 catalog retained for audit/history."""
 
-    compatibility = _profile_compatibility(historical_v1_only=True)
+    compatibility = _profile_compatibility(catalog_version=1)
     definitions = tuple(
         _execution_profile_definition(
             profile_kind=profile_kind,
@@ -2787,7 +2819,7 @@ def _execution_profile_catalog_v2() -> ExecutionProfileCatalogSnapshotV1:
     """Add bounded Task 12 profiles without redefining either historical @1."""
 
     previous = _execution_profile_catalog_v1()
-    compatibility = _profile_compatibility()
+    compatibility = _profile_compatibility(catalog_version=2)
     upgraded_kinds: tuple[ExecutionProfileKindV1, ...] = (
         "playtest_planner",
         "task_suite_derivation",
@@ -2859,7 +2891,7 @@ def _execution_profile_catalog_v3() -> ExecutionProfileCatalogSnapshotV1:
     """Supersede checker@1 with the lifecycle-aware checker@2."""
 
     previous = _execution_profile_catalog_v2()
-    compatibility = _profile_compatibility()
+    compatibility = _profile_compatibility(catalog_version=3)
     checker_v2 = _execution_profile_definition(
         profile_kind="checker",
         run_kinds=compatibility["checker"],
@@ -2901,6 +2933,64 @@ def _execution_profile_catalog_v3() -> ExecutionProfileCatalogSnapshotV1:
     )
 
 
+def _execution_profile_catalog_v4() -> ExecutionProfileCatalogSnapshotV1:
+    """Move generation onto ``generation.propose@2`` with declared identity aliases.
+
+    A profile definition names the Run kinds it serves and cannot be edited once a
+    catalog carrying it has been hashed into a Run.  So serving the new Run kind
+    means new profile versions, and the superseded ``@1`` pair is disabled rather
+    than left beside them — two active built-ins of one kind is what the planner
+    would have to disambiguate, and nothing in the product asks them to.
+    """
+
+    previous = _execution_profile_catalog_v3()
+    compatibility = _profile_compatibility(catalog_version=4)
+    superseded: tuple[ExecutionProfileKindV1, ...] = ("config_export", "generation")
+    definitions = (
+        *previous.definitions,
+        *(
+            _execution_profile_definition(
+                profile_kind=profile_kind,
+                run_kinds=compatibility[profile_kind],
+                profile_version=2,
+            )
+            for profile_kind in superseded
+        ),
+    )
+    previous_lifecycle = {item.profile: item for item in previous.lifecycle}
+    changed_at = "2026-07-27T00:00:00Z"
+
+    def _lifecycle(definition: ExecutionProfileDefinitionV1) -> ExecutionProfileLifecycleV1:
+        if definition.profile_kind in superseded and definition.profile.version == 1:
+            return ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="disabled",
+                revision=previous_lifecycle[definition.profile].revision + 1,
+                reason_code="superseded_by_identity_alias_generation",
+                changed_at=changed_at,
+            )
+        return previous_lifecycle.get(
+            definition.profile,
+            ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="active",
+                revision=1,
+                changed_at=changed_at,
+            ),
+        )
+
+    lifecycle = tuple(_lifecycle(definition) for definition in definitions)
+    payload = {
+        "catalog_version": 4,
+        "definitions": definitions,
+        "lifecycle": lifecycle,
+    }
+    return ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
 def _profile_requirements() -> dict[RunKindIdentity, tuple[ProfileRequirement, ...]]:
     return {
         run_kind: tuple(
@@ -2912,6 +3002,7 @@ def _profile_requirements() -> dict[RunKindIdentity, tuple[ProfileRequirement, .
             for field_path, profile_kind, cardinality in requirements
         )
         for run_kind, requirements in FROZEN_PROFILE_REQUIREMENT_SHAPES.items()
+        if run_kind not in FROZEN_DISABLED_RUN_KIND_IDENTITIES
     }
 
 
@@ -2937,6 +3028,14 @@ def _agent_execution_graphs() -> tuple[AgentExecutionGraphV1, ...]:
         (
             "generation-graph@7",
             ("generation.propose", 1),
+            "generation_proposer@1",
+            "replay_only",
+            None,
+            (("generation", "generation@7", "generation@1"),),
+        ),
+        (
+            "generation-graph@8",
+            ("generation.propose", 2),
             "generation_proposer@1",
             "active",
             None,
@@ -3077,7 +3176,9 @@ def _run_definitions(
             RunKindDefinition(
                 kind=identity[0],
                 version=identity[1],
-                status="active",
+                status=(
+                    "disabled" if identity in FROZEN_DISABLED_RUN_KIND_IDENTITIES else "active"
+                ),
                 payload_schema_id=shape.payload_schema_id,
                 prepared_result_schema_id="prepared-run-result@1",
                 prepared_failure_schema_id="prepared-run-failure@1",
@@ -3142,7 +3243,7 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
     permission_resolvers = {
         identity: f"{identity[0]}-domain-resolver@1"
         for identity, shape in FROZEN_RUN_KIND_SHAPES.items()
-        if shape.dynamic_domain_permission
+        if shape.dynamic_domain_permission and identity not in FROZEN_DISABLED_RUN_KIND_IDENTITIES
     }
     return ImmutablePlatformRegistry(
         run_kinds=run_kinds,
@@ -3163,6 +3264,7 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
             _execution_profile_catalog_v1(),
             _execution_profile_catalog_v2(),
             _execution_profile_catalog_v3(),
+            _execution_profile_catalog_v4(),
         ),
         migration_capability_registries=(migration_registry,),
         profile_requirements=_profile_requirements(),

@@ -13,7 +13,7 @@ from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.identity import DomainRegistryRefV1, DomainScope
 from gameforge.contracts.jobs import (
     ConstraintProposalProposePayloadV1,
-    GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     PatchRepairPayloadV1,
     PromptGoalBindingV1,
     RefReadBindingV1,
@@ -298,7 +298,7 @@ def _context(
 
 def _generation_case():
     run_id = "run:generation"
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         findings=(),
         objective_goal=PromptGoalBindingV1(
@@ -314,7 +314,7 @@ def _generation_case():
     )
     run = build_run_record(
         build_envelope(params=params),
-        RunKindRef(kind="generation.propose", version=1),
+        RunKindRef(kind="generation.propose", version=2),
         run_id=run_id,
     )
     policy = _policy(run.kind, "generation-gate-pass")

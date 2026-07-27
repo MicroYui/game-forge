@@ -61,12 +61,13 @@ def _resolve_request(
     run_kind: str,
     prospective_request: dict[str, object],
     replay_source_run_id: str | None = None,
+    run_kind_version: int = 1,
 ) -> ExecutionOptionResolveRequestV1:
     return ExecutionOptionResolveRequestV1.model_validate(
         {
             "request_schema_version": "execution-option-resolve-request@1",
             "resource_operation_id": operation_id,
-            "run_kind": {"kind": run_kind, "version": 1},
+            "run_kind": {"kind": run_kind, "version": run_kind_version},
             "llm_execution_mode": prospective_request["llm_execution_mode"],
             "prospective_request": prospective_request,
             "replay_source_run_id": replay_source_run_id,
@@ -91,6 +92,7 @@ def _generation_request(
         _resolve_request(
             operation_id="propose_generation_api_v1_generation_propose_post",
             run_kind="generation.propose",
+            run_kind_version=2,
             prospective_request={
                 "request_schema_version": "generation-propose-request@1",
                 "base_snapshot_artifact_id": base,
@@ -353,6 +355,7 @@ def test_all_six_agent_run_kinds_resolve_exact_options_without_writes(tmp_path: 
     generation = _resolve_request(
         operation_id="propose_generation_api_v1_generation_propose_post",
         run_kind="generation.propose",
+        run_kind_version=2,
         prospective_request={
             "request_schema_version": "generation-propose-request@1",
             "base_snapshot_artifact_id": generation_base,
@@ -672,7 +675,7 @@ def test_live_resolution_uses_d1_and_missing_pointer_fails_closed(tmp_path: Path
     )
 
     assert resolved.llm_execution_mode == "live"
-    assert resolved.execution_version_plan.agent_graph_version == "generation-graph@7"
+    assert resolved.execution_version_plan.agent_graph_version == "generation-graph@8"
     assert resolved.execution_version_plan.nodes[0].prompt_version == "generation@7"
 
 

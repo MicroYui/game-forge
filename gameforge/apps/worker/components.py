@@ -612,7 +612,7 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
     "config_export": (
         "builtin_config_export_profile@1",
         "config_export-profile-config@1",
-        frozenset(("generation-propose@1", "patch-repair@1")),
+        frozenset(("generation-propose@2", "patch-repair@1")),
         frozenset(("config-export-package@1",)),
         frozenset((False,)),
     ),
@@ -633,7 +633,7 @@ _RUN_HANDLER_PROFILE_ADAPTER_CONTRACTS: dict[
     "generation": (
         "builtin_generation_profile@1",
         "generation-profile-config@1",
-        frozenset(("generation-propose@1",)),
+        frozenset(("generation-propose@2",)),
         frozenset(
             (
                 "checker-report@1",

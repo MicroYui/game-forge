@@ -932,7 +932,6 @@ class _RetainedAgentProducerRunGateway:
             not isinstance(run, RunRecord)
             or run.status != "succeeded"
             or run.initiated_by != initiated_by
-            or run.kind.version != 1
             or not isinstance(result_artifact, ArtifactV2)
             or result_artifact.kind != "run_result"
             or result_artifact.meta.get("payload_schema_id") != "run-result@1"

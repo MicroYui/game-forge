@@ -26,7 +26,7 @@ from gameforge.contracts.lineage import AuditActor
 from gameforge.contracts.ir import Entity, NodeType
 from gameforge.contracts.jobs import (
     FailureClassifierRefV1,
-    GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     PromptGoalBindingV1,
     RetryPolicyRefV1,
     RunEvent,
@@ -41,6 +41,7 @@ from gameforge.contracts.projects import (
     ProjectExtractionDiscardRequestV1,
     ProjectGraphDraftRequestV1,
     ProjectIdentityAliasDeclareRequestV1,
+    ProjectIdentityAliasV1,
     ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
 )
@@ -86,7 +87,7 @@ class _ProjectAdmission:
         actor = kwargs["actor"]
         server = kwargs["server"]
         goal_id = "artifact:project-goal:" + server.request_hash[:16]
-        params = GenerationProposePayloadV1(
+        params = GenerationProposePayloadV2(
             base_snapshot_artifact_id=kwargs["base_snapshot_artifact_id"],
             source_artifact_ids=kwargs["source_artifact_ids"],
             constraint_snapshot_artifact_id=kwargs["constraint_snapshot_artifact_id"],
@@ -117,7 +118,7 @@ class _ProjectAdmission:
         )
         run = RunRecord(
             run_id=run_id,
-            kind=RunKindRef(kind="generation.propose", version=1),
+            kind=RunKindRef(kind="generation.propose", version=2),
             status="queued",
             revision=1,
             idempotency_scope=f"principal:{actor.principal.id}",
@@ -872,6 +873,58 @@ def test_a_declared_alias_reaches_the_run_it_was_declared_before(project_runtime
     )
     with pytest.raises(Conflict, match="does not have"):
         service.declare_identity_alias(project.project_id, missing, context=context)
+
+
+def test_every_declared_alias_is_frozen_into_the_extraction_run(project_runtime) -> None:
+    """The alias table is read inside the same transaction that reads the base.
+
+    Declaring a new alias after a Run is queued must not change what that Run does,
+    so admission freezes the exact set the extraction was started with.
+    """
+
+    service, actor, uow, _, _ = project_runtime
+    project, _, _ = _create(service, actor)
+    with uow.begin() as transaction:
+        transaction.projects.create_identity_alias(
+            ProjectIdentityAliasV1(
+                alias="岩王帝君",
+                alias_id="identity-alias:morax",
+                canonical_alias="岩王帝君",
+                canonical_entity_id="npc:zhongli",
+                declared_at=NOW_TEXT,
+                declared_by=actor.principal.id,
+                project_id=project.project_id,
+                revision=1,
+                status="active",
+            )
+        )
+    material_request = ProjectMaterialTextRequestV1(
+        display_name="璃月篇",
+        source_format="plain_text",
+        text="岩王帝君坐镇璃月港。",
+    )
+    material = service.add_text_material(
+        project.project_id,
+        material_request,
+        context=_context(actor, "material-liyue", material_request.model_dump(mode="json")),
+    )
+    request = ProjectExtractionCreateRequestV1(
+        material_ids=(material.material_id,),
+        planning_scope="permanent_feature",
+        objective_goal_text="提取可编辑的实体与关系草案。",
+    )
+
+    service.create_extraction(
+        project.project_id,
+        request,
+        context=_context(actor, "extract-liyue", request.model_dump(mode="json")),
+    )
+
+    admission = service._run_admission
+    assert isinstance(admission, _ProjectAdmission)
+    assert admission.admission_requests[-1]["declared_identity_aliases"] == (
+        ("岩王帝君", "npc:zhongli"),
+    )
 
 
 def test_declaring_and_retracting_an_alias_keeps_the_record(project_runtime) -> None:

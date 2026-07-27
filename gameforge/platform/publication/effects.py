@@ -874,7 +874,6 @@ def _build_agent_draft_request(
         or context.policy.prepared_outcome != "success"
         or context.policy.workflow_effect_key != effect_key
         or context.run.kind.kind != expected_kind
-        or context.run.kind.version != 1
         or not isinstance(context.run.payload.params, expected_payload_type)
         or context.actor.principal_kind not in {"service", "system"}
     ):

@@ -17,7 +17,7 @@ from gameforge.contracts.identity import DomainScope
 from gameforge.contracts.jobs import (
     ArtifactMigrationPayloadV1,
     ConstraintValidationPayloadV1,
-    GenerationProposePayloadV1,
+    GenerationProposePayloadV2,
     PatchRepairPayloadV1,
     PromptGoalBindingV1,
     RefReadBindingV1,
@@ -56,7 +56,8 @@ _MODEL = "anthropic/claude-opus-4-8/m2a@1"
 
 def _binding(kind: str, policy_id: str, rule_id: str):
     registry = build_builtin_registry()
-    definition = registry.get_run_kind(RunKindRef(kind=kind, version=1))
+    version = 2 if kind == "generation.propose" else 1
+    definition = registry.get_run_kind(RunKindRef(kind=kind, version=version))
     assert definition is not None
     policy = next(item for item in definition.outcome_policies if item.policy_id == policy_id)
     rule = next(item for item in policy.artifact_rules if item.rule_id == rule_id)
@@ -66,7 +67,7 @@ def _binding(kind: str, policy_id: str, rule_id: str):
 
 
 def _generation_run():
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         constraint_snapshot_artifact_id=None,
         findings=(),
@@ -85,7 +86,7 @@ def _generation_run():
         plan=plan,
         cassette_artifact_id="artifact:cassette",
     )
-    return build_run_record(envelope, RunKindRef(kind="generation.propose", version=1))
+    return build_run_record(envelope, RunKindRef(kind="generation.propose", version=2))
 
 
 def _artifact_identity(*, model: str = _MODEL):
@@ -188,10 +189,15 @@ def test_ir_snapshot_identity_and_llm_tuple_are_recomputed_from_authorities() ->
 def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -> None:
     registry = build_builtin_registry()
     catalog = registry.list_execution_profile_catalogs()[-1]
-    definition = next(item for item in catalog.definitions if item.profile_kind == "config_export")
+    active = {item.profile for item in catalog.lifecycle if item.state == "active"}
+    definition = next(
+        item
+        for item in catalog.definitions
+        if item.profile_kind == "config_export" and item.profile in active
+    )
     assert isinstance(definition.details, ConfigExportProfileDetailsV1)
     profile = definition.profile
-    params = GenerationProposePayloadV1(
+    params = GenerationProposePayloadV2(
         base_snapshot_artifact_id="artifact:base",
         constraint_snapshot_artifact_id="artifact:constraints",
         findings=(),
@@ -200,7 +206,7 @@ def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -
         ),
         domain_scope=DomainScope(domain_ids=("content",)),
         target=RefReadBindingV1(ref_name="ref:content"),
-        generation_policy=ProfileRefV1(profile_id="builtin.generation", version=1),
+        generation_policy=ProfileRefV1(profile_id="builtin.generation", version=2),
         candidate_export_profiles=(profile,),
     )
     resolved = ResolvedExecutionProfileBindingV1(
@@ -217,7 +223,7 @@ def test_config_export_environment_uses_exact_indexed_frozen_profile_binding() -
             "execution_profile_catalog_digest": catalog.catalog_digest,
         }
     )
-    run = build_run_record(envelope, RunKindRef(kind="generation.propose", version=1))
+    run = build_run_record(envelope, RunKindRef(kind="generation.propose", version=2))
     policy, rule, _ = _binding("generation.propose", "generation-gate-pass", "config-export")
     details = definition.details
     package = {

@@ -42,6 +42,7 @@ _EXPECTED_BY_SCHEMA: dict[str, str] = {
     "bench-run@1": BENCH_TOOL_VERSION,
     "playtest-run@1": PLAYTEST_TOOL_VERSION,
     "generation-propose@1": GENERATION_TOOL_VERSION,
+    "generation-propose@2": GENERATION_TOOL_VERSION,
     "constraint-proposal-propose@1": EXTRACTION_TOOL_VERSION,
     "patch-repair@1": REPAIR_TOOL_VERSION,
     "patch-validation@1": PATCH_VALIDATION_TOOL_VERSION,

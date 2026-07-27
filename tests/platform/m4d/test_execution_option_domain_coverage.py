@@ -76,7 +76,7 @@ def _generation_option_request(
         {
             "request_schema_version": "execution-option-resolve-request@1",
             "resource_operation_id": "propose_generation_api_v1_generation_propose_post",
-            "run_kind": {"kind": "generation.propose", "version": 1},
+            "run_kind": {"kind": "generation.propose", "version": 2},
             "llm_execution_mode": "record",
             "prospective_request": {
                 "request_schema_version": "generation-propose-request@1",
@@ -141,7 +141,7 @@ def test_final_admission_uses_the_same_domain_coverage_guard(tmp_path) -> None:
         harness,
         generation_scopes=(("economy",),),
     )
-    kind = RunKindRef(kind="generation.propose", version=1)
+    kind = RunKindRef(kind="generation.propose", version=2)
     graph = next(
         graph
         for graph in harness.registry.list_agent_execution_graphs_for_run_kind(kind)

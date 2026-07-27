@@ -864,7 +864,7 @@ def test_stale_worker_cannot_publish_but_settles_incurred_model_cost(
     base_id, constraint_id, expected_ref = harness.seed_authoring_inputs()
     authorities, transport, catalog, routing = _seed_journey_a_model_authority(harness)
     plan = _journey_a_execution_plan(
-        kind=RunKindRef(kind="generation.propose", version=1),
+        kind=RunKindRef(kind="generation.propose", version=2),
         catalog=catalog,
         routing=routing,
     )

@@ -215,7 +215,7 @@ class ProjectAuthoringService:
         run_admission: Any | None = None,
         default_generation_policy: ProfileRefV1 = ProfileRefV1(
             profile_id="builtin.generation",
-            version=1,
+            version=2,
         ),
     ) -> None:
         for value in (role_policy_version, role_policy_digest, audit_chain_id):
@@ -1204,6 +1204,12 @@ class ProjectAuthoringService:
                 ref_name=project.content_ref_name,
                 expected_ref=current_content,
             )
+            # Read inside the transaction that read the base snapshot: the aliases
+            # bound to this extraction must be the ones that pointed into exactly
+            # that content.
+            declared_identity_aliases = tuple(
+                sorted(self._declared_aliases(transaction, project_id).items())
+            )
 
         generation_policy = request.generation_policy or self._default_generation_policy
         execution_version_plan = request.execution_version_plan
@@ -1229,7 +1235,7 @@ class ProjectAuthoringService:
             option = admission.resolve_execution_option(
                 request=ExecutionOptionResolveRequestV1(
                     resource_operation_id=("propose_generation_api_v1_generation_propose_post"),
-                    run_kind=RunKindRef(kind="generation.propose", version=1),
+                    run_kind=RunKindRef(kind="generation.propose", version=2),
                     llm_execution_mode=request.llm_execution_mode,
                     prospective_request=prospective,
                     routing_policy_version=request.routing_policy_version,
@@ -1256,6 +1262,7 @@ class ProjectAuthoringService:
                 "llm_execution_mode": request.llm_execution_mode,
                 "execution_version_plan": execution_version_plan.model_dump(mode="json"),
                 "cassette_artifact_id": request.cassette_artifact_id,
+                "declared_identity_aliases": [list(item) for item in declared_identity_aliases],
             }
         )
         run_key = "project-extraction:" + canonical_sha256(
@@ -1286,6 +1293,7 @@ class ProjectAuthoringService:
             llm_execution_mode=request.llm_execution_mode,
             execution_version_plan=execution_version_plan,
             cassette_artifact_id=request.cassette_artifact_id,
+            declared_identity_aliases=declared_identity_aliases,
         )
         if not isinstance(accepted, RunAcceptedV1):
             raise IntegrityViolation("project extraction admission returned another contract")
@@ -1909,7 +1917,7 @@ class ProjectAuthoringService:
         params = run.payload.params
         if (
             not isinstance(params, GenerationProposePayloadV1)
-            or run.kind != RunKindRef(kind="generation.propose", version=1)
+            or run.kind.kind != "generation.propose"
             or run.resource_domain_scope != project.domain_scope
             or params.domain_scope != project.domain_scope
             or params.base_snapshot_artifact_id != extraction.base_snapshot_artifact_id
