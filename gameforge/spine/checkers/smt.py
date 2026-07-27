@@ -98,10 +98,22 @@ _CALL_DEFECT_CLASS = {
 }
 
 _UNSUPPORTED_CALLS = frozenset(
-    {"exists", "forall", "reachable_in", "count", "semantically_reveals_identity"}
+    {
+        "exists",
+        "forall",
+        "reachable_in",
+        "count",
+        "semantically_reveals_identity",
+        # Attribute presence/type is decided by the presence checker over the typed
+        # IR. SMT binds numerals only, so it cannot tell a missing field from a
+        # textual one — both raise, and both would look identical.
+        "has",
+        "is_text",
+        "is_object",
+    }
 )
 """Whitelisted-by-`spine.dsl.ast` calls that are NOT SMT's domain (structural
-predicates -> graph/asp; the llm-assisted placeholder -> M2 agent layer)."""
+predicates -> graph/asp/presence; the llm-assisted placeholder -> M2 agent layer)."""
 
 
 class SmtCompileError(Exception):
@@ -191,9 +203,7 @@ def _concrete_number(node: AssertNode, ctx: _BindCtx) -> int | float:
     if isinstance(node, Field):
         raw = _resolve_path(ctx.entity.attrs, node.path)
         if isinstance(raw, dict):
-            raise SmtCompileError(
-                f"expected a concrete numeric field, got a range: {node.path!r}"
-            )
+            raise SmtCompileError(f"expected a concrete numeric field, got a range: {node.path!r}")
         if isinstance(raw, bool) or not isinstance(raw, (int, float)):
             raise SmtCompileError(f"non-numeric field value: {raw!r}")
         ctx.assignment[node.path] = raw
@@ -339,8 +349,9 @@ _BINOP_BUILDERS: dict[str, Callable[[Any, Any], Any]] = {
     "+": lambda lhs, rhs: lhs + rhs,
     "-": lambda lhs, rhs: lhs - rhs,
     "*": lambda lhs, rhs: lhs * rhs,
-    "/": lambda lhs, rhs: z3.ToReal(lhs) / z3.ToReal(rhs)
-    if z3.is_int(lhs) or z3.is_int(rhs) else lhs / rhs,
+    "/": lambda lhs, rhs: (
+        z3.ToReal(lhs) / z3.ToReal(rhs) if z3.is_int(lhs) or z3.is_int(rhs) else lhs / rhs
+    ),
     "//": lambda lhs, rhs: z3.ToInt(z3.ToReal(lhs) / z3.ToReal(rhs)),
     "%": lambda lhs, rhs: lhs % rhs,
 }
@@ -383,7 +394,9 @@ def _compile(node: AssertNode, ctx: _BindCtx):
         if handler is None:  # pragma: no cover - exhaustive over WHITELISTED_CALLS
             raise SmtCompileError(f"unsupported call: {node.func}()")
         return handler(node.args, ctx)
-    raise SmtCompileError(f"unsupported assert-expression node: {type(node).__name__}")  # pragma: no cover
+    raise SmtCompileError(
+        f"unsupported assert-expression node: {type(node).__name__}"
+    )  # pragma: no cover
 
 
 def _derive_defect_class(node: AssertNode) -> str:
@@ -430,7 +443,9 @@ def _walk_call_funcs(node: AssertNode) -> list[str]:
 class SMTChecker:
     id = "smt"
 
-    def __init__(self, constraints: list[Constraint], timeout_ms: int = _DEFAULT_TIMEOUT_MS) -> None:
+    def __init__(
+        self, constraints: list[Constraint], timeout_ms: int = _DEFAULT_TIMEOUT_MS
+    ) -> None:
         self.constraints = constraints
         self.timeout_ms = timeout_ms
 
@@ -449,11 +464,18 @@ class SMTChecker:
             status: str = "confirmed",
         ) -> None:
             f = Finding(
-                id=f"{run_id}#{counter[0]}", source="checker", producer_id=self.id,
-                producer_run_id=run_id, oracle_type="deterministic",
-                defect_class=defect_class, severity=constraint.severity,
-                snapshot_id=snapshot.snapshot_id, entities=entity_ids,
-                constraint_id=constraint.id, evidence=evidence, status=status,
+                id=f"{run_id}#{counter[0]}",
+                source="checker",
+                producer_id=self.id,
+                producer_run_id=run_id,
+                oracle_type="deterministic",
+                defect_class=defect_class,
+                severity=constraint.severity,
+                snapshot_id=snapshot.snapshot_id,
+                entities=entity_ids,
+                constraint_id=constraint.id,
+                evidence=evidence,
+                status=status,
                 message=message,
             )
             counter[0] += 1
@@ -467,7 +489,10 @@ class SMTChecker:
                 node = parse_assert(constraint.assert_)
             except DslError as exc:
                 emit(
-                    constraint, "reward_out_of_range", [], {"reason": str(exc)},
+                    constraint,
+                    "reward_out_of_range",
+                    [],
+                    {"reason": str(exc)},
                     f"could not parse assert-expression for {constraint.id!r}: {exc}",
                     status="unproven",
                 )
@@ -477,7 +502,10 @@ class SMTChecker:
                 entities = select(g, selector)
             except DslError as exc:
                 emit(
-                    constraint, defect_class, [], {"reason": str(exc)},
+                    constraint,
+                    defect_class,
+                    [],
+                    {"reason": str(exc)},
                     f"could not select entities for {constraint.id!r}: {exc}",
                     status="unproven",
                 )
@@ -494,7 +522,10 @@ class SMTChecker:
                 raise SmtCompileError("assert-expression did not compile to a boolean predicate")
         except SmtCompileError as exc:
             emit(
-                constraint, defect_class, [entity.id], {"reason": str(exc)},
+                constraint,
+                defect_class,
+                [entity.id],
+                {"reason": str(exc)},
                 f"SMTChecker could not bind/compile constraint {constraint.id!r} "
                 f"for entity {entity.id!r}: {exc}",
                 status="unproven",
@@ -510,9 +541,14 @@ class SMTChecker:
 
         if result == z3.unknown:
             emit(
-                constraint, defect_class, [entity.id],
-                {"reason": "solver_could_not_decide", "budget_ms": self.timeout_ms,
-                 "bound_fields": ctx.assignment},
+                constraint,
+                defect_class,
+                [entity.id],
+                {
+                    "reason": "solver_could_not_decide",
+                    "budget_ms": self.timeout_ms,
+                    "bound_fields": ctx.assignment,
+                },
                 f"SMTChecker could not decide constraint {constraint.id!r} for "
                 f"entity {entity.id!r} within budget ({self.timeout_ms}ms) — "
                 f"degraded to unproven, never treated as pass",
@@ -526,10 +562,11 @@ class SMTChecker:
             for path, var in ctx._vars.items():
                 violating[path] = _z3_to_python(model.eval(var, model_completion=True))
             emit(
-                constraint, defect_class, [entity.id],
+                constraint,
+                defect_class,
+                [entity.id],
                 {"violating_assignment": violating, "assert": constraint.assert_},
-                f"Entity {entity.id!r} violates constraint {constraint.id!r}: "
-                f"{constraint.assert_}",
+                f"Entity {entity.id!r} violates constraint {constraint.id!r}: {constraint.assert_}",
             )
             return
 

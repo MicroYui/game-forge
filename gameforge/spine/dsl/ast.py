@@ -152,6 +152,12 @@ WHITELISTED_CALLS = frozenset(
         "count",
         "gacha_expectation",  # M1 Task 6: expected-pulls-to-rare vs pity, SMT-evaluated
         "semantically_reveals_identity",  # llm-assisted placeholder; not evaluated in M1
+        # Attribute presence/type. A project declaring "every NPC must have a
+        # faction" is stating a rule about its own content, so it belongs in the
+        # constraint grammar rather than in a second mechanism beside it.
+        "has",
+        "is_text",
+        "is_object",
     }
 )
 
@@ -214,9 +220,7 @@ def _build(node: ast.AST, depth: int) -> AssertNode:
         op = _BIN_OPS.get(type(node.op))
         if op is None:
             raise DslError(f"arithmetic operator not allowed: {type(node.op).__name__}")
-        return BinOp(
-            op=op, left=_build(node.left, depth + 1), right=_build(node.right, depth + 1)
-        )
+        return BinOp(op=op, left=_build(node.left, depth + 1), right=_build(node.right, depth + 1))
 
     if isinstance(node, ast.Compare):
         return _build_compare(node, depth)
@@ -234,9 +238,7 @@ def _build_compare(node: ast.Compare, depth: int) -> AssertNode:
         op = _COMPARE_OPS.get(type(op_node))
         if op is None:
             raise DslError(f"comparison operator not allowed: {type(op_node).__name__}")
-        parts.append(
-            Compare(op=op, left=_build(left, depth + 1), right=_build(right, depth + 1))
-        )
+        parts.append(Compare(op=op, left=_build(left, depth + 1), right=_build(right, depth + 1)))
         left = right
     if len(parts) == 1:
         return parts[0]
@@ -321,10 +323,10 @@ def select(graph: IRGraph, selector: Selector) -> list[Entity]:
     try:
         node_type = NodeType[selector.node_type]
     except KeyError as exc:
-        raise DslError(f"selector.node_type is not a valid NodeType: {selector.node_type!r}") from exc
+        raise DslError(
+            f"selector.node_type is not a valid NodeType: {selector.node_type!r}"
+        ) from exc
     entities = graph.nodes_of_type(node_type)
     if not selector.where:
         return list(entities)
-    return [
-        e for e in entities if all(e.attrs.get(k) == v for k, v in selector.where.items())
-    ]
+    return [e for e in entities if all(e.attrs.get(k) == v for k, v in selector.where.items())]
