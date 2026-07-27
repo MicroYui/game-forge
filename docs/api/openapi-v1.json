@@ -8734,6 +8734,179 @@
         "title": "ProjectGraphDraftRequestV1",
         "type": "object"
       },
+      "ProjectIdentityAliasDeclareRequestV1": {
+        "additionalProperties": false,
+        "description": "Declare that a name refers to an entity the project's content already has.",
+        "properties": {
+          "alias": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Alias",
+            "type": "string"
+          },
+          "canonical_entity_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Canonical Entity Id",
+            "type": "string"
+          },
+          "expected_project_revision": {
+            "minimum": 1.0,
+            "title": "Expected Project Revision",
+            "type": "integer"
+          },
+          "request_schema_version": {
+            "const": "project-identity-alias-declare-request@1",
+            "default": "project-identity-alias-declare-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_project_revision",
+          "alias",
+          "canonical_entity_id"
+        ],
+        "title": "ProjectIdentityAliasDeclareRequestV1",
+        "type": "object"
+      },
+      "ProjectIdentityAliasPageV1": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectIdentityAliasV1"
+            },
+            "maxItems": 1000,
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "page_schema_version": {
+            "const": "project-identity-alias-page@1",
+            "default": "project-identity-alias-page@1",
+            "title": "Page Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ProjectIdentityAliasPageV1",
+        "type": "object"
+      },
+      "ProjectIdentityAliasRetractRequestV1": {
+        "additionalProperties": false,
+        "description": "Stop applying a declared alias. The record itself is retained.",
+        "properties": {
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "request_schema_version": {
+            "const": "project-identity-alias-retract-request@1",
+            "default": "project-identity-alias-retract-request@1",
+            "title": "Request Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision"
+        ],
+        "title": "ProjectIdentityAliasRetractRequestV1",
+        "type": "object"
+      },
+      "ProjectIdentityAliasV1": {
+        "additionalProperties": false,
+        "description": "One name a project has decided refers to an entity it already has.\n\nLexical normalization reaches `air.quality` ≡ `air_quality` on its own. It\ncan never reach 岩王帝君 ≡ 钟离 — the two share no characters, so only a\nperson can say they are one thing. This records that they said it, so every\nlater extraction resolves the name deterministically with no model in the\ndecision path.",
+        "properties": {
+          "alias": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Alias",
+            "type": "string"
+          },
+          "alias_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Alias Id",
+            "type": "string"
+          },
+          "alias_schema_version": {
+            "const": "project-identity-alias@1",
+            "default": "project-identity-alias@1",
+            "title": "Alias Schema Version",
+            "type": "string"
+          },
+          "canonical_alias": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Canonical Alias",
+            "type": "string"
+          },
+          "canonical_entity_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Canonical Entity Id",
+            "type": "string"
+          },
+          "declared_at": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Declared At",
+            "type": "string"
+          },
+          "declared_by": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Declared By",
+            "type": "string"
+          },
+          "project_id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Project Id",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "retracted"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "alias_id",
+          "project_id",
+          "alias",
+          "canonical_alias",
+          "canonical_entity_id",
+          "declared_by",
+          "declared_at",
+          "status",
+          "revision"
+        ],
+        "title": "ProjectIdentityAliasV1",
+        "type": "object"
+      },
       "ProjectMaterialPageV1": {
         "additionalProperties": false,
         "properties": {
@@ -24021,6 +24194,669 @@
           }
         ],
         "summary": "Discard Extraction",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/identity-aliases": {
+      "get": {
+        "operationId": "list_identity_aliases_api_v1_projects__project_id__identity_aliases_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityAliasPageV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache`.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag bound to the read snapshot of this page.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "List Identity Aliases",
+        "tags": [
+          "projects"
+        ]
+      },
+      "post": {
+        "operationId": "declare_identity_alias_api_v1_projects__project_id__identity_aliases_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectIdentityAliasDeclareRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityAliasV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Declare Identity Alias",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/identity-aliases/{alias_id}:retract": {
+      "post": {
+        "operationId": "retract_identity_alias_api_v1_projects__project_id__identity_aliases__alias_id__retract_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "alias_id",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Alias Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 3,
+              "title": "If-Match",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients.",
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": false,
+            "schema": {
+              "maxLength": 4096,
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectIdentityAliasRetractRequestV1"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectIdentityAliasV1"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "description": "Caching directive; always `private, no-cache` for resources.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Strong entity tag of the resource for If-Match optimistic concurrency.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Relative status URL of the created project resource.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Alias-Groups": {
+                "description": "Identity alias groups detected in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Identity-Auto-Merges": {
+                "description": "Equivalent identities auto-merged in the graph draft.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Project-Revision": {
+                "description": "Project revision after a bridged workflow command.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Resource-Revision": {
+                "description": "The resource's monotonic integer revision.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Invalid cursor or malformed request (problem+json)."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Authentication is required or failed (problem+json)."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Forbidden: RBAC/CSRF/Origin rejected the request (problem+json)."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The requested resource was not found (problem+json)."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "Conflict: revision/idempotency/workflow-guard/precondition (problem+json)."
+          },
+          "410": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The resume cursor is no longer retained (problem+json)."
+          },
+          "413": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request payload exceeds its bound (problem+json)."
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "The request does not match the required schema or is too broad (problem+json)."
+          },
+          "429": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A configured quota was exceeded (problem+json)."
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A sanitized internal error (problem+json)."
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "A required dependency is unavailable (problem+json)."
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description": "An unexpected error rendered as RFC 9457 problem+json."
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          },
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Retract Identity Alias",
         "tags": [
           "projects"
         ]

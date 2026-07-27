@@ -309,7 +309,7 @@ class ContentGenerator:
                 "Extract every explicit entity, attribute, and relation in this chunk. Use only the "
                 "closed IR types from the system message and one add operation per item.",
                 "",
-                "Available entities in the grounding snapshot (id, type, attrs):",
+                "Existing content in the grounding snapshot (entities and the relations between them):",
                 self._snapshot_summary(),
                 "",
                 f'<planning-material source_id="{source_id}" chunk="{chunk_label}">',
@@ -323,18 +323,27 @@ class ContentGenerator:
             f"Design goal: {goal.goal}",
             f"grounding_snapshot_id: {goal.grounding_snapshot_id}",
             "",
-            "Available entities in the grounding snapshot (id, type, attrs):",
+            "Existing content in the grounding snapshot (entities and the relations between them):",
             self._snapshot_summary(),
         ]
         return "\n".join(parts)
 
     def _snapshot_summary(self) -> str:
-        """Compact JSON of every entity's (id, type, attrs) — the minimal
-        grounding context the model needs to target new ops at real entities
-        and real numeric ranges, no narrative/relation dump."""
+        """Compact JSON of what the graph already is — entities with their
+        (id, type, attrs), and the edges between them.
+
+        Relations belong here for the same reason entities do: without them the
+        model cannot see that "老陶 LOCATED_IN 锻造区" already exists, so it
+        re-proposes the same edge under a new id, and no lexical rule can merge
+        two spellings of one edge after the fact. Endpoints only — attributes of
+        a relation are not grounding, they are content."""
         graph = self._snapshot.to_graph()
         nodes = [
             {"id": e.id, "type": e.type.value, "attrs": e.attrs}
             for e in sorted(graph.all_entities(), key=lambda e: e.id)
         ]
-        return json.dumps(nodes, sort_keys=True, default=str)
+        edges = [
+            {"id": r.id, "type": r.type.value, "src_id": r.src_id, "dst_id": r.dst_id}
+            for r in sorted(graph.all_relations(), key=lambda r: r.id)
+        ]
+        return json.dumps({"entities": nodes, "relations": edges}, sort_keys=True, default=str)

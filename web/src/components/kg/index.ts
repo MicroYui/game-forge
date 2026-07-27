@@ -2,6 +2,7 @@ export { KnowledgeGraph, type KnowledgeGraphProps } from "./KnowledgeGraph";
 export {
   adaptGraphItems,
   formatSourceRef,
+  graphFactDisplayName,
   graphFactKey,
   graphSearchText,
   toCytoscapeElements,

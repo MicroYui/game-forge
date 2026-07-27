@@ -564,6 +564,19 @@ class SolverEngineRefV1(_FrozenModel):
     version: PositiveInt
 
 
+class DeclaredIdentityAliasV1(_FrozenModel):
+    """One name the project has decided refers to an entity it already has.
+
+    Frozen into the Run like every other input: the aliases that applied when
+    the run was admitted are the ones it normalizes against, whatever is
+    declared or retracted later.
+    """
+
+    binding_schema_version: Literal["declared-identity-alias@1"] = "declared-identity-alias@1"
+    canonical_alias: BoundedId
+    canonical_entity_id: BoundedId
+
+
 class GenerationProposePayloadV1(_FrozenModel):
     schema_version: Literal["generation-propose@1"] = "generation-propose@1"
     base_snapshot_artifact_id: BoundedId
@@ -575,6 +588,21 @@ class GenerationProposePayloadV1(_FrozenModel):
     target: RefReadBindingV1
     generation_policy: ProfileRefV1
     candidate_export_profiles: tuple[ProfileRefV1, ...] = Field(max_length=MAX_COLLECTION_ITEMS)
+    declared_identity_aliases: tuple[DeclaredIdentityAliasV1, ...] = Field(
+        default=(),
+        max_length=MAX_COLLECTION_ITEMS,
+    )
+
+    @field_validator("declared_identity_aliases")
+    @classmethod
+    def _aliases(
+        cls, value: tuple[DeclaredIdentityAliasV1, ...]
+    ) -> tuple[DeclaredIdentityAliasV1, ...]:
+        canonical = tuple(sorted(value, key=lambda item: item.canonical_alias))
+        names = [item.canonical_alias for item in canonical]
+        if len(names) != len(set(names)):
+            raise ValueError("a declared alias can name only one entity")
+        return canonical
 
     @field_validator("findings")
     @classmethod

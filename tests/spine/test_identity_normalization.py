@@ -93,3 +93,104 @@ def test_type_collision_and_dangling_relation_fail_closed() -> None:
         "ambiguous_unqualified_alias",
         "dangling_relation_endpoint",
     }
+
+
+def _snapshot_with(entity_id: str, *, entity_type: str, name: str) -> Snapshot:
+    from gameforge.contracts.ir import Entity, NodeType
+
+    return Snapshot(
+        entities={
+            entity_id: Entity(id=entity_id, type=NodeType(entity_type), attrs={"name": name})
+        },
+        relations={},
+    )
+
+
+def test_a_declared_alias_resolves_a_name_no_lexical_rule_could_reach() -> None:
+    """岩王帝君 and 钟离 share no characters; only a human can say they are one.
+
+    Once said, the decision is deterministic and no model is in the path.
+    """
+
+    base = _snapshot_with("npc:zhongli", entity_type="NPC", name="钟离")
+    operations = (
+        _op("a", "岩王帝君", entity_type="NPC", attrs={"title": "岩王帝君"}),
+        TypedOp(
+            op_id="rel",
+            op="add_relation",
+            target="rel:rex_lapis_guards_liyue",
+            new_value={
+                "type": "LOCATED_IN",
+                "src_id": "岩王帝君",
+                "dst_id": "npc:zhongli",
+                "attrs": {},
+            },
+        ),
+    )
+
+    result = normalize_typed_ops(
+        base,
+        operations,
+        declared_aliases={"岩王帝君": "npc:zhongli"},
+    )
+
+    assert result.blocking_conflicts == ()
+    entity = next(op for op in result.ops if op.op == "add_entity")
+    assert entity.target == "npc:zhongli"
+    relation = next(op for op in result.ops if op.op == "add_relation")
+    assert relation.new_value["src_id"] == "npc:zhongli"
+
+
+def test_a_declared_alias_is_matched_by_its_written_form_not_its_bytes() -> None:
+    base = _snapshot_with("npc:zhongli", entity_type="NPC", name="钟离")
+
+    result = normalize_typed_ops(
+        base,
+        (_op("a", " Rex  Lapis ", entity_type="NPC", attrs={}),),
+        declared_aliases={"rex.lapis": "npc:zhongli"},
+    )
+
+    assert result.blocking_conflicts == ()
+    assert next(op for op in result.ops if op.op == "add_entity").target == "npc:zhongli"
+
+
+def test_an_alias_pointing_at_nothing_fails_closed() -> None:
+    # Declaring an alias for an entity that is not in the base would silently
+    # invent one; the declaration has to name something that exists.
+    import pytest
+
+    from gameforge.contracts.errors import IntegrityViolation
+
+    base = _snapshot_with("npc:zhongli", entity_type="NPC", name="钟离")
+
+    with pytest.raises(IntegrityViolation, match="declared identity alias"):
+        normalize_typed_ops(
+            base,
+            (_op("a", "岩王帝君", entity_type="NPC", attrs={}),),
+            declared_aliases={"岩王帝君": "npc:morax"},
+        )
+
+
+def test_a_declared_alias_never_overrides_an_entity_that_already_exists() -> None:
+    """Aliasing a live id onto another entity would rewrite real content."""
+
+    import pytest
+
+    from gameforge.contracts.errors import IntegrityViolation
+
+    from gameforge.contracts.ir import Entity, NodeType
+
+    base = Snapshot(
+        entities={
+            "npc:zhongli": Entity(id="npc:zhongli", type=NodeType("NPC"), attrs={}),
+            "npc:morax": Entity(id="npc:morax", type=NodeType("NPC"), attrs={}),
+        },
+        relations={},
+    )
+
+    with pytest.raises(IntegrityViolation, match="already names an entity"):
+        normalize_typed_ops(
+            base,
+            (_op("a", "npc:morax", entity_type="NPC", attrs={}),),
+            declared_aliases={"npc:morax": "npc:zhongli"},
+        )

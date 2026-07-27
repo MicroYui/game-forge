@@ -105,14 +105,17 @@ describe("generated API contracts", () => {
       Object.values(path).flatMap((operation) => operation.operationId ?? []),
     );
 
-    expect(operationIds).toHaveLength(95);
-    expect(new Set(operationIds)).toHaveLength(95);
+    expect(operationIds).toHaveLength(98);
+    expect(new Set(operationIds)).toHaveLength(98);
     expect(operationIds).toContain("artifact_catalog_api_v1_artifacts_get");
     expect(operationIds).toContain(
       "rename_material_api_v1_projects__project_id__materials__material_id__rename_post",
     );
     expect(operationIds).toContain("resolve_execution_option_api_v1_execution_options_resolve_post");
     expect(operationIds).toContain("selectable_models_api_v1_models_get");
+    expect(operationIds).toContain(
+      "declare_identity_alias_api_v1_projects__project_id__identity_aliases_post",
+    );
     expect(operationIds).toContain(
       "subject_approval_binding_api_v1_workflow_subjects__artifact_id__approval_binding_get",
     );

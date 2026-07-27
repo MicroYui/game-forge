@@ -42,6 +42,7 @@ from gameforge.contracts.identity import (
 from gameforge.contracts.execution_profiles import ProfileRefV1, RunKindRef
 from gameforge.contracts.findings import PatchV2
 from gameforge.contracts.jobs import (
+    DeclaredIdentityAliasV1,
     GenerationProposePayloadV1,
     RefReadBindingV1,
     RunFailureV1,
@@ -57,6 +58,7 @@ from gameforge.contracts.lineage import (
     build_artifact_v2,
 )
 from gameforge.contracts.projects import (
+    MAX_PROJECT_IDENTITY_ALIASES,
     MAX_PROJECT_MATERIAL_BYTES,
     MAX_PROJECT_MATERIAL_TEXT_CHARS,
     GameProjectV1,
@@ -73,6 +75,10 @@ from gameforge.contracts.projects import (
     ProjectExtractionStatus,
     ProjectExtractionV1,
     ProjectGraphDraftRequestV1,
+    ProjectIdentityAliasDeclareRequestV1,
+    ProjectIdentityAliasPageV1,
+    ProjectIdentityAliasRetractRequestV1,
+    ProjectIdentityAliasV1,
     ProjectMaterialPageV1,
     ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
@@ -103,6 +109,10 @@ from gameforge.spine.ingestion.planning_materials import (
     MaterialParseError,
     ParsedPlanningMaterial,
     parse_planning_material,
+)
+from gameforge.spine.identity_normalization import (
+    canonical_identity_reference,
+    canonical_identity_token,
 )
 from gameforge.spine.ir.snapshot import Snapshot
 
@@ -809,6 +819,239 @@ class ProjectAuthoringService:
             )
             return self._replay_material(stored_result, expected_material_id=material_id)
 
+    def _declared_aliases(self, transaction: Any, project_id: str) -> dict[str, str]:
+        """Every name this project has decided refers to an entity it has.
+
+        Read whole rather than paged: the normalizer needs all of them at once,
+        and the set is bounded by contract.
+        """
+
+        projects = _required(transaction.projects, "projects")
+        return {
+            alias.canonical_alias: alias.canonical_entity_id
+            for alias in projects.list_identity_aliases(
+                project_id=project_id,
+                limit=MAX_PROJECT_IDENTITY_ALIASES,
+                status="active",
+            )
+        }
+
+    def _current_content_snapshot(self, transaction: Any, project: GameProjectV1) -> Snapshot:
+        """The game's content as it stands, which an alias must point into."""
+
+        current = transaction.refs.get(project.content_ref_name)
+        artifact_id = (
+            project.bootstrap_snapshot_artifact_id if current is None else current.artifact_id
+        )
+        artifact, payload = self._artifact_payload(transaction, artifact_id)
+        if artifact.kind != "ir_snapshot":
+            raise IntegrityViolation("project content base is not an ir_snapshot")
+        return snapshot_from_canonical_view(payload)
+
+    @staticmethod
+    def _replay_identity_alias(
+        response: Any,
+        *,
+        expected_alias_id: str | None = None,
+    ) -> ProjectIdentityAliasV1:
+        try:
+            alias = ProjectIdentityAliasV1.model_validate(response)
+        except ValidationError as exc:
+            raise IntegrityViolation("identity alias idempotency response is malformed") from exc
+        if expected_alias_id is not None and alias.alias_id != expected_alias_id:
+            raise IntegrityViolation("identity alias idempotency response has another identity")
+        return alias
+
+    def declare_identity_alias(
+        self,
+        project_id: str,
+        request: ProjectIdentityAliasDeclareRequestV1,
+        *,
+        context: ProjectCommandContext,
+    ) -> ProjectIdentityAliasV1:
+        """Record that a name refers to an entity this project's content already has.
+
+        The entity has to exist in the current content: an alias pointing at
+        nothing would invent an entity the next extraction silently creates.
+        """
+
+        with self._unit_of_work.begin() as transaction:
+            project = self._require_project(transaction, project_id)
+            self._authorize(
+                transaction,
+                actor=context.actor,
+                action="create",
+                resource_kind="material",
+                scope=project.domain_scope,
+                direct_human=True,
+            )
+            replay = self._idempotency_replay(
+                transaction,
+                context=context,
+                operation="project.identity_alias.declare",
+            )
+            if replay is not None:
+                return self._replay_identity_alias(replay)
+            self._require_precondition(
+                resource_kind="project",
+                resource_id=project_id,
+                revision=project.revision,
+                expected_revision=request.expected_project_revision,
+                if_match=context.if_match,
+            )
+            canonical_alias = canonical_identity_token(request.alias)
+            snapshot = self._current_content_snapshot(transaction, project)
+            if request.canonical_entity_id not in snapshot.entities:
+                raise Conflict(
+                    "identity alias names an entity this game does not have",
+                    canonical_entity_id=request.canonical_entity_id,
+                )
+            if canonical_alias in {
+                canonical_identity_reference(entity_id) for entity_id in snapshot.entities
+            }:
+                raise Conflict(
+                    "this name already belongs to an entity of its own",
+                    alias=request.alias,
+                )
+            projects = _required(transaction.projects, "projects")
+            alias_id = f"identity-alias:{canonical_sha256({'project_id': project_id, 'canonical_alias': canonical_alias})}"
+            declared = ProjectIdentityAliasV1(
+                alias_id=alias_id,
+                project_id=project_id,
+                alias=request.alias,
+                canonical_alias=canonical_alias,
+                canonical_entity_id=request.canonical_entity_id,
+                declared_by=context.actor.principal.id,
+                declared_at=self._clock.now_utc().isoformat().replace("+00:00", "Z"),
+                status="active",
+                revision=1,
+            )
+            existing = projects.get_identity_alias(alias_id)
+            result = (
+                projects.compare_and_set_identity_alias(
+                    alias_id,
+                    existing.revision,
+                    declared.model_copy(
+                        update={
+                            "revision": existing.revision + 1,
+                            "declared_by": existing.declared_by,
+                            "declared_at": existing.declared_at,
+                        }
+                    ),
+                )
+                if existing is not None
+                else projects.create_identity_alias(declared)
+            )
+            self._append_audit(
+                transaction,
+                context=context,
+                action="project.identity_alias.declared",
+                subject=AuditSubject(
+                    resource_kind="project_identity_alias",
+                    resource_id=alias_id,
+                    artifact_id=None,
+                ),
+            )
+            idempotency = _required(transaction.idempotency, "idempotency")
+            stored = idempotency.put_result(
+                scope=self._idempotency_scope(context.actor),
+                operation="project.identity_alias.declare",
+                key=context.idempotency_key,
+                request_hash=context.request_hash,
+                resource_kind="project_identity_alias",
+                resource_id=alias_id,
+                response=result.model_dump(mode="json"),
+            )
+            return self._replay_identity_alias(stored)
+
+    def retract_identity_alias(
+        self,
+        project_id: str,
+        alias_id: str,
+        request: ProjectIdentityAliasRetractRequestV1,
+        *,
+        context: ProjectCommandContext,
+    ) -> ProjectIdentityAliasV1:
+        """Stop applying a declaration. The record itself is retained."""
+
+        with self._unit_of_work.begin() as transaction:
+            project = self._require_project(transaction, project_id)
+            self._authorize(
+                transaction,
+                actor=context.actor,
+                action="archive",
+                resource_kind="material",
+                scope=project.domain_scope,
+                direct_human=True,
+            )
+            projects = _required(transaction.projects, "projects")
+            current = projects.get_identity_alias(alias_id)
+            if current is None or current.project_id != project_id:
+                raise NotFound("identity alias does not exist", alias_id=alias_id)
+            replay = self._idempotency_replay(
+                transaction,
+                context=context,
+                operation="project.identity_alias.retract",
+            )
+            if replay is not None:
+                return self._replay_identity_alias(replay, expected_alias_id=alias_id)
+            self._require_precondition(
+                resource_kind="project_identity_alias",
+                resource_id=alias_id,
+                revision=current.revision,
+                expected_revision=request.expected_revision,
+                if_match=context.if_match,
+            )
+            result = projects.compare_and_set_identity_alias(
+                alias_id,
+                current.revision,
+                current.model_copy(
+                    update={"status": "retracted", "revision": current.revision + 1}
+                ),
+            )
+            self._append_audit(
+                transaction,
+                context=context,
+                action="project.identity_alias.retracted",
+                subject=AuditSubject(
+                    resource_kind="project_identity_alias",
+                    resource_id=alias_id,
+                    artifact_id=None,
+                ),
+            )
+            idempotency = _required(transaction.idempotency, "idempotency")
+            stored = idempotency.put_result(
+                scope=self._idempotency_scope(context.actor),
+                operation="project.identity_alias.retract",
+                key=context.idempotency_key,
+                request_hash=context.request_hash,
+                resource_kind="project_identity_alias",
+                resource_id=alias_id,
+                response=result.model_dump(mode="json"),
+            )
+            return self._replay_identity_alias(stored, expected_alias_id=alias_id)
+
+    def list_identity_aliases(
+        self,
+        project_id: str,
+        *,
+        actor: ActorContext,
+        limit: int,
+    ) -> ProjectIdentityAliasPageV1:
+        with self._unit_of_work.begin_read() as transaction:
+            project = self._require_project(transaction, project_id)
+            self._authorize(
+                transaction,
+                actor=actor,
+                action="read",
+                resource_kind="material",
+                scope=project.domain_scope,
+            )
+            projects = _required(transaction.projects, "projects")
+            return ProjectIdentityAliasPageV1(
+                items=projects.list_identity_aliases(project_id=project_id, limit=limit),
+            )
+
     def archive_material(
         self,
         project_id: str,
@@ -927,6 +1170,9 @@ class ProjectAuthoringService:
                 )
             if project.status == "archived":
                 raise Conflict("archived project cannot start extraction", project_id=project_id)
+            # Frozen here like every other run input: the aliases that applied when
+            # the run was admitted are the ones it normalizes against.
+            declared_alias_table = self._declared_aliases(transaction, project_id)
             projects = _required(transaction.projects, "projects")
             materials = []
             for material_id in request.material_ids:
@@ -997,10 +1243,22 @@ class ProjectAuthoringService:
             )
             execution_version_plan = option.execution_version_plan
 
+        declared_identity_aliases = tuple(
+            DeclaredIdentityAliasV1(
+                canonical_alias=canonical_alias,
+                canonical_entity_id=entity_id,
+            )
+            for canonical_alias, entity_id in sorted(declared_alias_table.items())
+        )
         run_request_hash = canonical_sha256(
             {
                 "request_hash_schema_version": "project-extraction-run-request@1",
                 "project_id": project_id,
+                # Two runs over the same material with different declared aliases
+                # are different requests: they normalize to different content.
+                "declared_identity_aliases": [
+                    item.model_dump(mode="json") for item in declared_identity_aliases
+                ],
                 "base_snapshot_artifact_id": base_snapshot_artifact_id,
                 "source_artifact_ids": source_artifact_ids,
                 "constraint_snapshot_artifact_id": constraint_snapshot_artifact_id,
@@ -1034,6 +1292,7 @@ class ProjectAuthoringService:
             target=target,
             generation_policy=generation_policy,
             candidate_export_profiles=request.candidate_export_profiles,
+            declared_identity_aliases=declared_identity_aliases,
             actor=context.actor,
             server=AdmissionRequestContext(
                 idempotency_key=run_key,
@@ -1410,6 +1669,10 @@ class ProjectAuthoringService:
             base = snapshot_from_canonical_view(base_payload)
             if base.snapshot_id != base_artifact.version_tuple.ir_snapshot_id:
                 raise IntegrityViolation("project content base payload differs from its Artifact")
+            # The editor normalizes against the same declarations the extraction
+            # did; otherwise a planner's own edit splits apart what this project
+            # already decided is one thing.
+            editor_aliases = self._declared_aliases(transaction, project_id)
             constraint_artifact_id = (
                 None if current_constraints is None else current_constraints.artifact_id
             )
@@ -1425,6 +1688,7 @@ class ProjectAuthoringService:
             base=base,
             entities=request.entities,
             relations=request.relations,
+            declared_aliases=editor_aliases,
         )
         if not compiled.ops:
             raise Conflict("project graph has no changes to publish")

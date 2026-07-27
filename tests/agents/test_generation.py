@@ -346,3 +346,38 @@ def test_gate_passes_economy_neutral_proposal():
     passed, blocking = gate_proposal(base, benign, [])
     assert passed is True
     assert blocking == []
+
+
+def test_grounding_shows_existing_relations_not_only_entities() -> None:
+    """Without them the model re-proposes a relation the graph already has.
+
+    It cannot avoid duplicating "老陶 LOCATED_IN 锻造区" if it never sees that the
+    edge is already there — and no lexical rule can merge two spellings of the
+    same edge id afterwards.
+    """
+
+    from gameforge.contracts.ir import Entity, NodeType, Relation, EdgeType
+    from gameforge.spine.ir.snapshot import Snapshot
+
+    snapshot = Snapshot(
+        entities={
+            "npc:tao": Entity(id="npc:tao", type=NodeType("NPC"), attrs={"name": "老陶"}),
+            "region:forge": Entity(
+                id="region:forge", type=NodeType("REGION"), attrs={"name": "锻造区"}
+            ),
+        },
+        relations={
+            "rel:tao_in_forge": Relation(
+                id="rel:tao_in_forge",
+                type=EdgeType("LOCATED_IN"),
+                src_id="npc:tao",
+                dst_id="region:forge",
+            )
+        },
+    )
+
+    summary = ContentGenerator(snapshot, ())._snapshot_summary()
+
+    assert "npc:tao" in summary
+    assert "rel:tao_in_forge" in summary
+    assert "LOCATED_IN" in summary

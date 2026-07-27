@@ -10,9 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 import re
 import unicodedata
+from collections.abc import Mapping
 from typing import Any, Iterable
 
 from gameforge.contracts.canonical import canonical_json, canonical_sha256
+from gameforge.contracts.errors import IntegrityViolation
 from gameforge.contracts.findings import TypedOp
 from gameforge.contracts.ir import NodeType
 from gameforge.contracts.projects import (
@@ -53,8 +55,13 @@ def canonical_identity_token(value: str) -> str:
     return token
 
 
-def _canonical_namespaced(value: str) -> str:
+def canonical_identity_reference(value: str) -> str:
+    """Return the frozen lexical identity for a possibly namespaced reference."""
+
     return ":".join(canonical_identity_token(part) for part in value.split(":"))
+
+
+_canonical_namespaced = canonical_identity_reference
 
 
 def _entity_identity(value: str, entity_type: str) -> str:
@@ -247,12 +254,18 @@ def _endpoint(
 def normalize_typed_ops(
     base_snapshot: Snapshot,
     operations: Iterable[TypedOp],
+    *,
+    declared_aliases: Mapping[str, str] | None = None,
 ) -> IdentityNormalizationResult:
     """Normalize a proposal against one exact base snapshot.
 
     Output ordering is canonical.  Equal lexical aliases merge; unequal values
     remain visible as blocking conflicts and publication must not proceed until a
     human resolves them.
+
+    ``declared_aliases`` carries names no lexical rule could ever reach — 岩王帝君
+    and 钟离 share no characters, so only a person can say they are one thing.
+    Once said, applying it is deterministic and no model is in the path.
     """
 
     input_ops = tuple(operations)
@@ -269,6 +282,22 @@ def normalize_typed_ops(
         exact_aliases[canonical] = entity.id
         suffix = canonical.rsplit(":", 1)[-1]
         unqualified_aliases.setdefault(suffix, set()).add(entity.id)
+
+    for alias, entity_id in (declared_aliases or {}).items():
+        if entity_id not in existing_ids:
+            raise IntegrityViolation(
+                "declared identity alias names an entity the base snapshot does not have",
+                alias=alias,
+                entity_id=entity_id,
+            )
+        if alias in existing_ids and alias != entity_id:
+            raise IntegrityViolation(
+                "declared identity alias already names an entity of its own",
+                alias=alias,
+                entity_id=entity_id,
+            )
+        exact_aliases[alias] = entity_id
+        exact_aliases[_canonical_namespaced(alias)] = entity_id
 
     other_ops: list[TypedOp] = []
     for operation in input_ops:

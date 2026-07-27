@@ -40,6 +40,7 @@ from gameforge.contracts.projects import (
     ProjectExtractionCreateRequestV1,
     ProjectExtractionDiscardRequestV1,
     ProjectGraphDraftRequestV1,
+    ProjectIdentityAliasDeclareRequestV1,
     ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
 )
@@ -420,9 +421,7 @@ def test_material_rename_keeps_the_artifacts_and_is_replayable(project_runtime) 
     assert renamed.rendered_source_artifact_id == material.rendered_source_artifact_id
     # A repeated request replays the same result instead of bumping the revision.
     assert (
-        service.rename_material(
-            project.project_id, material.material_id, request, context=context
-        )
+        service.rename_material(project.project_id, material.material_id, request, context=context)
         == renamed
     )
     with uow.begin() as transaction:
@@ -843,3 +842,41 @@ def test_project_extraction_translates_gate_findings_into_planner_language() -> 
     assert lifecycle.affected_content == ("梦中未寄出的信",)
     assert "dream of unsent letter" not in lifecycle.description
     assert "奖励兑换截止时间" in lifecycle.resolution_hint
+
+
+def test_a_declared_alias_reaches_the_run_it_was_declared_before(project_runtime) -> None:
+    """岩王帝君 and 钟离 share no characters; only a person can say they are one.
+
+    The declaration has to travel into the Run, frozen like every other input, or
+    the next extraction invents a second NPC for the same character.
+    """
+
+    service, actor, _, _, _ = project_runtime
+    project, _, _ = _create(service, actor)
+
+    # The alias has to name an entity the game already has.
+    missing = ProjectIdentityAliasDeclareRequestV1(
+        expected_project_revision=project.revision,
+        alias="岩王帝君",
+        canonical_entity_id="npc:morax",
+    )
+    context = _context(actor, "alias-missing", missing.model_dump(mode="json"))
+    object.__setattr__(
+        context,
+        "if_match",
+        compute_resource_etag(
+            resource_kind="project",
+            resource_id=project.project_id,
+            revision=project.revision,
+        ),
+    )
+    with pytest.raises(Conflict, match="does not have"):
+        service.declare_identity_alias(project.project_id, missing, context=context)
+
+
+def test_declaring_and_retracting_an_alias_keeps_the_record(project_runtime) -> None:
+    service, actor, _, _, _ = project_runtime
+    project, _, _ = _create(service, actor)
+    page = service.list_identity_aliases(project.project_id, actor=actor, limit=100)
+
+    assert page.items == ()

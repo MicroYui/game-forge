@@ -30,6 +30,9 @@ MAX_PROJECT_DESCRIPTION_CHARS = 4096
 MAX_PROJECT_MATERIAL_BYTES = 8 * 1024 * 1024
 MAX_PROJECT_MATERIAL_TEXT_CHARS = 1_048_576
 MAX_PROJECT_MATERIALS_PER_EXTRACTION = 64
+# One project's declared identity aliases are read whole on every extraction, so
+# the set stays bounded rather than paged into the normalization path.
+MAX_PROJECT_IDENTITY_ALIASES = 1000
 MAX_PROJECT_GRAPH_ITEMS = 32_768
 
 BoundedId = Annotated[str, StringConstraints(min_length=1, max_length=512)]
@@ -154,6 +157,56 @@ class ProjectMaterialRenameRequestV1(_FrozenModel):
     )
     expected_revision: PositiveInt
     display_name: BoundedName
+
+
+class ProjectIdentityAliasV1(_FrozenModel):
+    """One name a project has decided refers to an entity it already has.
+
+    Lexical normalization reaches `air.quality` ≡ `air_quality` on its own. It
+    can never reach 岩王帝君 ≡ 钟离 — the two share no characters, so only a
+    person can say they are one thing. This records that they said it, so every
+    later extraction resolves the name deterministically with no model in the
+    decision path.
+    """
+
+    alias_schema_version: Literal["project-identity-alias@1"] = "project-identity-alias@1"
+    alias_id: BoundedId
+    project_id: BoundedId
+    alias: BoundedName
+    # The frozen lexical form the normalizer matches on, computed by the platform
+    # layer that owns that rule. Two spellings of one alias are one declaration.
+    canonical_alias: BoundedName
+    canonical_entity_id: BoundedId
+    declared_by: BoundedId
+    declared_at: Annotated[str, StringConstraints(min_length=1, max_length=128)]
+    status: Literal["active", "retracted"]
+    revision: PositiveInt
+
+
+class ProjectIdentityAliasDeclareRequestV1(_FrozenModel):
+    """Declare that a name refers to an entity the project's content already has."""
+
+    request_schema_version: Literal["project-identity-alias-declare-request@1"] = (
+        "project-identity-alias-declare-request@1"
+    )
+    expected_project_revision: PositiveInt
+    alias: BoundedName
+    canonical_entity_id: BoundedId
+
+
+class ProjectIdentityAliasRetractRequestV1(_FrozenModel):
+    """Stop applying a declared alias. The record itself is retained."""
+
+    request_schema_version: Literal["project-identity-alias-retract-request@1"] = (
+        "project-identity-alias-retract-request@1"
+    )
+    expected_revision: PositiveInt
+
+
+class ProjectIdentityAliasPageV1(_FrozenModel):
+    page_schema_version: Literal["project-identity-alias-page@1"] = "project-identity-alias-page@1"
+    items: tuple[ProjectIdentityAliasV1, ...] = Field(max_length=MAX_PROJECT_IDENTITY_ALIASES)
+    next_cursor: str | None = None
 
 
 def _canonical_text(value: str) -> str:

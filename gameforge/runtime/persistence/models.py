@@ -1589,6 +1589,40 @@ class GameProjectRow(Base):
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
 
 
+class ProjectIdentityAliasRow(Base):
+    """A name this project has decided refers to an entity it already has."""
+
+    __tablename__ = "project_identity_aliases"
+    __table_args__ = (
+        UniqueConstraint(
+            "project_id",
+            "canonical_alias",
+            name="uq_project_identity_alias_canonical",
+        ),
+        Index(
+            "ix_project_identity_aliases_project_status",
+            "project_id",
+            "status",
+            "alias_id",
+        ),
+    )
+
+    alias_id: Mapped[str] = mapped_column(String, primary_key=True)
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("game_projects.project_id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+    alias: Mapped[str] = mapped_column(String, nullable=False)
+    # The frozen lexical form the normalizer matches on; two spellings of one
+    # alias are one declaration, which is what the unique constraint enforces.
+    canonical_alias: Mapped[str] = mapped_column(String, nullable=False)
+    canonical_entity_id: Mapped[str] = mapped_column(String, nullable=False)
+    declared_by: Mapped[str] = mapped_column(String, nullable=False)
+    declared_at: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
 class ProjectMaterialRow(Base):
     """Project binding for an immutable original/rendered source pair."""
 

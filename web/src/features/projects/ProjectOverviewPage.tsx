@@ -6,6 +6,7 @@ import { compactDateTime, TechnicalDetails } from "../../components/identity";
 import { KnowledgeGraph } from "../../components/kg";
 import { StatePanel } from "../../components/ui";
 import { projectsApi, type GraphPage, type Project, type ProjectMaterial, type ProjectsApi } from "./api";
+import { IdentityAliasPanel } from "./IdentityAliasPanel";
 import { projectLink } from "./links";
 import "./projects.css";
 
@@ -150,6 +151,13 @@ export function ProjectOverviewPage({
           />
         )}
       </section>
+
+      <IdentityAliasPanel
+        api={api}
+        graph={graphQuery.data}
+        project={project}
+        projectEtag={projectQuery.data?.etag ?? ""}
+      />
 
       <section aria-labelledby="project-next-title" className="gf-project-overview__actions">
         <h2 id="project-next-title">继续创作</h2>

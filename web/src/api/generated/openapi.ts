@@ -906,6 +906,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/projects/{project_id}/identity-aliases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Identity Aliases */
+        get: operations["list_identity_aliases_api_v1_projects__project_id__identity_aliases_get"];
+        put?: never;
+        /** Declare Identity Alias */
+        post: operations["declare_identity_alias_api_v1_projects__project_id__identity_aliases_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/projects/{project_id}/identity-aliases/{alias_id}:retract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retract Identity Alias */
+        post: operations["retract_identity_alias_api_v1_projects__project_id__identity_aliases__alias_id__retract_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/projects/{project_id}/materials": {
         parameters: {
             query?: never;
@@ -4410,6 +4445,90 @@ export interface components {
             side_effect_risk: string;
             /** Source Extraction Id */
             source_extraction_id: string;
+        };
+        /**
+         * ProjectIdentityAliasDeclareRequestV1
+         * @description Declare that a name refers to an entity the project's content already has.
+         */
+        ProjectIdentityAliasDeclareRequestV1: {
+            /** Alias */
+            alias: string;
+            /** Canonical Entity Id */
+            canonical_entity_id: string;
+            /** Expected Project Revision */
+            expected_project_revision: number;
+            /**
+             * Request Schema Version
+             * @default project-identity-alias-declare-request@1
+             * @constant
+             */
+            request_schema_version: "project-identity-alias-declare-request@1";
+        };
+        /** ProjectIdentityAliasPageV1 */
+        ProjectIdentityAliasPageV1: {
+            /** Items */
+            items: components["schemas"]["ProjectIdentityAliasV1"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Schema Version
+             * @default project-identity-alias-page@1
+             * @constant
+             */
+            page_schema_version: "project-identity-alias-page@1";
+        };
+        /**
+         * ProjectIdentityAliasRetractRequestV1
+         * @description Stop applying a declared alias. The record itself is retained.
+         */
+        ProjectIdentityAliasRetractRequestV1: {
+            /** Expected Revision */
+            expected_revision: number;
+            /**
+             * Request Schema Version
+             * @default project-identity-alias-retract-request@1
+             * @constant
+             */
+            request_schema_version: "project-identity-alias-retract-request@1";
+        };
+        /**
+         * ProjectIdentityAliasV1
+         * @description One name a project has decided refers to an entity it already has.
+         *
+         *     Lexical normalization reaches `air.quality` ≡ `air_quality` on its own. It
+         *     can never reach 岩王帝君 ≡ 钟离 — the two share no characters, so only a
+         *     person can say they are one thing. This records that they said it, so every
+         *     later extraction resolves the name deterministically with no model in the
+         *     decision path.
+         */
+        ProjectIdentityAliasV1: {
+            /** Alias */
+            alias: string;
+            /** Alias Id */
+            alias_id: string;
+            /**
+             * Alias Schema Version
+             * @default project-identity-alias@1
+             * @constant
+             */
+            alias_schema_version: "project-identity-alias@1";
+            /** Canonical Alias */
+            canonical_alias: string;
+            /** Canonical Entity Id */
+            canonical_entity_id: string;
+            /** Declared At */
+            declared_at: string;
+            /** Declared By */
+            declared_by: string;
+            /** Project Id */
+            project_id: string;
+            /** Revision */
+            revision: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "retracted";
         };
         /** ProjectMaterialPageV1 */
         ProjectMaterialPageV1: {
@@ -12885,6 +13004,422 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProjectExtractionV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    list_identity_aliases_api_v1_projects__project_id__identity_aliases_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache`. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag bound to the read snapshot of this page. */
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectIdentityAliasPageV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    declare_identity_alias_api_v1_projects__project_id__identity_aliases_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectIdentityAliasDeclareRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectIdentityAliasV1"];
+                };
+            };
+            /** @description Invalid cursor or malformed request (problem+json). */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Authentication is required or failed (problem+json). */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Forbidden: RBAC/CSRF/Origin rejected the request (problem+json). */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The requested resource was not found (problem+json). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Conflict: revision/idempotency/workflow-guard/precondition (problem+json). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The resume cursor is no longer retained (problem+json). */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request payload exceeds its bound (problem+json). */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The request does not match the required schema or is too broad (problem+json). */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A configured quota was exceeded (problem+json). */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A sanitized internal error (problem+json). */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description A required dependency is unavailable (problem+json). */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description An unexpected error rendered as RFC 9457 problem+json. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    retract_identity_alias_api_v1_projects__project_id__identity_aliases__alias_id__retract_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "If-Match": string;
+                /** @description Session-bound CSRF token from login. Required when authenticating with the session cookie with a non-safe HTTP method, including a read-only POST resolver; ignored for ApiKey service clients. */
+                "X-CSRF-Token"?: string;
+            };
+            path: {
+                project_id: string;
+                alias_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProjectIdentityAliasRetractRequestV1"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Caching directive; always `private, no-cache` for resources. */
+                    "Cache-Control"?: string;
+                    /** @description Strong entity tag of the resource for If-Match optimistic concurrency. */
+                    ETag?: string;
+                    /** @description Relative status URL of the created project resource. */
+                    Location?: string;
+                    /** @description Identity alias groups detected in the graph draft. */
+                    "X-Identity-Alias-Groups"?: string;
+                    /** @description Equivalent identities auto-merged in the graph draft. */
+                    "X-Identity-Auto-Merges"?: string;
+                    /** @description Project revision after a bridged workflow command. */
+                    "X-Project-Revision"?: string;
+                    /** @description The resource's monotonic integer revision. */
+                    "X-Resource-Revision"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectIdentityAliasV1"];
                 };
             };
             /** @description Invalid cursor or malformed request (problem+json). */

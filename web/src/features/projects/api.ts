@@ -18,6 +18,12 @@ export type ProjectMaterial = components["schemas"]["ProjectMaterialV1"];
 export type ProjectMaterialPage = components["schemas"]["ProjectMaterialPageV1"];
 export type GraphPage = components["schemas"]["OpaquePageV1_GraphItemV1_"];
 export type ProjectMaterialTextRequest = components["schemas"]["ProjectMaterialTextRequestV1"];
+export type ProjectIdentityAlias = components["schemas"]["ProjectIdentityAliasV1"];
+export type ProjectIdentityAliasDeclareRequest =
+  components["schemas"]["ProjectIdentityAliasDeclareRequestV1"];
+export type ProjectIdentityAliasPage = components["schemas"]["ProjectIdentityAliasPageV1"];
+export type ProjectIdentityAliasRetractRequest =
+  components["schemas"]["ProjectIdentityAliasRetractRequestV1"];
 export type ProjectMaterialRenameRequest = components["schemas"]["ProjectMaterialRenameRequestV1"];
 export type ProjectExtraction = components["schemas"]["ProjectExtractionV1"];
 export type ProjectExtractionCreateRequest = components["schemas"]["ProjectExtractionCreateRequestV1"];
@@ -76,6 +82,20 @@ export interface ProjectsApi {
     intent: MutationIntent,
     materialEtag: string,
   ): Promise<ProjectMaterial>;
+  declareIdentityAlias(
+    projectId: string,
+    request: ProjectIdentityAliasDeclareRequest,
+    intent: MutationIntent,
+    projectEtag: string,
+  ): Promise<ProjectIdentityAlias>;
+  listIdentityAliases(projectId: string): Promise<ProjectIdentityAlias[]>;
+  retractIdentityAlias(
+    projectId: string,
+    aliasId: string,
+    request: ProjectIdentityAliasRetractRequest,
+    intent: MutationIntent,
+    aliasEtag: string,
+  ): Promise<ProjectIdentityAlias>;
   listContentGraph(artifactId: string, cursor: string | null): Promise<GraphPage>;
   getArtifact(artifactId: string): Promise<ArtifactPayloadView>;
   createContentDraft(
@@ -240,6 +260,36 @@ export function createProjectsApi(client: GameForgeOpenApiClient = gameForgeApi.
           params: {
             header: headersForVersionedMutation(intent, materialEtag),
             path: { material_id: materialId, project_id: projectId },
+          },
+        }),
+      );
+    },
+    async declareIdentityAlias(projectId, request, intent, projectEtag) {
+      return unwrapApiResponse<ProjectIdentityAlias>(
+        await client.POST("/api/v1/projects/{project_id}/identity-aliases", {
+          body: request,
+          params: {
+            header: headersForVersionedMutation(intent, projectEtag),
+            path: { project_id: projectId },
+          },
+        }),
+      );
+    },
+    async listIdentityAliases(projectId) {
+      const page = await unwrapApiResponse<ProjectIdentityAliasPage>(
+        await client.GET("/api/v1/projects/{project_id}/identity-aliases", {
+          params: { path: { project_id: projectId }, query: { limit: 1000 } },
+        }),
+      );
+      return [...page.items];
+    },
+    async retractIdentityAlias(projectId, aliasId, request, intent, aliasEtag) {
+      return unwrapApiResponse<ProjectIdentityAlias>(
+        await client.POST("/api/v1/projects/{project_id}/identity-aliases/{alias_id}:retract", {
+          body: request,
+          params: {
+            header: headersForVersionedMutation(intent, aliasEtag),
+            path: { alias_id: aliasId, project_id: projectId },
           },
         }),
       );

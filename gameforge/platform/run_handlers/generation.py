@@ -147,6 +147,8 @@ class GenerationRunRequest:
     max_simulation_work_units: int
     router: BridgeModelRouter
     source_contexts: tuple[GenerationSourceContext, ...] = ()
+    # The project's declared aliases, frozen into this Run at admission.
+    declared_aliases: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -347,6 +349,10 @@ class GenerationProposalHandler:
                 max_simulation_work_units=execution_config.max_simulation_work_units,
                 router=router,
                 source_contexts=source_contexts,
+                declared_aliases={
+                    item.canonical_alias: item.canonical_entity_id
+                    for item in payload.declared_identity_aliases
+                },
             )
         )
         self._validate_preview_replay(snapshot, outcome)

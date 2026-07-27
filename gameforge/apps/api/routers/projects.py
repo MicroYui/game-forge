@@ -34,6 +34,10 @@ from gameforge.contracts.projects import (
     ProjectExtractionV1,
     ProjectGraphDraftRequestV1,
     ProjectMaterialPageV1,
+    ProjectIdentityAliasDeclareRequestV1,
+    ProjectIdentityAliasPageV1,
+    ProjectIdentityAliasRetractRequestV1,
+    ProjectIdentityAliasV1,
     ProjectMaterialRenameRequestV1,
     ProjectMaterialTextRequestV1,
     ProjectMaterialV1,
@@ -531,6 +535,97 @@ def project_router() -> APIRouter:
             response,
             resource_kind="project_material",
             resource_id=result.material_id,
+            revision=result.revision,
+        )
+        return result
+
+    @router.post(
+        "/projects/{project_id}/identity-aliases",
+        response_model=ProjectIdentityAliasV1,
+        status_code=201,
+        dependencies=[Depends(_require_mutation_headers)],
+    )
+    def declare_identity_alias(
+        project_id: ApiResourceId,
+        payload: ProjectIdentityAliasDeclareRequestV1,
+        request: Request,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+        dependencies: ApiDependencies = Depends(api_dependencies),
+    ) -> ProjectIdentityAliasV1:
+        result = cast(
+            ProjectIdentityAliasV1,
+            _port(dependencies).declare_identity_alias(
+                project_id,
+                payload,
+                context=_context(
+                    request,
+                    actor,
+                    operation="project.identity_alias.declare",
+                    payload=payload.model_dump(mode="json"),
+                    include_if_match=True,
+                ),
+            ),
+        )
+        _resource_headers(
+            response,
+            resource_kind="project_identity_alias",
+            resource_id=result.alias_id,
+            revision=result.revision,
+        )
+        return result
+
+    @router.get(
+        "/projects/{project_id}/identity-aliases",
+        response_model=ProjectIdentityAliasPageV1,
+    )
+    def list_identity_aliases(
+        project_id: ApiResourceId,
+        response: Response,
+        limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+        actor: ActorContext = Depends(require_actor),
+        dependencies: ApiDependencies = Depends(api_dependencies),
+    ) -> ProjectIdentityAliasPageV1:
+        result = cast(
+            ProjectIdentityAliasPageV1,
+            _port(dependencies).list_identity_aliases(project_id, actor=actor, limit=limit),
+        )
+        _page_headers(response, result.model_dump(mode="json"))
+        return result
+
+    @router.post(
+        "/projects/{project_id}/identity-aliases/{alias_id}:retract",
+        response_model=ProjectIdentityAliasV1,
+        dependencies=[Depends(_require_mutation_headers)],
+    )
+    def retract_identity_alias(
+        project_id: ApiResourceId,
+        alias_id: ApiResourceId,
+        payload: ProjectIdentityAliasRetractRequestV1,
+        request: Request,
+        response: Response,
+        actor: ActorContext = Depends(require_actor),
+        dependencies: ApiDependencies = Depends(api_dependencies),
+    ) -> ProjectIdentityAliasV1:
+        result = cast(
+            ProjectIdentityAliasV1,
+            _port(dependencies).retract_identity_alias(
+                project_id,
+                alias_id,
+                payload,
+                context=_context(
+                    request,
+                    actor,
+                    operation="project.identity_alias.retract",
+                    payload=payload.model_dump(mode="json"),
+                    include_if_match=True,
+                ),
+            ),
+        )
+        _resource_headers(
+            response,
+            resource_kind="project_identity_alias",
+            resource_id=result.alias_id,
             revision=result.revision,
         )
         return result

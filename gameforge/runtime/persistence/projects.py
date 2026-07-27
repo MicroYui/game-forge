@@ -11,11 +11,17 @@ from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import canonical_json
 from gameforge.contracts.errors import Conflict, IntegrityViolation, QueryTooBroad
-from gameforge.contracts.projects import GameProjectV1, ProjectExtractionV1, ProjectMaterialV1
+from gameforge.contracts.projects import (
+    GameProjectV1,
+    ProjectExtractionV1,
+    ProjectIdentityAliasV1,
+    ProjectMaterialV1,
+)
 from gameforge.runtime.persistence.models import (
     ArtifactRow,
     GameProjectRow,
     ProjectExtractionRow,
+    ProjectIdentityAliasRow,
     ProjectMaterialRow,
     RunRow,
 )
@@ -205,6 +211,93 @@ class SqlProjectRepository:
         if result.rowcount != 1:
             raise Conflict("material revision differs", material_id=material_id)
         return canonical
+
+    def create_identity_alias(self, alias: ProjectIdentityAliasV1) -> ProjectIdentityAliasV1:
+        canonical = _canonical(alias, ProjectIdentityAliasV1, label="project identity alias")
+        if self.get_project(canonical.project_id) is None:
+            raise IntegrityViolation("identity alias references an unavailable project")
+        existing = self.get_identity_alias(canonical.alias_id)
+        if existing is not None:
+            if existing == canonical:
+                return existing
+            raise Conflict("identity alias already exists", alias_id=canonical.alias_id)
+        self._session.add(
+            ProjectIdentityAliasRow(
+                alias_id=canonical.alias_id,
+                project_id=canonical.project_id,
+                alias=canonical.alias,
+                canonical_alias=canonical.canonical_alias,
+                canonical_entity_id=canonical.canonical_entity_id,
+                declared_by=canonical.declared_by,
+                declared_at=canonical.declared_at,
+                status=canonical.status,
+                revision=canonical.revision,
+            )
+        )
+        self._flush("project identity alias", alias_id=canonical.alias_id)
+        return canonical
+
+    def get_identity_alias(self, alias_id: str) -> ProjectIdentityAliasV1 | None:
+        row = self._session.get(ProjectIdentityAliasRow, alias_id)
+        return None if row is None else self._identity_alias_from_row(row)
+
+    def list_identity_aliases(
+        self,
+        *,
+        project_id: str,
+        limit: int,
+        status: str | None = None,
+    ) -> tuple[ProjectIdentityAliasV1, ...]:
+        statement = select(ProjectIdentityAliasRow).where(
+            ProjectIdentityAliasRow.project_id == project_id
+        )
+        if status is not None:
+            statement = statement.where(ProjectIdentityAliasRow.status == status)
+        rows = self._session.scalars(
+            statement.order_by(ProjectIdentityAliasRow.alias_id).limit(_limit(limit))
+        ).all()
+        return tuple(self._identity_alias_from_row(row) for row in rows)
+
+    def compare_and_set_identity_alias(
+        self,
+        alias_id: str,
+        expected_revision: int,
+        replacement: ProjectIdentityAliasV1,
+    ) -> ProjectIdentityAliasV1:
+        canonical = _canonical(replacement, ProjectIdentityAliasV1, label="alias replacement")
+        if canonical.alias_id != alias_id or canonical.revision != expected_revision + 1:
+            raise IntegrityViolation("identity alias replacement identity or revision is invalid")
+        result = self._session.execute(
+            update(ProjectIdentityAliasRow)
+            .where(
+                ProjectIdentityAliasRow.alias_id == alias_id,
+                ProjectIdentityAliasRow.revision == expected_revision,
+            )
+            .values(
+                alias=canonical.alias,
+                canonical_alias=canonical.canonical_alias,
+                canonical_entity_id=canonical.canonical_entity_id,
+                status=canonical.status,
+                revision=canonical.revision,
+            )
+        )
+        if result.rowcount != 1:
+            raise Conflict("identity alias revision differs", alias_id=alias_id)
+        return canonical
+
+    @staticmethod
+    def _identity_alias_from_row(row: ProjectIdentityAliasRow) -> ProjectIdentityAliasV1:
+        return ProjectIdentityAliasV1(
+            alias_id=row.alias_id,
+            project_id=row.project_id,
+            alias=row.alias,
+            canonical_alias=row.canonical_alias,
+            canonical_entity_id=row.canonical_entity_id,
+            declared_by=row.declared_by,
+            declared_at=row.declared_at,
+            status=row.status,  # type: ignore[arg-type]
+            revision=row.revision,
+        )
 
     def create_extraction(self, extraction: ProjectExtractionV1) -> ProjectExtractionV1:
         canonical = _canonical(extraction, ProjectExtractionV1, label="project extraction")

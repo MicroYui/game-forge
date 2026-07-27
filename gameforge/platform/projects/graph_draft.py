@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from gameforge.contracts.canonical import canonical_sha256
@@ -48,8 +49,14 @@ def compile_project_graph_draft(
     base: Snapshot,
     entities: tuple[Entity, ...],
     relations: tuple[Relation, ...],
+    declared_aliases: Mapping[str, str] | None = None,
 ) -> CompiledProjectGraphDraft:
-    """Normalize a full editor graph and compile its exact optimistic diff."""
+    """Normalize a full editor graph and compile its exact optimistic diff.
+
+    The editor gets the same declared aliases the AI extraction does — otherwise
+    a planner's own edit would split apart what the project already decided is
+    one thing.
+    """
 
     source_ops = tuple(
         _source_op(
@@ -66,7 +73,7 @@ def compile_project_graph_draft(
         )
         for relation in relations
     )
-    normalized = normalize_typed_ops(base, source_ops)
+    normalized = normalize_typed_ops(base, source_ops, declared_aliases=declared_aliases)
     if normalized.blocking_conflicts:
         raise Conflict(
             "project graph contains identities that require human resolution",
