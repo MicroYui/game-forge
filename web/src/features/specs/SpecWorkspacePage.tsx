@@ -8,6 +8,7 @@ import { ApiProblemError } from "../../api/problem";
 import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../components/identity";
 import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
+import { projectsApi, type Project, type ProjectsApi } from "../projects/api";
 import {
   specWorkflowApi,
   type ArtifactKind,
@@ -28,7 +29,10 @@ export type SpecWorkspaceApi = SpecEntryPanelsApi &
   Pick<
     SpecWorkflowApi,
     "listArtifacts" | "listConstraintProposals" | "listConstraintSnapshots" | "listSpecs"
-  >;
+  > &
+  // Projects own both the material names and the content ref each version sits on,
+  // so this cross-project workspace has to read them to say what anything IS.
+  Pick<ProjectsApi, "listMaterials" | "listProjects">;
 
 interface CursorPageState<T> {
   error?: Error;
@@ -120,11 +124,33 @@ const proposalStatusLabels: Record<string, string> = {
   validation_failed: "验证失败",
 };
 
-function specColumns(items: readonly SpecView[]): readonly CursorTableColumn<SpecView>[] {
+function specVersionTitle(
+  item: SpecView,
+  unpublishedOrder: ReadonlyMap<string, number>,
+  projectNames: ReadonlyMap<string, string>,
+): string {
+  const owner = item.ref_name ? projectNames.get(item.ref_name) : undefined;
+  const version = item.ref_value
+    ? `当前内容 · 第 ${item.ref_value.revision} 版`
+    : `未发布内容 · 第 ${unpublishedOrder.get(item.artifact.artifact_id) ?? "—"} 份`;
+  return owner ? `${owner} · ${version}` : version;
+}
+
+function specColumns(
+  items: readonly SpecView[],
+  projects: readonly Project[],
+): readonly CursorTableColumn<SpecView>[] {
   const unpublishedOrder = new Map(
     items
       .filter((item) => !item.ref_value)
       .map((item, index) => [item.artifact.artifact_id, index + 1] as const),
+  );
+  // Revision alone does not identify a version: every project's content head starts
+  // at 第 1 版, so two rows otherwise render byte-identical titles. The owning game
+  // is what a planner actually recognises, and the ref name names it exactly —
+  // `GameProjectV1` pins `content_ref_name` to `projects/{project_id}/content/head`.
+  const projectNames = new Map(
+    projects.map((project) => [project.content_ref_name, project.display_name] as const),
   );
   return [
     {
@@ -148,11 +174,7 @@ function specColumns(items: readonly SpecView[]): readonly CursorTableColumn<Spe
             { label: "数据格式版本", value: item.schema_registry_version },
           ]}
           href={`/specs/${encodeURIComponent(item.artifact.artifact_id)}`}
-          title={
-            item.ref_value
-              ? `当前内容 · 第 ${item.ref_value.revision} 版`
-              : `未发布内容 · 第 ${unpublishedOrder.get(item.artifact.artifact_id) ?? "—"} 份`
-          }
+          title={specVersionTitle(item, unpublishedOrder, projectNames)}
         />
       ),
     },
@@ -326,7 +348,9 @@ function WorkspaceError({ error, onRetry }: { error: Error; onRetry(): void }) {
   );
 }
 
-export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspaceApi }) {
+const workspaceApi: SpecWorkspaceApi = { ...specWorkflowApi, ...projectsApi };
+
+export function SpecWorkspacePage({ api = workspaceApi }: { api?: SpecWorkspaceApi }) {
   const [searchParams] = useSearchParams();
   const projectContextResult = useMemo<{
     error: string | null;
@@ -369,16 +393,25 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
   const projectContext = projectContextResult.value;
   const workspace = useQuery({
     queryFn: async () => {
-      const [specs, constraintSnapshots, constraintProposals, sourceRaw, sourceRendered] = await Promise.all([
-        api.listSpecs(null),
-        api.listConstraintSnapshots(null),
-        api.listConstraintProposals(null),
-        readCompleteSourceCatalog(api, "source_raw"),
-        readCompleteSourceCatalog(api, "source_rendered"),
-      ]);
+      const [specs, constraintSnapshots, constraintProposals, sourceRaw, sourceRendered, projects] =
+        await Promise.all([
+          api.listSpecs(null),
+          api.listConstraintSnapshots(null),
+          api.listConstraintProposals(null),
+          readCompleteSourceCatalog(api, "source_raw"),
+          readCompleteSourceCatalog(api, "source_rendered"),
+          api.listProjects(),
+        ]);
+      // One call per project: materials are only addressable under their owner, and
+      // a planner's workspace holds few enough projects for that to be the honest read.
+      const materials = (
+        await Promise.all(projects.items.map((project) => api.listMaterials(project.project_id)))
+      ).flatMap((page) => page.items);
       return {
         constraintProposals,
         constraintSnapshots,
+        materials,
+        projects: projects.items,
         sources: [...sourceRaw, ...sourceRendered],
         specs,
       };
@@ -601,7 +634,7 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
             </header>
             <CursorTable
               caption="内容版本列表"
-              columns={specColumns(currentSpecs.items)}
+              columns={specColumns(currentSpecs.items, workspace.data.projects)}
               emptyLabel="当前授权范围内没有规格工件"
               getRowKey={(item) => item.artifact.artifact_id}
               items={currentSpecs.items}
@@ -668,6 +701,7 @@ export function SpecWorkspacePage({ api = specWorkflowApi }: { api?: SpecWorkspa
           api={api}
           catalogs={{
             constraints: currentConstraints.items,
+            materials: workspace.data.materials,
             proposals: currentProposals.items,
             sources: workspace.data.sources,
             specs: currentSpecs.items,

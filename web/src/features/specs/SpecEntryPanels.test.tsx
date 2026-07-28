@@ -9,6 +9,7 @@ import type { components } from "../../api/generated/openapi";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError, type SafeProblem } from "../../api/problem";
 import { createQueryClient } from "../../api/query-client";
+import type { ProjectMaterial } from "../projects/api";
 import {
   SpecEntryPanels,
   type ProjectConstraintAuthoringContext,
@@ -183,8 +184,19 @@ const sourceRendered = {
   created_at: "2026-07-20T09:30:00Z",
 };
 
+const material = {
+  display_name: "第一章·边境开拓",
+  material_id: "material:frontier",
+  material_schema_version: "project-material@1" as const,
+  original_source_artifact_id: sourceRaw.artifact_id,
+  project_id: "project:frontier",
+  rendered_source_artifact_id: sourceRendered.artifact_id,
+  status: "active" as const,
+} as unknown as ProjectMaterial;
+
 const catalogs: SpecEntryCatalogs = {
   constraints: [constraintCatalog],
+  materials: [material],
   proposals: [sourceProposal],
   sources: [sourceRaw, sourceRendered],
   specs: [specResult],
@@ -201,11 +213,6 @@ function api(overrides: Partial<SpecEntryPanelsApi> = {}): SpecEntryPanelsApi {
   return {
     draftConstraint: vi.fn(async () => proposalResult),
     listExecutionProfiles: vi.fn(async () => profilePage),
-    listProjectMaterials: vi.fn(async () => ({
-      items: [],
-      next_cursor: null,
-      page_schema_version: "project-material-page@1" as const,
-    })),
     listRefHistory: vi.fn(),
     proposeConstraint: vi.fn(async () => acceptedRun),
     resolveExecutionOption: vi.fn(async () => resolvedOption),
@@ -258,7 +265,7 @@ async function fillHumanDraft(user: ReturnType<typeof userEvent.setup>) {
   );
   await user.click(within(human).getByRole("checkbox", { name: "economy" }));
   await user.click(within(human).getByRole("checkbox", { name: "rewards" }));
-  await user.click(within(human).getByRole("checkbox", { name: /原始策划材料 · / }));
+  await user.click(within(human).getByRole("checkbox", { name: "第一章·边境开拓 · 原文" }));
   await user.type(within(human).getByLabelText("Human rationale"), "Keep gold inflation bounded.");
   fireEvent.change(within(human).getByLabelText("Typed constraints JSON"), {
     target: {
@@ -282,7 +289,7 @@ async function fillAgentDraft(
 ) {
   const profileSelect = await openAgentSettings(user);
   const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
-  await user.click(within(agent).getByRole("checkbox", { name: /原始策划材料 · / }));
+  await user.click(within(agent).getByRole("checkbox", { name: "第一章·边境开拓 · 原文" }));
   await user.selectOptions(
     within(agent).getByLabelText("基于哪个现有规则版本（可选）"),
     "artifact:constraint:base",
@@ -320,8 +327,8 @@ describe("SpecEntryPanels", () => {
 
     expect(screen.getByText("已绑定天空港项目的 1 份策划材料")).toBeVisible();
     const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
-    expect(within(agent).getByRole("checkbox", { name: /已解析策划材料/ })).toBeChecked();
-    expect(within(agent).getByRole("checkbox", { name: /已解析策划材料/ })).toBeDisabled();
+    expect(within(agent).getByRole("checkbox", { name: "第一章·边境开拓 · 已解析" })).toBeChecked();
+    expect(within(agent).getByRole("checkbox", { name: "第一章·边境开拓 · 已解析" })).toBeDisabled();
     expect(within(agent).getByLabelText("基于哪个现有规则版本（可选）")).toHaveValue(
       "artifact:constraint:base",
     );
@@ -352,7 +359,7 @@ describe("SpecEntryPanels", () => {
     );
   });
 
-  it("offers raw and rendered source artifacts even before any proposal exists", async () => {
+  it("offers a project material by name, original and parsed, before any proposal exists", async () => {
     render(
       <QueryClientProvider client={createQueryClient()}>
         <SpecEntryPanels api={api()} catalogs={{ ...catalogs, proposals: [] }} />
@@ -362,12 +369,12 @@ describe("SpecEntryPanels", () => {
     const agent = screen.getByRole("heading", { name: "从策划材料提取规则" }).closest("article")!;
     expect(
       within(agent).getByRole("checkbox", {
-        name: /原始策划材料 · /,
+        name: "第一章·边境开拓 · 原文",
       }),
     ).toBeVisible();
     expect(
       within(agent).getByRole("checkbox", {
-        name: /已解析策划材料 · 2026-07-20/,
+        name: "第一章·边境开拓 · 已解析",
       }),
     ).toBeVisible();
   });
@@ -709,46 +716,27 @@ describe("SpecEntryPanels", () => {
     }
   });
 
-  it("names planning material by its current name, not a stale snapshot", async () => {
+  it("names planning material by its current name, with or without a project context", async () => {
     // Material can be renamed, so the picker reads the project's current names
-    // instead of anything captured when the Artifact was published.
-    const listProjectMaterials = vi.fn(async () => ({
-      items: [
-        {
-          byte_size: 128,
-          created_at: "2026-07-26T00:00:00Z",
-          created_by: "human:admin",
-          display_name: "天空港核心创意",
-          material_id: "material:1",
-          material_schema_version: "project-material@1" as const,
-          media_type: "text/plain",
-          original_source_artifact_id: "artifact:source:design",
-          parse_status: "ready" as const,
-          parse_warnings: [],
-          parser_id: "plain-text",
-          parser_version: "1",
-          project_id: "project:sky-harbor",
-          rendered_source_artifact_id: "artifact:source:rendered",
-          revision: 1,
-          source_format: "plain_text" as const,
-          status: "active" as const,
-          text_char_count: 64,
-        },
-      ],
-      next_cursor: null,
-      page_schema_version: "project-material-page@1" as const,
-    }));
-    renderPanels(api({ listProjectMaterials }), {
-      baseConstraintArtifactId: null,
-      baseConstraintRevision: null,
-      constraintRefName: "constraints/sky-harbor",
-      projectId: "project:sky-harbor",
-      projectName: "天空港计划",
-      sourceArtifactIds: ["artifact:source:design"],
-    });
+    // instead of anything captured when the Artifact was published. The picker used
+    // to resolve names ONLY when a project context was present — which is exactly
+    // when it is disabled — so the interactive picker was permanently name-blind.
+    const renamed = { ...material, display_name: "天空港核心创意" } as ProjectMaterial;
+    render(
+      <MemoryRouter initialEntries={["/specs?entry=create"]}>
+        <QueryClientProvider client={createQueryClient()}>
+          <SpecEntryPanels
+            api={api()}
+            catalogs={{ ...catalogs, materials: [renamed] }}
+            projectContext={null}
+          />
+        </QueryClientProvider>
+      </MemoryRouter>,
+    );
 
     const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
     // Both the original and the parsed Artifact answer to the current name.
-    expect(await within(agent).findAllByRole("checkbox", { name: /^天空港核心创意 · /u })).toHaveLength(2);
+    expect(within(agent).getByRole("checkbox", { name: "天空港核心创意 · 原文" })).toBeEnabled();
+    expect(within(agent).getByRole("checkbox", { name: "天空港核心创意 · 已解析" })).toBeEnabled();
   });
 });

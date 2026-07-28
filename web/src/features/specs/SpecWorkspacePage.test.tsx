@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { components } from "../../api/generated/openapi";
 import { CursorExpiredError } from "../../api/pagination";
 import { createQueryClient } from "../../api/query-client";
+import type { Project, ProjectMaterial } from "../projects/api";
 import { SpecWorkspacePage, type SpecWorkspaceApi } from "./SpecWorkspacePage";
 
 type Spec = components["schemas"]["SpecViewV1"];
@@ -90,7 +91,7 @@ const sourceRaw: ArtifactSummary = {
   artifact_id: "artifact:source:raw-frontier",
   kind: "source_raw",
   parent_artifact_ids: [],
-  payload_schema_id: "source-document@1",
+  payload_schema_id: "project-material-original@1",
 };
 
 const sourceRendered: ArtifactSummary = {
@@ -101,6 +102,27 @@ const sourceRendered: ArtifactSummary = {
   parent_artifact_ids: [sourceRaw.artifact_id],
   payload_schema_id: "source-rendered@1",
 };
+
+const project = {
+  content_ref_name: "projects/project:frontier/content/head",
+  created_at: "2026-07-19T09:00:00Z",
+  display_name: "边境开拓",
+  domain_scope: { domain_ids: ["builtin"] },
+  project_id: "project:frontier",
+  project_key: "frontier",
+  project_schema_version: "game-project@1" as const,
+  status: "active" as const,
+} as unknown as Project;
+
+const material = {
+  display_name: "第一章·边境开拓",
+  material_id: "material:frontier",
+  material_schema_version: "project-material@1" as const,
+  original_source_artifact_id: sourceRaw.artifact_id,
+  project_id: project.project_id,
+  rendered_source_artifact_id: sourceRendered.artifact_id,
+  status: "active" as const,
+} as unknown as ProjectMaterial;
 
 function page<T>(items: T[], nextCursor: string | null, readSnapshotId: string) {
   return {
@@ -115,10 +137,15 @@ function page<T>(items: T[], nextCursor: string | null, readSnapshotId: string) 
 function api(overrides: Partial<SpecWorkspaceApi> = {}): SpecWorkspaceApi {
   return {
     draftConstraint: vi.fn(async () => constraintProposal),
-    listProjectMaterials: vi.fn(async () => ({
-      items: [],
+    listMaterials: vi.fn(async () => ({
+      items: [material],
       next_cursor: null,
       page_schema_version: "project-material-page@1" as const,
+    })),
+    listProjects: vi.fn(async () => ({
+      items: [project],
+      next_cursor: null,
+      page_schema_version: "project-page@1" as const,
     })),
     listArtifacts: vi.fn(async (kind) =>
       page(kind === "source_raw" ? [sourceRaw] : [sourceRendered], null, `read:${kind}`),
@@ -230,6 +257,13 @@ describe("SpecWorkspacePage", () => {
       artifact_id: "artifact:source:raw-harbor",
       created_at: "2026-07-21T10:00:00Z",
     } satisfies ArtifactSummary;
+    const secondMaterial = {
+      ...material,
+      display_name: "第二章·海港",
+      material_id: "material:harbor",
+      original_source_artifact_id: secondRaw.artifact_id,
+      rendered_source_artifact_id: "artifact:source:rendered-harbor",
+    } as unknown as ProjectMaterial;
     const listArtifacts = vi.fn<SpecWorkspaceApi["listArtifacts"]>(async (kind, cursor) => {
       if (kind === "source_rendered") return page([sourceRendered], null, "read:source_rendered");
       return cursor === null
@@ -240,30 +274,66 @@ describe("SpecWorkspacePage", () => {
       api({
         listArtifacts,
         listConstraintProposals: vi.fn(async () => page([], null, "read:proposals:empty")),
+        listMaterials: vi.fn(async () => ({
+          items: [material, secondMaterial],
+          next_cursor: null,
+          page_schema_version: "project-material-page@1" as const,
+        })),
       }),
     );
 
     const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
-    expect(
-      within(agent).getByRole("checkbox", {
-        name: /原始策划材料 · 2026-07-19/,
-      }),
-    ).toBeVisible();
-    expect(
-      within(agent).getByRole("checkbox", {
-        name: /原始策划材料 · 2026-07-21/,
-      }),
-    ).toBeVisible();
-    expect(
-      within(agent).getByRole("checkbox", {
-        name: /已解析策划材料 · 2026-07-20/,
-      }),
-    ).toBeVisible();
+    // The second material only appears if the SECOND page of source_raw was read.
+    expect(within(agent).getByRole("checkbox", { name: "第一章·边境开拓 · 原文" })).toBeVisible();
+    expect(within(agent).getByRole("checkbox", { name: "第二章·海港 · 原文" })).toBeVisible();
+    expect(within(agent).getByRole("checkbox", { name: "第一章·边境开拓 · 已解析" })).toBeVisible();
+    // The second material's rendered Artifact is not in the catalog, so it is not
+    // offered — a planner is never shown a source they cannot actually use.
+    expect(within(agent).queryByRole("checkbox", { name: "第二章·海港 · 已解析" })).toBeNull();
     expect(listArtifacts.mock.calls).toEqual([
       ["source_raw", null],
       ["source_rendered", null],
       ["source_raw", "opaque.source-raw+/="],
     ]);
+  });
+
+  it("says which game a content version belongs to", async () => {
+    // Every project's content head starts at 第 1 版, so revision alone makes two
+    // rows render byte-identical titles. The owning game is what a planner reads.
+    const projectHead = {
+      ...spec,
+      artifact: { ...baseArtifact, artifact_id: "artifact:spec:frontier-head" },
+      ref_name: project.content_ref_name,
+      ref_value: { artifact_id: "artifact:spec:frontier-head", revision: 1 },
+    } satisfies Spec;
+    renderPage(api({ listSpecs: vi.fn(async () => page([spec, projectHead], null, "read:specs")) }));
+
+    expect(await screen.findByText("边境开拓 · 当前内容 · 第 1 版")).toBeVisible();
+    // A ref no project owns keeps the bare title rather than borrowing a name.
+    expect(screen.getByText("当前内容 · 第 7 版")).toBeVisible();
+  });
+
+  it("never offers agent plumbing as planning material", async () => {
+    // `source_raw` is shared by agent prompt context and run goal text. Neither is
+    // anything a planner wrote, and neither has a name — offering them under
+    // 选择策划材料 told the planner they had uploaded material they never uploaded.
+    const promptContext = {
+      ...sourceRaw,
+      artifact_id: "artifact:source:agent-prompt-context",
+      payload_schema_id: "agent-prompt-context@1",
+    } satisfies ArtifactSummary;
+    renderPage(
+      api({
+        listArtifacts: vi.fn(async (kind) =>
+          page(kind === "source_raw" ? [sourceRaw, promptContext] : [sourceRendered], null, `read:${kind}`),
+        ),
+        listConstraintProposals: vi.fn(async () => page([], null, "read:proposals:empty")),
+      }),
+    );
+
+    const agent = (await screen.findByRole("heading", { name: "从策划材料提取规则" })).closest("article")!;
+    expect(within(agent).getByRole("checkbox", { name: "第一章·边境开拓 · 原文" })).toBeVisible();
+    expect(within(agent).getAllByRole("checkbox")).toHaveLength(2);
   });
 
   it("fails closed when a source catalog changes read snapshot during pagination", async () => {

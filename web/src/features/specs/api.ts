@@ -14,7 +14,6 @@ import { gameForgeApi } from "../../api/runtime";
 
 export type ApprovalView = components["schemas"]["ApprovalViewV1"];
 export type ArtifactKind = components["schemas"]["ArtifactSummaryV1"]["kind"];
-export type ProjectMaterialPage = components["schemas"]["ProjectMaterialPageV1"];
 export type ArtifactPage = components["schemas"]["OpaquePageV1_ArtifactSummaryV1_"];
 export type ArtifactPayloadView = components["schemas"]["ArtifactPayloadViewV1"];
 export type ConstraintProposalPage = components["schemas"]["OpaquePageV1_ConstraintProposalReadViewV1_"];
@@ -70,7 +69,6 @@ type ApiResponse<T> = {
 
 export interface SpecWorkflowApi {
   listArtifacts(kind: ArtifactKind, cursor: string | null): Promise<ArtifactPage>;
-  listProjectMaterials(projectId: string): Promise<ProjectMaterialPage>;
   listSpecs(cursor: string | null): Promise<SpecPage>;
   getSpec(artifactId: string): Promise<SpecView>;
   getArtifactPayload(artifactId: string): Promise<ArtifactPayloadView>;
@@ -139,14 +137,6 @@ export function createSpecWorkflowApi(client: GameForgeOpenApiClient = gameForge
             params: { query: { kind, ...cursorQuery(cursor) } },
           }),
         ),
-      );
-    },
-
-    async listProjectMaterials(projectId) {
-      return unwrapApiResponse<ProjectMaterialPage>(
-        await client.GET("/api/v1/projects/{project_id}/materials", {
-          params: { path: { project_id: projectId } },
-        }),
       );
     },
 

@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Bot, FileUp, UserRoundPen } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { createMutationIntent, ReauthenticationRequiredError, type MutationIntent } from "../../api/csrf";
 import { CursorExpiredError } from "../../api/pagination";
 import { ApiProblemError } from "../../api/problem";
 import type { components } from "../../api/generated/openapi";
+import type { ProjectMaterial } from "../projects/api";
 import { ModelPicker } from "../models/ModelPicker";
 import type { SelectableModel } from "../models/api";
 import { ReauthenticationLink } from "../../app/ReauthenticationLink";
@@ -32,7 +33,6 @@ export type SpecEntryPanelsApi = Pick<
   SpecWorkflowApi,
   | "draftConstraint"
   | "listExecutionProfiles"
-  | "listProjectMaterials"
   | "listRefHistory"
   | "proposeConstraint"
   | "resolveExecutionOption"
@@ -41,6 +41,11 @@ export type SpecEntryPanelsApi = Pick<
 
 export interface SpecEntryCatalogs {
   constraints: readonly ConstraintSnapshotView[];
+  // Every planning material the workspace can see, across projects. Materials —
+  // not source Artifacts — decide what a planner may pick: `source_raw` is shared
+  // by agent prompt context and run goal text, which are plumbing rather than
+  // anything a planner wrote, and only a material carries a name.
+  materials: readonly ProjectMaterial[];
   proposals: readonly ConstraintProposalReadView[];
   sources: readonly ArtifactPage["items"][number][];
   specs: readonly SpecView[];
@@ -57,6 +62,7 @@ export interface ProjectConstraintAuthoringContext {
 
 const emptyCatalogs: SpecEntryCatalogs = {
   constraints: [],
+  materials: [],
   proposals: [],
   sources: [],
   specs: [],
@@ -210,25 +216,20 @@ function parseContentObject(
   }
 }
 
-function knownSourceOptions(
-  catalogs: SpecEntryCatalogs,
-  // Material can be renamed, so its CURRENT name comes from the project, never
-  // from anything captured when the Artifact was published.
-  materialNames: ReadonlyMap<string, string> = new Map(),
-): { id: string; label: string }[] {
+function knownSourceOptions(catalogs: SpecEntryCatalogs): { id: string; label: string }[] {
   const values = new Map<string, string>();
-  const ordinals = new Map<string, number>();
-  for (const source of catalogs.sources) {
-    const kindLabel = source.kind === "source_raw" ? "原始策划材料" : "已解析策划材料";
-    const currentName = materialNames.get(source.artifact_id);
-    if (currentName) {
-      values.set(source.artifact_id, `${currentName} · ${kindLabel}`);
-      continue;
+  // The source catalog decides what EXISTS, the material decides what it is CALLED,
+  // and a material only reaches the planner when both agree. That intersection is
+  // what keeps agent prompt context and run goal text — `source_raw` artifacts the
+  // planner never wrote — out of a list headed 选择策划材料.
+  const existing = new Set(catalogs.sources.map((source) => source.artifact_id));
+  for (const material of catalogs.materials) {
+    if (existing.has(material.original_source_artifact_id)) {
+      values.set(material.original_source_artifact_id, `${material.display_name} · 原文`);
     }
-    const createdAt = source.created_at?.slice(0, 10) ?? "时间未知";
-    const ordinal = (ordinals.get(kindLabel) ?? 0) + 1;
-    ordinals.set(kindLabel, ordinal);
-    values.set(source.artifact_id, `${kindLabel} · ${createdAt} · 第 ${ordinal} 份`);
+    if (existing.has(material.rendered_source_artifact_id)) {
+      values.set(material.rendered_source_artifact_id, `${material.display_name} · 已解析`);
+    }
   }
   for (const proposal of catalogs.proposals) {
     for (const binding of proposal.proposal.source_bindings) {
@@ -287,19 +288,17 @@ function SourceArtifactPicker({
   catalogs,
   disabled = false,
   label,
-  materialNames,
   onChange,
   value,
 }: {
   catalogs: SpecEntryCatalogs;
   disabled?: boolean;
   label: string;
-  materialNames?: ReadonlyMap<string, string>;
   onChange(value: string): void;
   value: string;
 }) {
   const selected = new Set(splitIds(value));
-  const options = knownSourceOptions(catalogs, materialNames);
+  const options = knownSourceOptions(catalogs);
   function toggle(id: string, checked: boolean) {
     const next = new Set(selected);
     if (checked) next.add(id);
@@ -583,20 +582,6 @@ function AgentConstraintEntry({
   });
   // Material names live on the project and can change; read them instead of
   // trusting anything the Artifact carried when it was published.
-  const materialQuery = useQuery({
-    enabled: projectContext !== null,
-    queryFn: () => api.listProjectMaterials(projectContext!.projectId),
-    queryKey: ["spec-entry", "project-materials", projectContext?.projectId ?? ""],
-    retry: false,
-  });
-  const materialNames = useMemo(() => {
-    const names = new Map<string, string>();
-    for (const item of materialQuery.data?.items ?? []) {
-      names.set(item.original_source_artifact_id, item.display_name);
-      names.set(item.rendered_source_artifact_id, item.display_name);
-    }
-    return names;
-  }, [materialQuery.data]);
   const [profiles, setProfiles] = useState<ProfileState | null>(null);
   const [sourceArtifactIds, setSourceArtifactIds] = useState(
     () => projectContext?.sourceArtifactIds.join("\n") ?? "",
@@ -817,7 +802,6 @@ function AgentConstraintEntry({
           catalogs={catalogs}
           disabled={projectContext !== null}
           label="选择策划材料"
-          materialNames={materialNames}
           onChange={setSourceArtifactIds}
           value={sourceArtifactIds}
         />

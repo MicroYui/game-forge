@@ -998,6 +998,13 @@ function fixtureResponse(url: URL): FixtureResponse | null {
       }
       return null;
     }
+    // The specs workspace reads projects to name material and to say which game a
+    // content version belongs to. This fixture holds no project, which is a real
+    // state and the one the approved page baselines were taken against.
+    case "/api/v1/projects":
+      return {
+        body: { items: [], next_cursor: null, page_schema_version: "project-page@1" },
+      };
     case "/api/v1/models":
       return { body: selectableModels };
     case "/api/v1/execution-profiles":
