@@ -810,6 +810,58 @@ def test_exact_supported_structural_predicates_receive_two_engine_coverage(
     assert by_engine["graph-reference"].status == "passed"
 
 
+def _presence(constraint_id: str, assert_expr: str) -> Constraint:
+    return Constraint(
+        id=constraint_id,
+        dsl_grammar_version="dsl@1",
+        kind="structural",
+        oracle="deterministic",
+        scope=Selector(var="n", node_type="NPC", where={}),
+        **{"assert": assert_expr},
+        severity="major",
+    )
+
+
+@pytest.mark.parametrize(
+    "assert_expr",
+    ("has(faction)", "is_text(faction)", "is_object(profile)", "is_text(profile.home)"),
+)
+def test_an_attribute_presence_rule_reaches_the_two_engine_quorum(assert_expr: str) -> None:
+    """A rule naming its own paths still gets two independent exact decisions.
+
+    Its witnesses cannot come from the fixed table — they are derived from the
+    parsed spec — so this is the check that the derived-witness path really does
+    earn publication rather than merely avoiding a hard failure.
+    """
+
+    store = _store((_presence("C_presence", assert_expr),))
+    outcome = _handler(store)(_context(store, _payload()))
+    by_engine = {
+        stage.engine_id: stage
+        for stage in _compile_evidence(store, outcome).stages
+        if stage.stage == "differential"
+    }
+
+    assert outcome.summary.outcome_code == "constraint_validated"
+    assert by_engine["clingo"].status == "passed"
+    assert by_engine["graph-reference"].status == "passed"
+    assert by_engine["z3"].status == "not_applicable"
+
+
+def test_an_unsatisfiable_presence_rule_is_never_published() -> None:
+    """``is_text(x) and is_object(x)`` would reject every candidate forever."""
+
+    store = _store((_presence("C_impossible", "is_text(faction) and is_object(faction)"),))
+    outcome = _handler(store)(_context(store, _payload()))
+
+    assert outcome.summary.outcome_code != "constraint_validated"
+    assert [
+        stage.status
+        for stage in _compile_evidence(store, outcome).stages
+        if stage.stage == "differential" and stage.engine_id in {"clingo", "graph-reference"}
+    ] == ["unproven", "unproven"]
+
+
 @pytest.mark.parametrize(
     ("engine_type", "backend_name", "assert_expr", "defect_class"),
     (

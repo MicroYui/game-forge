@@ -144,7 +144,7 @@ def test_a_requirement_the_selector_already_fixes_is_reported() -> None:
     )
 
     assert spec is not None
-    assert any("already fixed by the selector" in reason for reason in presence_conflicts(spec))
+    assert any("the selector already fixes to one value" in reason for reason in presence_conflicts(spec))
 
 
 def test_an_ordinary_requirement_has_no_conflicts() -> None:

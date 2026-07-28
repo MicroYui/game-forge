@@ -750,7 +750,7 @@ def test_real_local_command_ports_cancel_queued_run_and_replay_after_restart(tmp
             },
             "checker_profile": ProfileRefV1(
                 profile_id="builtin.checker",
-                version=2,
+                version=3,
             ).model_dump(mode="json"),
             "checker_ids": [],
             "defect_classes": [],
@@ -937,7 +937,7 @@ def test_real_local_command_reauthorizes_inside_write_uow_after_outer_grant_revo
             "snapshot_artifact_id": snapshot_artifact_id,
             "constraint_snapshot_artifact_id": None,
             "selection": {"mode": "full", "entity_ids": [], "relation_ids": []},
-            "checker_profile": {"profile_id": "builtin.checker", "version": 2},
+            "checker_profile": {"profile_id": "builtin.checker", "version": 3},
             "checker_ids": [],
             "defect_classes": [],
         },

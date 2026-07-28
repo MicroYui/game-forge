@@ -117,6 +117,7 @@ from gameforge.platform.registry.model import (
 )
 from gameforge.platform.registry.repository import ImmutablePlatformRegistry
 from gameforge.platform.lineage.validation import PRODUCER_RULES
+from gameforge.spine.checkers.presence import MISSING_REQUIRED_ATTRIBUTE
 
 
 _POLICY_VERSION = 1
@@ -2569,7 +2570,7 @@ def _resolved_policy_profile_config(
             "unreachable_target",
             "unsatisfiable_completion",
         )
-        if profile_version == 2:
+        if profile_version >= 2:
             defect_classes = tuple(
                 sorted(
                     (
@@ -2582,7 +2583,12 @@ def _resolved_policy_profile_config(
                     )
                 )
             )
-        elif profile_version != 1:
+        if profile_version == 3:
+            # A project can now require an attribute of its own content, so the
+            # taxonomy has to admit the verdict. `validate_checker_output_policy`
+            # rejects any deterministic finding outside this allowlist.
+            defect_classes = tuple(sorted((*defect_classes, MISSING_REQUIRED_ATTRIBUTE)))
+        elif profile_version not in (1, 2):
             raise ValueError("unsupported built-in checker profile version")
         return CheckerProfileConfigV1(
             allowed_checker_ids=("asp", "graph", "smt"),
@@ -3031,6 +3037,56 @@ def _execution_profile_catalog_v4() -> ExecutionProfileCatalogSnapshotV1:
     )
 
 
+def _execution_profile_catalog_v6() -> ExecutionProfileCatalogSnapshotV1:
+    """Admit the attribute-presence verdict into the checker taxonomy.
+
+    Only the checker profile moves.  Its config schema is unchanged — this adds a
+    value to a frozen allowlist, the same shape as the event-lifecycle classes in
+    catalog 3.
+    """
+
+    previous = _execution_profile_catalog_v5()
+    compatibility = _profile_compatibility(catalog_version=6)
+    checker_v3 = _execution_profile_definition(
+        profile_kind="checker",
+        run_kinds=compatibility["checker"],
+        profile_version=3,
+    )
+    definitions = (*previous.definitions, checker_v3)
+    previous_lifecycle = {item.profile: item for item in previous.lifecycle}
+    changed_at = "2026-07-28T12:00:00Z"
+
+    def _lifecycle(definition: ExecutionProfileDefinitionV1) -> ExecutionProfileLifecycleV1:
+        if definition.profile_kind == "checker" and definition.profile.version == 2:
+            return ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="disabled",
+                revision=previous_lifecycle[definition.profile].revision + 1,
+                reason_code="superseded_by_attribute_presence_taxonomy",
+                changed_at=changed_at,
+            )
+        return previous_lifecycle.get(
+            definition.profile,
+            ExecutionProfileLifecycleV1(
+                profile=definition.profile,
+                state="active",
+                revision=1,
+                changed_at=changed_at,
+            ),
+        )
+
+    lifecycle = tuple(_lifecycle(definition) for definition in definitions)
+    payload = {
+        "catalog_version": 6,
+        "definitions": definitions,
+        "lifecycle": lifecycle,
+    }
+    return ExecutionProfileCatalogSnapshotV1(
+        **payload,
+        catalog_digest=execution_profile_catalog_digest(payload),
+    )
+
+
 def _execution_profile_catalog_v5() -> ExecutionProfileCatalogSnapshotV1:
     """Ground generation in a retrieved slice instead of the whole content graph.
 
@@ -3364,6 +3420,7 @@ def build_builtin_registry() -> ImmutablePlatformRegistry:
             _execution_profile_catalog_v3(),
             _execution_profile_catalog_v4(),
             _execution_profile_catalog_v5(),
+            _execution_profile_catalog_v6(),
         ),
         migration_capability_registries=(migration_registry,),
         profile_requirements=_profile_requirements(),

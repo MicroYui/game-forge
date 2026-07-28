@@ -51,7 +51,13 @@ from gameforge.spine.dsl.ast import (
     UnaryOp,
     parse_assert,
 )
+from gameforge.spine.checkers.presence import (
+    MISSING_REQUIRED_ATTRIBUTE,
+    EagerPathIndexPresenceReference,
+)
+from gameforge.spine.checkers.presence_asp import ClingoPresenceReference
 from gameforge.spine.dsl.compile import compile_all
+from gameforge.spine.dsl.presence import parse_presence_spec, presence_witnesses
 from gameforge.spine.ir.snapshot import Snapshot
 
 from gameforge.platform.run_handlers.constraint_validation import (
@@ -383,6 +389,7 @@ def _z3_numeric_witness_values(
 def _run_structural_witness(
     reference_checker: Checker,
     compiled_checker: Checker,
+    witnesses: tuple[Snapshot, Snapshot],
     semantic: str,
     constraint_id: str,
 ) -> tuple[str, str | None]:
@@ -397,7 +404,7 @@ def _run_structural_witness(
     defect.
     """
 
-    dirty, clean = _STRUCTURAL_WITNESSES[semantic]()
+    dirty, clean = witnesses
     reference_dirty = reference_checker.check(dirty)
     reference_clean = reference_checker.check(clean)
 
@@ -477,6 +484,7 @@ def _evaluate_structural_candidates(
     constraints: tuple[Constraint, ...],
     *,
     checker_factory: Callable[[], Checker],
+    presence_reference: Callable[[Constraint], Checker],
     reason_prefix: str,
 ) -> DifferentialEngineResultV1:
     structural = _structural_domain(constraints)
@@ -488,16 +496,28 @@ def _evaluate_structural_candidates(
     decided: list[str] = []
     undecided_reason: str | None = None
     for constraint in structural:
-        semantic = _structural_predicate_semantic(constraint)
-        if semantic is None:
+        # An attribute-presence rule names its own paths, so neither its meaning nor
+        # its witnesses can come from a fixed table: both are derived from the parsed
+        # spec, and the peer backend is bound to the constraint rather than built bare.
+        spec = parse_presence_spec(constraint)
+        if spec is not None:
+            semantic = MISSING_REQUIRED_ATTRIBUTE
+            witnesses = presence_witnesses(spec)
+            reference: Checker = presence_reference(constraint)
+        else:
+            semantic = _structural_predicate_semantic(constraint)
+            witnesses = _STRUCTURAL_WITNESSES[semantic]() if semantic is not None else None
+            reference = checker_factory()
+        if semantic is None or witnesses is None:
             undecided_reason = f"{reason_prefix}_predicate_unsupported"
             continue
         compiled = compile_all([constraint])
         if len(compiled) != 1:
             raise IntegrityViolation("structural witness compiler returned the wrong checker count")
         verdict, reason = _run_structural_witness(
-            checker_factory(),
+            reference,
             compiled[0],
+            witnesses,
             semantic,
             constraint.id,
         )
@@ -959,6 +979,7 @@ class ClingoDifferentialEngine:
         return _evaluate_structural_candidates(
             request.constraints,
             checker_factory=ASPChecker,
+            presence_reference=ClingoPresenceReference,
             reason_prefix="clingo",
         )
 
@@ -974,6 +995,7 @@ class GraphReferenceDifferentialEngine:
         return _evaluate_structural_candidates(
             request.constraints,
             checker_factory=GraphChecker,
+            presence_reference=EagerPathIndexPresenceReference,
             reason_prefix="graph_reference",
         )
 

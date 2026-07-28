@@ -441,7 +441,7 @@ def test_project_launcher_drives_feishu_material_to_a_normalized_editable_draft(
                     "profile_id": "builtin.validation",
                     "version": 1,
                 },
-                "checker_profiles": [{"profile_id": "builtin.checker", "version": 2}],
+                "checker_profiles": [{"profile_id": "builtin.checker", "version": 3}],
                 "simulation_profiles": [],
                 "expected_findings": [],
                 "findings": [],

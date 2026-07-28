@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from gameforge.contracts.dsl import Constraint, Predicate, Selector
 from gameforge.contracts.ir import Entity, EdgeType, NodeType, Relation
+from gameforge.spine.checkers.asp import ASPChecker
+from gameforge.spine.checkers.presence import AttributePresenceChecker
 from gameforge.spine.dsl.compile import compile, compile_all
 from gameforge.spine.ir.snapshot import Snapshot
 
@@ -26,8 +28,11 @@ def _snap(entities, relations=()):
 # --- (a) structural cycle constraint ---------------------------------------
 
 _CYCLE_CONSTRAINT = Constraint(
-    id="C_cycle", kind="structural", oracle="deterministic",
-    assert_="acyclic(quest_steps)", severity="critical",
+    id="C_cycle",
+    kind="structural",
+    oracle="deterministic",
+    assert_="acyclic(quest_steps)",
+    severity="critical",
 )
 
 
@@ -51,18 +56,24 @@ def test_structural_constraint_compiles_and_binds_constraint_id():
 
 
 def test_structural_constraint_is_silent_on_acyclic_graph():
-    clean = _snap([Entity(id=f"s{i}", type=NodeType.QUEST_STEP) for i in (1, 2, 3)], [
-        Relation(id="a", type=EdgeType.PRECEDES, src_id="s1", dst_id="s2"),
-    ])
+    clean = _snap(
+        [Entity(id=f"s{i}", type=NodeType.QUEST_STEP) for i in (1, 2, 3)],
+        [
+            Relation(id="a", type=EdgeType.PRECEDES, src_id="s1", dst_id="s2"),
+        ],
+    )
     assert compile(_CYCLE_CONSTRAINT).check(clean) == []
 
 
 # --- (b) numeric reward constraint -----------------------------------------
 
 _REWARD_CONSTRAINT = Constraint(
-    id="C_cap", kind="numeric", oracle="deterministic",
+    id="C_cap",
+    kind="numeric",
+    oracle="deterministic",
     scope=Selector(var="q", node_type="QUEST"),
-    assert_="reward_gold <= 80", severity="major",
+    assert_="reward_gold <= 80",
+    severity="major",
 )
 
 
@@ -82,9 +93,12 @@ def test_numeric_constraint_is_silent_when_satisfied():
 # --- (c) llm-assisted constraint -------------------------------------------
 
 _LLM_CONSTRAINT = Constraint(
-    id="C_sem", kind="narrative", oracle="llm-assisted",
+    id="C_sem",
+    kind="narrative",
+    oracle="llm-assisted",
     predicates=[Predicate(expr="semantically_reveals_identity(d, x)", oracle="llm-assisted")],
-    assert_="chapter >= 3", severity="critical",
+    assert_="chapter >= 3",
+    severity="critical",
 )
 
 
@@ -107,6 +121,7 @@ def test_llm_assisted_constraint_yields_exactly_one_finding():
 
 # --- compile_all -------------------------------------------------------------
 
+
 def test_compile_all_routes_each_constraint_independently():
     checkers = compile_all([_CYCLE_CONSTRAINT, _REWARD_CONSTRAINT, _LLM_CONSTRAINT])
     assert len(checkers) == 3
@@ -118,3 +133,41 @@ def test_compile_all_routes_each_constraint_independently():
     # the llm-routed one always emits its single placeholder regardless.
     assert "C_cycle" in ids
     assert "C_sem" in ids
+
+
+def test_a_presence_constraint_routes_to_the_presence_checker() -> None:
+    checker = compile(_presence_constraint("is_text(faction)"))
+
+    assert isinstance(_backend(checker), AttributePresenceChecker)
+
+
+def test_presence_is_recognised_before_the_keyword_routing_reads_the_text() -> None:
+    """`_classify_structural` matches raw substrings, so `has(source_region)`
+    contains "source" and `has(cycle_marker)` contains "cycle". Routing on those
+    would decide a defect class the planner never asked about."""
+
+    for assert_expr in ("has(source_region)", "has(cycle_marker)", "has(reachable_flag)"):
+        checker = compile(_presence_constraint(assert_expr))
+        assert isinstance(_backend(checker), AttributePresenceChecker), assert_expr
+
+
+def test_the_existing_structural_routing_is_unchanged() -> None:
+    assert isinstance(_backend(compile(_presence_constraint("acyclic(steps)"))), ASPChecker)
+    assert isinstance(_backend(compile(_presence_constraint("collect(x) > 0"))), ASPChecker)
+
+
+def _backend(checker):
+    return next(value for value in vars(checker).values() if hasattr(value, "check"))
+
+
+def _presence_constraint(assert_expr: str) -> Constraint:
+    return Constraint.model_validate(
+        {
+            "id": "C-routing",
+            "kind": "structural",
+            "oracle": "deterministic",
+            "forall": {"var": "n", "node_type": "NPC"},
+            "assert": assert_expr,
+            "severity": "major",
+        }
+    )

@@ -395,7 +395,7 @@ def _checker_params(snapshot_artifact_id: str) -> CheckerRunPayloadV1:
         snapshot_artifact_id=snapshot_artifact_id,
         constraint_snapshot_artifact_id=None,
         selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
-        checker_profile=ProfileRefV1(profile_id="builtin.checker", version=2),
+        checker_profile=ProfileRefV1(profile_id="builtin.checker", version=3),
         checker_ids=("graph",),
         defect_classes=(),
     )

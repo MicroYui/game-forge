@@ -100,7 +100,7 @@ NOW = "2026-07-15T12:00:00Z"
 CURSOR_KEY = b"m4c-runcmd-cursor-key"
 OBJECT_CURSOR_KEY = b"m4c-runcmd-object-cursor-key"
 AUDIT_CHAIN_ID = "platform-authority"
-CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
+CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=3)
 ORIGIN = "https://gameforge.test"
 
 ROLE_POLICY_VERSION = "runcmd-roles@1"

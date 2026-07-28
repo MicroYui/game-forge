@@ -222,7 +222,7 @@ CURSOR_KEY = b"m4c-run-admission-cursor-key"
 OBJECT_CURSOR_KEY = b"m4c-run-admission-object-cursor-key"
 AUDIT_CHAIN_ID = "platform-authority"
 
-CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
+CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=3)
 SIMULATION_PROFILE = ProfileRefV1(profile_id="builtin.simulation", version=1)
 WORKLOAD_PROFILE = ProfileRefV1(profile_id="builtin.workload", version=1)
 GENERATION_PROFILE = ProfileRefV1(profile_id="builtin.generation", version=3)
@@ -6218,7 +6218,7 @@ def test_repair_freezes_exact_profile_verifier_requirements(tmp_path: Path) -> N
         )
         for requirement in snapshot.requirements
     } == {
-        ("checker", "builtin.checker@2", "/params/checker_profiles/0"),
+        ("checker", "builtin.checker@3", "/params/checker_profiles/0"),
         ("simulation", "builtin.simulation@1", "/params/simulation_profiles/0"),
         ("regression", regression, None),
     }

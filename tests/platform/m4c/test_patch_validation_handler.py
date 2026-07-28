@@ -1669,7 +1669,7 @@ def test_llm_constraint_remains_unproven_without_entering_deterministic_checker_
             "constraints": [constraint.model_dump(mode="json", by_alias=True)],
         },
     )
-    checker_profile = ProfileRefV1(profile_id="builtin.checker", version=2)
+    checker_profile = ProfileRefV1(profile_id="builtin.checker", version=3)
     registry = build_builtin_registry()
     catalog = next(
         catalog
@@ -1720,7 +1720,7 @@ def test_llm_constraint_remains_unproven_without_entering_deterministic_checker_
     companion = next(
         artifact
         for artifact in outcome.artifacts
-        if artifact.meta.get("requirement_id") == "checker:builtin.checker@2"
+        if artifact.meta.get("requirement_id") == "checker:builtin.checker@3"
     )
     sealed = decode_and_validate_artifact_payload(
         payload_schema_id=companion.payload_schema_id,

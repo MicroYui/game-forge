@@ -57,7 +57,7 @@ from tests.e2e.m4c.test_composition import NOW, OBJECT_STORE_ID, _Harness, _tool
 
 DOMAIN = "builtin"
 REF_NAME = "content/head"
-_GRAPH_CHECKER = ProfileRefV1(profile_id="builtin.checker", version=2)
+_GRAPH_CHECKER = ProfileRefV1(profile_id="builtin.checker", version=3)
 
 
 def _canonical(payload: object) -> bytes:

@@ -2189,6 +2189,12 @@ class ProjectAuthoringService:
             title = "任务无法到达完成步骤"
             description = f"{subject}的完成步骤无法从其他步骤到达。"
             resolution_hint = "补齐步骤顺序或前置关系，使完成步骤能从任务入口到达。"
+        elif code == "missing_required_attribute":
+            title = "内容缺少项目要求的字段"
+            description = f"{subject}没有携带项目规则声明必须填写的字段，或该字段的类型不符合要求。"
+            resolution_hint = (
+                "按材料补齐该字段的真实取值；若这条要求本身不该适用于这类内容，请改约束而不是改内容。"
+            )
         elif code == "missing_drop_source":
             title = "收集目标缺少来源"
             description = f"{subject}要求收集内容，但草案没有对应的产出来源。"

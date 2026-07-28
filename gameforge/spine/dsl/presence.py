@@ -30,6 +30,8 @@ from dataclasses import dataclass
 from typing import Literal
 
 from gameforge.contracts.dsl import Constraint, Selector
+from gameforge.contracts.ir import Entity, NodeType
+from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.dsl.ast import (
     AssertNode,
     BoolOp,
@@ -148,10 +150,58 @@ def presence_conflicts(spec: PresenceSpec) -> tuple[str, ...]:
         root = atom.path.split(".", 1)[0]
         if root in spec.selector.where:
             reasons.append(
-                f"attribute {atom.path!r} is already fixed by the selector, so the "
-                "constraint holds for every entity it selects"
+                f"attribute {atom.path!r} starts at {root!r}, which the selector already "
+                "fixes to one value, so the requirement decides nothing about the "
+                "entities it selects"
             )
     return tuple(sorted(set(reasons)))
+
+
+def presence_witnesses(spec: PresenceSpec) -> tuple[Snapshot, Snapshot] | None:
+    """A pair of one-entity snapshots the rule must reject, then accept.
+
+    Publication requires an engine to have GENUINELY decided a candidate, which
+    means exhibiting both verdicts rather than asserting one.  The dirty witness
+    carries only what the selector pins, so every atom fails; the clean witness
+    adds exactly what the atoms ask for.
+
+    ``None`` when no such pair exists — see ``presence_conflicts``.
+    """
+
+    if presence_conflicts(spec):
+        return None
+    try:
+        node_type = NodeType[spec.selector.node_type]
+    except KeyError:
+        return None
+
+    def entity(attrs: dict[str, object]) -> Snapshot:
+        merged: dict[str, object] = dict(spec.selector.where)
+        merged.update(attrs)
+        return Snapshot.from_entities_relations(
+            [Entity(id="witness:presence:subject", type=node_type, attrs=merged)], []
+        )
+
+    satisfied: dict[str, object] = {}
+    for atom in sorted(spec.atoms, key=lambda item: item.path.count(".")):
+        _assign(satisfied, atom.path.split("."), atom.kind)
+    return entity({}), entity(satisfied)
+
+
+def _assign(target: dict[str, object], segments: list[str], kind: PresenceKind) -> None:
+    """Place a value of ``kind`` at ``segments``, creating the nesting it needs."""
+
+    head, rest = segments[0], segments[1:]
+    if rest:
+        child = target.get(head)
+        if not isinstance(child, dict):
+            child = {}
+            target[head] = child
+        _assign(child, rest, kind)
+        return
+    if head in target and isinstance(target[head], dict) and kind != "text":
+        return
+    target[head] = {"present": "witness", "text": "witness", "object": {}}[kind]
 
 
 __all__ = [
@@ -160,5 +210,6 @@ __all__ = [
     "PresenceKind",
     "PresenceSpec",
     "parse_presence_spec",
+    "presence_witnesses",
     "presence_conflicts",
 ]

@@ -2806,7 +2806,7 @@ def test_patch_llm_constraint_unproven_reaches_real_terminal(monkeypatch):
     registry = build_builtin_registry()
     catalog = max(registry.list_execution_profile_catalogs(), key=lambda item: item.catalog_version)
     validation_profile = ProfileRefV1(profile_id="builtin.validation", version=1)
-    checker_profile = ProfileRefV1(profile_id="builtin.checker", version=2)
+    checker_profile = ProfileRefV1(profile_id="builtin.checker", version=3)
     bindings = (
         _exact_profile_binding(
             registry,
@@ -2924,7 +2924,7 @@ def test_patch_llm_constraint_unproven_reaches_real_terminal(monkeypatch):
     companion = next(
         artifacts.by_id[artifact_id]
         for artifact_id in result["produced_artifact_ids"]
-        if artifacts.by_id[artifact_id].meta.get("requirement_id") == "checker:builtin.checker@2"
+        if artifacts.by_id[artifact_id].meta.get("requirement_id") == "checker:builtin.checker@3"
     )
     companion_payload = json.loads(blobs.read(companion.object_ref))
     assert companion_payload["status"] == "unproven"

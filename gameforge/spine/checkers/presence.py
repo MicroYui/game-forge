@@ -3,18 +3,23 @@ it declared they must.
 
 Two implementations live here, and they are different on purpose.
 
-``AttributePresenceChecker`` walks each required path segment by segment and stops
-at the first segment that is not there. ``EagerPathIndexPresenceReference`` does
-the opposite: it materialises every resolvable dotted path an entity has into one
-index, without short-circuiting, and then decides each requirement by lookup.
+``AttributePresenceChecker`` — the production route — walks each required path
+segment by segment and stops at the first segment that is not there.
+``EagerPathIndexPresenceReference`` does the opposite: it materialises every
+addressable dotted path an entity has into one index, without short-circuiting,
+and then decides each requirement by lookup.
 
 Same verdict, opposite shape. A rule may only be published once two distinct
 exact engines have positively decided it, and two copies of one algorithm cannot
 supply that — they would agree even about a bug they share. These two disagree
 exactly when path resolution itself has drifted, which is the thing worth
-learning.
+learning. (``presence_asp`` supplies a third, in ASP, for the second engine.)
 
-Neither reads a model, and neither reads the constraint's text: they read a
+Everything except resolution is deliberately shared, in ``_PresenceBackend``: the
+selection guards, the Finding shape, the ordering, and what counts as a "kind".
+Otherwise the differential would compare presentation rather than decisions.
+
+None of them reads a model, and none reads the constraint's text: they read a
 ``PresenceSpec`` the DSL layer already reduced it to.
 """
 
@@ -30,6 +35,7 @@ from gameforge.spine.dsl.ast import DslError, select
 from gameforge.spine.dsl.presence import (
     PresenceAtom,
     PresenceKind,
+    PresenceSpec,
     parse_presence_spec,
     presence_conflicts,
 )
@@ -38,7 +44,11 @@ from gameforge.spine.ir.snapshot import Snapshot
 MISSING_REQUIRED_ATTRIBUTE = "missing_required_attribute"
 
 
-def _observed_kind(value: Any) -> PresenceKind | None:
+class PresenceUndecidable(Exception):
+    """A backend ran out of budget before deciding — never a silent pass."""
+
+
+def observed_kind(value: Any) -> PresenceKind | None:
     """What kind the value actually is, or ``None`` if the path resolved to nothing.
 
     ``bool`` is checked before ``str``/``dict`` deliberately: it is neither, and a
@@ -66,7 +76,7 @@ def _violation_message(entity_id: str, atom: PresenceAtom, observed: PresenceKin
 
 
 class _PresenceBackend:
-    """Shared Finding shape for both implementations.
+    """Shared Finding shape for every implementation.
 
     Only the resolution strategy differs; how a verdict is reported must not, or
     the differential would compare presentation instead of decisions.
@@ -123,49 +133,79 @@ class _PresenceBackend:
 
         conflicts = presence_conflicts(spec)
         if conflicts:
-            # A rule nothing could satisfy would reject every candidate forever
-            # while looking like ordinary authority. Say so instead of deciding.
+            # A rule whose verdict is the same for every entity it selects — always
+            # violated, or never — is not authority, it just looks like it. Say so
+            # instead of deciding.
             emit(
                 [],
                 {"reason": "; ".join(conflicts)},
-                f"{spec.constraint_id!r} cannot be satisfied: {conflicts[0]}",
+                f"{spec.constraint_id!r} decides nothing: {conflicts[0]}",
                 status="unproven",
             )
             return findings
 
         try:
-            entities = select(snapshot.to_graph(), spec.selector)
-        except DslError as exc:
+            selected, observed = self.observe_all(snapshot, spec)
+        except (DslError, PresenceUndecidable) as exc:
             emit(
                 [],
                 {"reason": str(exc)},
-                f"could not select entities for {spec.constraint_id!r}: {exc}",
+                f"could not decide {spec.constraint_id!r}: {exc}",
                 status="unproven",
             )
             return findings
 
-        for entity in sorted(entities, key=lambda item: item.id):
+        for entity_id in selected:
             for atom in spec.atoms:
-                observed = self._observe(entity, atom)
-                if observed is not None and _satisfies(atom.kind, observed):
+                kind = observed.get((entity_id, atom.path))
+                if kind is not None and _satisfies(atom.kind, kind):
                     continue
                 emit(
-                    [entity.id],
+                    [entity_id],
                     {
-                        "entity": entity.id,
+                        "entity": entity_id,
                         "path": atom.path,
                         "required": atom.kind,
-                        "observed": observed or "absent",
+                        "observed": kind or "absent",
                     },
-                    _violation_message(entity.id, atom, observed),
+                    _violation_message(entity_id, atom, kind),
                 )
         return findings
+
+    def observe_all(
+        self, snapshot: Snapshot, spec: PresenceSpec
+    ) -> tuple[tuple[str, ...], dict[tuple[str, str], PresenceKind]]:
+        """Which entities the rule governs, and what each required path holds.
+
+        The whole differential lives in this one method: everything around it —
+        selection guards, Finding shape, ordering — is deliberately shared so the
+        cross-check compares decisions rather than presentation. A missing key
+        means the path resolved to nothing.
+        """
+
+        raise NotImplementedError
+
+
+class _EntityWisePresenceBackend(_PresenceBackend):
+    """Select in Python, then ask each entity about each atom independently."""
+
+    def observe_all(
+        self, snapshot: Snapshot, spec: PresenceSpec
+    ) -> tuple[tuple[str, ...], dict[tuple[str, str], PresenceKind]]:
+        entities = sorted(select(snapshot.to_graph(), spec.selector), key=lambda item: item.id)
+        observed: dict[tuple[str, str], PresenceKind] = {}
+        for entity in entities:
+            for atom in spec.atoms:
+                kind = self._observe(entity, atom)
+                if kind is not None:
+                    observed[(entity.id, atom.path)] = kind
+        return tuple(entity.id for entity in entities), observed
 
     def _observe(self, entity: Entity, atom: PresenceAtom) -> PresenceKind | None:
         raise NotImplementedError
 
 
-class AttributePresenceChecker(_PresenceBackend):
+class AttributePresenceChecker(_EntityWisePresenceBackend):
     """Resolve each path segment by segment, stopping at the first gap."""
 
     def _observe(self, entity: Entity, atom: PresenceAtom) -> PresenceKind | None:
@@ -174,13 +214,13 @@ class AttributePresenceChecker(_PresenceBackend):
             if not isinstance(current, dict) or segment not in current:
                 return None
             current = current[segment]
-        return _observed_kind(current)
+        return observed_kind(current)
 
 
-class EagerPathIndexPresenceReference(_PresenceBackend):
+class EagerPathIndexPresenceReference(_EntityWisePresenceBackend):
     """Materialise every path the entity has, then decide by lookup.
 
-    The independent peer for the differential quorum: it never short-circuits and
+    An independent peer for the differential quorum: it never short-circuits and
     never walks a requirement, so it cannot inherit a traversal bug from the
     production checker.
     """
@@ -192,15 +232,23 @@ class EagerPathIndexPresenceReference(_PresenceBackend):
 
 
 def _path_index(attrs: dict[str, Any]) -> dict[str, PresenceKind]:
-    """Every dotted path this entity carries, mapped to what kind it holds."""
+    """Every *addressable* dotted path this entity carries, mapped to its kind.
+
+    A key that itself contains a dot is skipped rather than indexed. Requirements
+    are split on dots before they ever reach a backend, so ``{"profile.home": …}``
+    is one key that no requirement can name — joining it into the index anyway
+    would let it forge the path that ``{"profile": {"home": …}}`` legitimately owns.
+    """
 
     index: dict[str, PresenceKind] = {}
 
     def walk(prefix: str, value: Any) -> None:
         if prefix:
-            index[prefix] = _observed_kind(value)
+            index[prefix] = observed_kind(value)
         if isinstance(value, dict):
-            for key in sorted(value):
+            for key in sorted(value, key=str):
+                if "." in str(key):
+                    continue
                 child = f"{prefix}.{key}" if prefix else str(key)
                 walk(child, value[key])
 
@@ -212,4 +260,6 @@ __all__ = [
     "MISSING_REQUIRED_ATTRIBUTE",
     "AttributePresenceChecker",
     "EagerPathIndexPresenceReference",
+    "PresenceUndecidable",
+    "observed_kind",
 ]

@@ -46,7 +46,9 @@ from gameforge.contracts.findings import Finding
 from gameforge.spine.checkers.asp import ASPChecker
 from gameforge.spine.checkers.base import Checker, CheckerExecutionBinding
 from gameforge.spine.checkers.graph import GraphChecker
+from gameforge.spine.checkers.presence import AttributePresenceChecker
 from gameforge.spine.checkers.smt import SMTChecker
+from gameforge.spine.dsl.presence import parse_presence_spec
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import NavProvider
 
@@ -156,6 +158,12 @@ def _classify_structural(assert_expr: str) -> str | None:
 
 
 def _compile_structural(constraint: Constraint) -> Checker:
+    # Parse BEFORE keyword-matching. `_classify_structural` reads the raw text, so
+    # `has(source_region)` contains "source" and would route to ASP, and
+    # `has(cycle_marker)` would route to the cycle detector — in both cases
+    # deciding something other than what the planner wrote.
+    if parse_presence_spec(constraint) is not None:
+        return CompiledChecker(AttributePresenceChecker(constraint), constraint)
     defect_class = _classify_structural(constraint.assert_)
     backend: Checker = ASPChecker() if defect_class is not None else GraphChecker()
     return CompiledChecker(backend, constraint, defect_class_filter=defect_class)

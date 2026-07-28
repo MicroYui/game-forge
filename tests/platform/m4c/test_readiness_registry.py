@@ -232,12 +232,14 @@ def test_every_retained_catalog_digest_is_frozen() -> None:
     assert digests[2] == "c698864821f380b33923e576de6c77b2855649d8aeb8c9d61a3dd32b21e07a83"
     assert digests[3] == "1db12ddb54184c12a613701cf7b363bfebd3c6d3a5927180b4a7b69108bd7b37"
     assert digests[4] == "17859067c1a7d645ac6f3a6b2cd21f73021edce657d803cf08859ed45ca0b693"
+    assert digests[5] == "a3c5131b35b26f6cd61d817c62e32f708c955bfb95043f9b0af2a536adf768f2"
+    assert digests[6] == "68ea4e170b488a9316b4fc4d647c6898e290d2b30ca2cb237e01dd50ec8eb82b"
 
 
 def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -> None:
     catalogs = build_builtin_registry().list_execution_profile_catalogs()
 
-    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3, 4, 5]
+    assert [catalog.catalog_version for catalog in catalogs] == [1, 2, 3, 4, 5, 6]
     old_checker = next(
         definition
         for definition in catalogs[0].definitions
@@ -250,7 +252,7 @@ def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -
         if definition.profile.profile_id == "builtin.checker"
         and lifecycle[definition.profile].state == "active"
     ]
-    assert [definition.profile.version for definition in current_checkers] == [2]
+    assert [definition.profile.version for definition in current_checkers] == [3]
     current_checker = current_checkers[0]
     assert "invalid_event_lifecycle" not in old_checker.config["allowed_defect_classes"]
     assert {
@@ -259,6 +261,9 @@ def test_current_execution_profile_catalog_versions_event_lifecycle_taxonomy() -
         "invalid_event_lifecycle",
         "permanent_depends_on_limited_content",
         "unbound_event_schedule",
+        # A project may now require an attribute of its own content; the taxonomy
+        # has to admit that verdict or the checker's output is rejected wholesale.
+        "missing_required_attribute",
     }.issubset(current_checker.config["allowed_defect_classes"])
     assert lifecycle[current_checker.profile].state == "active"
     assert lifecycle[old_checker.profile].state == "disabled"

@@ -140,7 +140,7 @@ def _aggregate_expectation(
         producer_params = CheckerRunPayloadV1(
             snapshot_artifact_id="artifact:snapshot",
             selection=GraphSelectionV1(mode="full", entity_ids=(), relation_ids=()),
-            checker_profile=ProfileRefV1(profile_id="builtin.checker", version=2),
+            checker_profile=ProfileRefV1(profile_id="builtin.checker", version=3),
             checker_ids=(),
             defect_classes=(),
         )

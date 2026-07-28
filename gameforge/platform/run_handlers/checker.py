@@ -72,6 +72,7 @@ _DEFAULT_DEFECT_CLASSES = (
     "interval_violation",
     "isolated_node",
     "missing_drop_source",
+    "missing_required_attribute",
     "non_monotonic_curve",
     "permanent_depends_on_limited_content",
     "prob_sum_ne_1",

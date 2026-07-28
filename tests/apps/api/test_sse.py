@@ -118,7 +118,7 @@ NOW = "2026-07-15T12:00:00Z"
 CURSOR_KEY = b"m4c-sse-cursor-key"
 OBJECT_CURSOR_KEY = b"m4c-sse-object-cursor-key"
 AUDIT_CHAIN_ID = "platform-authority"
-CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=2)
+CHECKER_PROFILE = ProfileRefV1(profile_id="builtin.checker", version=3)
 VALIDATION_PROFILE = ProfileRefV1(profile_id="builtin.validation", version=1)
 
 ROLE_POLICY_VERSION = "sse-roles@1"

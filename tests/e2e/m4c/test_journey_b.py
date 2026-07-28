@@ -637,7 +637,7 @@ def _dangling_patch_body(*, base_artifact_id: str, expected_ref: dict):
 
 def _validation_body(item, *, base_artifact_id: str, expected_ref: dict, checker_graph: bool):
     binding = item.target_binding
-    checker_profiles = [{"profile_id": "builtin.checker", "version": 2}] if checker_graph else []
+    checker_profiles = [{"profile_id": "builtin.checker", "version": 3}] if checker_graph else []
     return {
         "request_schema_version": "patch-validation-admission-request@1",
         "approval_id": item.approval_id,
@@ -695,7 +695,7 @@ def _assert_passed_patch_evidence(
     assert evidence["overall_status"] == "passed"
     requirements = evidence["requirements"]
     assert {item["requirement_id"] for item in requirements} == {
-        "checker:builtin.checker@2",
+        "checker:builtin.checker@3",
         "simulation:builtin.simulation@1",
     }
     assert {item["tool_version"] for item in requirements} == {
@@ -1458,7 +1458,7 @@ def test_journey_b_failure_patch_blocks_submit_and_apply(tmp_path: Path) -> None
         assert published_payload == FindingPayloadV1.model_validate(companion_finding).model_dump(
             mode="json"
         )
-        assert finding["finding_id"] == (f"checker:builtin.checker@2:{checker_findings[0]['id']}")
+        assert finding["finding_id"] == (f"checker:builtin.checker@3:{checker_findings[0]['id']}")
         assert finding["revision"] == 1
         assert finding["supersedes_revision"] is None
         assert finding["payload"]["producer_run_id"] == run_id
