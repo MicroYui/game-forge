@@ -11,7 +11,7 @@ from gameforge.apps.api.pagination import (
     PageLimitParameter,
     to_opaque_page,
 )
-from gameforge.contracts.api import ArtifactSummaryV1, OpaquePageV1
+from gameforge.contracts.api import ArtifactSummaryV1, BoundedId, OpaquePageV1
 from gameforge.contracts.canonical import canonical_sha256
 from gameforge.contracts.identity import ActorContext
 from gameforge.contracts.lineage import ArtifactKind
@@ -52,6 +52,7 @@ def artifact_catalog_router(
     def artifact_catalog(
         kind: ArtifactKind,
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -61,6 +62,7 @@ def artifact_catalog_router(
             kind=kind,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)

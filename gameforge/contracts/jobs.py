@@ -1221,6 +1221,11 @@ class RunRecord(_FrozenModel):
     # compatibility and domain-independent Runs; the broad ``all`` selector is
     # never a resolved resource scope.
     resource_domain_scope: DomainScope | None = None
+    # Which game this Run belongs to.  Derived server-side at admission from the Run's
+    # own inputs, never supplied by the client, and ``None`` for Runs over content no
+    # project owns.  It is on the record rather than the payload on purpose: the
+    # payload carries its own digest, so a field there would strand every retained Run.
+    project_id: BoundedId | None = None
     queue_deadline_utc: NonEmptyStr
     attempt_timeout_ns: PositiveInt
     overall_deadline_utc: NonEmptyStr

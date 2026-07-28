@@ -54,6 +54,7 @@ from gameforge.runtime.persistence.models import (
     ApprovalEvidenceBindingRow,
     ApprovalItemRow,
     ArtifactRow,
+    ProjectArtifactRow,
     RefRow,
     RefHistoryRow,
 )
@@ -66,6 +67,7 @@ from gameforge.runtime.persistence.refs import SqlRefStore
 
 
 _ARTIFACT_ROWID = literal_column("artifacts.rowid", type_=BigInteger())
+_PROJECT_ARTIFACT_ROWID = literal_column("project_artifacts.rowid", type_=BigInteger())
 _MAX_LINEAGE_ITEMS = 1_000
 _BUILTIN_IR_SCHEMA_REGISTRY_VERSION = "registry@1"
 _ARTIFACT_KINDS = frozenset(get_args(ArtifactKind))
@@ -880,24 +882,43 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
         binding: ReadPageBinding,
         page_size: int,
     ) -> PageV1[ArtifactV1 | ArtifactV2]:
+        project_id = filters.get("project_id")
+        if not isinstance(project_id, str | None):
+            raise IntegrityViolation("Artifact read index project filter is not a project id")
         if index_kind == "artifacts":
             if expected_artifact_kind not in _ARTIFACT_KINDS or dict(filters) != {
-                "kind": expected_artifact_kind
+                "kind": expected_artifact_kind,
+                "project_id": project_id,
             }:
                 raise IntegrityViolation("Artifact catalog kind binding is invalid")
         else:
             registered_kind = _INDEX_KINDS.get(index_kind)
             if registered_kind is None or registered_kind != expected_artifact_kind:
                 raise IntegrityViolation("Artifact read index kind is not an immutable M4c index")
-            if any(value is not None for value in filters.values()):
+            # `project_id` has its producer index — `project_artifacts`, written in the
+            # same transaction as the Artifact. Every other filter still has none.
+            if any(
+                value is not None for key, value in filters.items() if key != "project_id"
+            ):
                 raise DependencyUnavailable(
                     "filtered immutable Artifact index is not available before its producer index",
                     component="artifact_filter_index",
                 )
 
         def high_watermark() -> int:
+            # When filtering by project, the append-only source is the BINDING table,
+            # not `artifacts`. Bindings are normally written with their Artifact, but a
+            # second project binding an Artifact that content-addressing already
+            # retained appends a row long after the Artifact's own rowid was frozen.
+            # Watermarking on the Artifact would surface that row beneath a frozen
+            # watermark and break the append-only page contract; watermarking on the
+            # binding excludes it correctly. The two spaces never mix, because
+            # `project_id` is in `filters` and therefore in the signed cursor's query
+            # hash.
+            column = _ARTIFACT_ROWID if project_id is None else _PROJECT_ARTIFACT_ROWID
+            source = ArtifactRow if project_id is None else ProjectArtifactRow
             value = self._session.scalar(
-                select(func.coalesce(func.max(_ARTIFACT_ROWID), 0)).select_from(ArtifactRow)
+                select(func.coalesce(func.max(column), 0)).select_from(source)
             )
             return int(value or 0)
 
@@ -906,10 +927,16 @@ class SqlImmutableArtifactPageProvider(ImmutableArtifactPageProvider):
             retained_high_watermark: int,
             limit: int,
         ) -> tuple[ImmutableReadCandidate[ArtifactV1 | ArtifactV2], ...]:
-            statement = select(ArtifactRow.artifact_id, _ARTIFACT_ROWID).where(
+            position_column = _ARTIFACT_ROWID if project_id is None else _PROJECT_ARTIFACT_ROWID
+            statement = select(ArtifactRow.artifact_id, position_column).where(
                 ArtifactRow.kind == expected_artifact_kind,
-                _ARTIFACT_ROWID <= retained_high_watermark,
+                position_column <= retained_high_watermark,
             )
+            if project_id is not None:
+                statement = statement.join(
+                    ProjectArtifactRow,
+                    ProjectArtifactRow.artifact_id == ArtifactRow.artifact_id,
+                ).where(ProjectArtifactRow.project_id == project_id)
             if index_kind == "patches":
                 statement = statement.where(
                     select(ApprovalItemRow.approval_id)

@@ -112,6 +112,8 @@ class RunCreateRequest(_FrozenModel):
     request_id: NonEmptyStr | None = None
     payload: RunPayloadEnvelope
     resource_domain_scope: DomainScope | None = None
+    # Derived at admission from the Run's own inputs; never client-supplied.
+    project_id: str | None = None
     dispatch_trace_carrier: RunDispatchTraceCarrierV1 | None = None
     initiated_by: AuditActor
     queue_deadline_utc: NonEmptyStr
@@ -905,6 +907,7 @@ class RunCommandService:
                 failure_classifier=definition.failure_classifier,
                 dispatch_trace_carrier=request.dispatch_trace_carrier,
                 resource_domain_scope=request.resource_domain_scope,
+                project_id=request.project_id,
                 initiated_by=request.initiated_by,
                 queue_deadline_utc=request.queue_deadline_utc,
                 attempt_timeout_ns=request.attempt_timeout_ns,

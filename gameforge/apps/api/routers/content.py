@@ -164,6 +164,7 @@ def content_read_router(
     @router.get("/specs", response_model=OpaquePageV1[SpecViewV1])
     def specs(
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -172,6 +173,7 @@ def content_read_router(
             actor.principal,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)
@@ -234,6 +236,7 @@ def content_read_router(
     )
     def constraints(
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -242,6 +245,7 @@ def content_read_router(
             actor.principal,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)
@@ -268,6 +272,7 @@ def content_read_router(
     )
     def constraint_proposals(
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -276,6 +281,7 @@ def content_read_router(
             actor.principal,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)
@@ -302,6 +308,7 @@ def content_read_router(
     @router.get("/patches", response_model=OpaquePageV1[PatchArtifactReadViewV1])
     def patches(
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -310,6 +317,7 @@ def content_read_router(
             actor.principal,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)
@@ -336,6 +344,7 @@ def content_read_router(
     )
     def rollback_requests(
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -344,6 +353,7 @@ def content_read_router(
             actor.principal,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)
@@ -383,6 +393,7 @@ def content_read_router(
     @router.get("/reviews", response_model=OpaquePageV1[ReviewArtifactViewV1])
     def reviews(
         response: Response,
+        project_id: BoundedId | None = None,
         cursor: OpaquePageCursorParameter | None = None,
         limit: PageLimitParameter = 100,
         actor: ActorContext = Depends(require_actor),
@@ -391,6 +402,7 @@ def content_read_router(
             actor.principal,
             cursor=_cursor(cursor, codec),
             limit=limit,
+            project_id=project_id,
         )
         value = to_opaque_page(page, codec=codec)
         _set_page_headers(response, value.read_snapshot_id)

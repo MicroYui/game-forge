@@ -290,10 +290,12 @@ describe("SpecWorkspacePage", () => {
     // The second material's rendered Artifact is not in the catalog, so it is not
     // offered — a planner is never shown a source they cannot actually use.
     expect(within(agent).queryByRole("checkbox", { name: "第二章·海港 · 已解析" })).toBeNull();
+    // The third call proves the SECOND page of source_raw was read; the trailing
+    // argument is the selected game, which is "all games" here.
     expect(listArtifacts.mock.calls).toEqual([
-      ["source_raw", null],
-      ["source_rendered", null],
-      ["source_raw", "opaque.source-raw+/="],
+      ["source_raw", null, null],
+      ["source_rendered", null, null],
+      ["source_raw", "opaque.source-raw+/=", null],
     ]);
   });
 

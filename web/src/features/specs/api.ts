@@ -68,7 +68,7 @@ type ApiResponse<T> = {
 };
 
 export interface SpecWorkflowApi {
-  listArtifacts(kind: ArtifactKind, cursor: string | null): Promise<ArtifactPage>;
+  listArtifacts(kind: ArtifactKind, cursor: string | null, projectId?: string | null): Promise<ArtifactPage>;
   listSpecs(cursor: string | null): Promise<SpecPage>;
   getSpec(artifactId: string): Promise<SpecView>;
   getArtifactPayload(artifactId: string): Promise<ArtifactPayloadView>;
@@ -130,11 +130,17 @@ async function unwrapVersionedResponse<T>(result: ApiResponse<T>): Promise<Versi
 
 export function createSpecWorkflowApi(client: GameForgeOpenApiClient = gameForgeApi.client): SpecWorkflowApi {
   return {
-    listArtifacts(kind, cursor) {
+    listArtifacts(kind, cursor, projectId = null) {
       return readCursorPage(cursor, async () =>
         unwrapApiResponse<ArtifactPage>(
           await client.GET("/api/v1/artifacts", {
-            params: { query: { kind, ...cursorQuery(cursor) } },
+            params: {
+              query: {
+                kind,
+                ...(projectId === null ? {} : { project_id: projectId }),
+                ...cursorQuery(cursor),
+              },
+            },
           }),
         ),
       );

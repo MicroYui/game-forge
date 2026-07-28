@@ -20,6 +20,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth, useTheme, useToast } from "../../app/providers";
 import { breadcrumbsFor, navigationRoutes, type NavigationIcon } from "../../app/routes";
+import { ProjectSelector } from "../../features/projects/ProjectSelector";
 import { messages } from "../../i18n/zh-CN";
 import type { AuthenticatedPrincipal } from "../../app/auth-types";
 
@@ -155,6 +156,7 @@ export function AppShell() {
             </ol>
           </nav>
           <div className="gf-identity-bar">
+            <ProjectSelector />
             {principal && (
               <div className="gf-identity" aria-label={messages.shell.currentIdentity} tabIndex={0}>
                 <span className="u-chip">{principal.display_name}</span>

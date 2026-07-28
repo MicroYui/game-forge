@@ -1910,8 +1910,10 @@ class TerminalPublisher:
         validated: list[tuple[tuple[object, ...], Mapping[str, StagedReceipt]]] = []
         publication_kinds: list[str] = []
         results: list[object] = []
+        run_ids: list[str] = []
         for draft, staged, operations in publications:
             state = _terminal_publication_state(draft, expected_phase="sealed")
+            run_ids.append(state.run_id)
             if staged.projection_digest != state.projection_digest:
                 raise IntegrityViolation(
                     "staged terminal projection differs from its sealed plan",
@@ -1975,6 +1977,9 @@ class TerminalPublisher:
                             artifact_id=operation.artifact.artifact_id,
                         )
                     artifact_writes.append((operation.artifact, receipt, planned_binding))
+            preflight_run_projects = getattr(self._artifacts, "preflight_run_projects", None)
+            if callable(preflight_run_projects):
+                preflight_run_projects(sorted(set(run_ids)))
             artifact_batch = preflight_artifacts(tuple(artifact_writes))
 
             finding_operations = tuple(
@@ -2089,6 +2094,12 @@ class TerminalPublisher:
                         "Artifact batch publisher returned another immutable Artifact",
                         artifact_id=expected.artifact_id,
                     )
+            # Every Artifact a Run publishes reaches storage here, so this is the one
+            # place its project has to be recorded — no handler needs to know.
+            record_run_project = getattr(self._artifacts, "record_run_project", None)
+            if callable(record_run_project) and stored_artifacts:
+                for run_id in sorted(set(run_ids)):
+                    record_run_project(run_id, stored_artifacts)
             if finding_seal is not None and link_seal is not None:
                 stored_findings = put_preflighted_findings(finding_seal)  # type: ignore[operator]
                 expected_findings = tuple(

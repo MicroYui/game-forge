@@ -513,7 +513,7 @@ def test_generic_artifact_catalog_page_retains_kind_and_high_watermark(
         first = _artifact_pages(first_session).page(
             index_kind="artifacts",
             expected_artifact_kind="config_export",
-            filters={"kind": "config_export"},
+            filters={"kind": "config_export", "project_id": None},
             cursor=None,
             binding=binding,
             page_size=1,
@@ -529,7 +529,7 @@ def test_generic_artifact_catalog_page_retains_kind_and_high_watermark(
         second = _artifact_pages(second_session).page(
             index_kind="artifacts",
             expected_artifact_kind="config_export",
-            filters={"kind": "config_export"},
+            filters={"kind": "config_export", "project_id": None},
             cursor=first.next_cursor,
             binding=binding,
             page_size=1,

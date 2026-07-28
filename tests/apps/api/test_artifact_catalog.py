@@ -88,7 +88,7 @@ class _ArtifactPages:
         self.calls.append(kwargs)
         kind = kwargs["expected_artifact_kind"]
         assert kwargs["index_kind"] == "artifacts"
-        assert kwargs["filters"] == {"kind": kind}
+        assert kwargs["filters"] == {"kind": kind, "project_id": None}
         return PageV1(
             read_snapshot_id=f"snapshot:artifacts:{kind}",
             items=self.values.get(kind, ()),

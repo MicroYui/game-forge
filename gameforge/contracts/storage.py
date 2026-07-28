@@ -410,6 +410,8 @@ class Transaction(Protocol):
     runs: Any
     cost: Any
     projects: Any
+    # Which project each Artifact belongs to, written in the same UoW as the Artifact.
+    project_artifacts: Any
 
 
 @runtime_checkable

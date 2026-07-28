@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import json
 from hmac import compare_digest
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -618,6 +618,43 @@ class AdmissionReadPort:
     finding_links: Any | None = None
     runs: Any | None = None
     routing: Any | None = None
+    # Which project each input Artifact belongs to. A Run's project is derived from
+    # that, never accepted from the client.
+    project_bindings: Any | None = None
+
+
+def resolve_run_project(
+    read: AdmissionReadPort,
+    input_artifact_ids: Sequence[str],
+) -> str | None:
+    """Which game this Run belongs to, read off the content it consumes.
+
+    Derived rather than requested: a client-supplied project would be one more thing
+    to forge and one more field on a payload that carries its own digest. ``payload
+    .input_artifact_ids`` is already validated to match exactly the Artifacts the
+    typed params reference, so this is complete by contract instead of by enumerating
+    run kinds.
+
+    ``None`` when the inputs belong to no project — bench, DR drills, and any Run over
+    seeded content. Inputs spanning two projects are refused rather than guessed.
+    """
+
+    bindings = read.project_bindings
+    if bindings is None or not input_artifact_ids:
+        return None
+    owners = {
+        project_id
+        for owners_of in bindings.projects_for_many(tuple(input_artifact_ids)).values()
+        for project_id in owners_of
+    }
+    if not owners:
+        return None
+    if len(owners) > 1:
+        raise Conflict(
+            "Run inputs span more than one project",
+            project_ids=tuple(sorted(owners)),
+        )
+    return next(iter(owners))
 
 
 AdmissionReadScope = Callable[[], AbstractContextManager[AdmissionReadPort]]
@@ -2513,6 +2550,9 @@ class RunAdmissionEngine:
             if trace_context is not None:
                 carrier = TraceCarrier.inject(trace_context)
 
+        with self._read_scope() as read:
+            run_project_id = resolve_run_project(read, prepared.payload.input_artifact_ids)
+
         now = _utc_now(self._clock)
         request = RunCreateRequest(
             run_id=run_id,
@@ -2528,6 +2568,7 @@ class RunAdmissionEngine:
                 if isinstance(prepared.authorization.resource_domain, DomainScope)
                 else None
             ),
+            project_id=run_project_id,
             dispatch_trace_carrier=carrier,
             initiated_by=AuditActor(
                 principal_id=actor.principal.id,

@@ -149,6 +149,9 @@ from gameforge.runtime.persistence.findings import SqlFindingRepository
 from gameforge.runtime.persistence.idempotency import SqlIdempotencyRepository
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from gameforge.runtime.persistence.project_artifacts import (
+    SqlProjectArtifactBindingRepository,
+)
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
 from gameforge.runtime.persistence.transaction import TransactionCapabilities
@@ -545,6 +548,7 @@ def build_worker_dispatch(
             findings=SqlFindingRepository(session, cursor_signer=cursor_signer, clock=clock),
             idempotency=SqlIdempotencyRepository(session, clock=clock),
             policies=SqlPolicySnapshotRepository(session, clock=clock),
+            project_artifacts=SqlProjectArtifactBindingRepository(session),
         )
 
     unit_of_work = SqliteUnitOfWork(engine, capability_factory)
@@ -604,6 +608,8 @@ def build_worker_dispatch(
                 artifacts=transaction.artifacts,  # type: ignore[attr-defined]
                 object_bindings=transaction.object_bindings,  # type: ignore[attr-defined]
                 object_store=object_store,
+                project_bindings=getattr(transaction, "project_artifacts", None),
+                runs=transaction.runs,  # type: ignore[attr-defined]
             ),
             blobs=WorkerBlobStore(object_store),
             findings=transaction.findings,  # type: ignore[attr-defined]

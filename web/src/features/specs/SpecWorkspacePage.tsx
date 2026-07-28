@@ -9,6 +9,7 @@ import { compactDateTime, ResourceIdentity, TechnicalDetails } from "../../compo
 import { CursorTable, type CursorPaginationState, type CursorTableColumn } from "../../components/tables";
 import { ProblemPanel, StatePanel } from "../../components/ui";
 import { projectsApi, type Project, type ProjectsApi } from "../projects/api";
+import { useSelectedProject } from "../projects/selection";
 import {
   specWorkflowApi,
   type ArtifactKind,
@@ -68,6 +69,7 @@ function normalizedPageError(error: unknown): Error {
 async function readCompleteSourceCatalog(
   api: Pick<SpecWorkflowApi, "listArtifacts">,
   kind: Extract<ArtifactKind, "source_raw" | "source_rendered">,
+  projectId: string | null,
 ): Promise<ArtifactPage["items"]> {
   const items: ArtifactPage["items"] = [];
   const artifactIds = new Set<string>();
@@ -75,7 +77,7 @@ async function readCompleteSourceCatalog(
   let cursor: string | null = null;
   let readSnapshotId: string | null = null;
   for (let pageCount = 0; pageCount < 256; pageCount += 1) {
-    const page = await api.listArtifacts(kind, cursor);
+    const page = await api.listArtifacts(kind, cursor, projectId);
     if (readSnapshotId !== null && page.read_snapshot_id !== readSnapshotId) {
       throw new Error(`${kind} 来源目录分页快照发生变化。`);
     }
@@ -391,6 +393,8 @@ export function SpecWorkspacePage({ api = workspaceApi }: { api?: SpecWorkspaceA
     };
   }, [searchParams]);
   const projectContext = projectContextResult.value;
+  // The shell's game selector narrows every list on this page.
+  const { projectId: selectedProjectId } = useSelectedProject();
   const workspace = useQuery({
     queryFn: async () => {
       const [specs, constraintSnapshots, constraintProposals, sourceRaw, sourceRendered, projects] =
@@ -398,8 +402,8 @@ export function SpecWorkspacePage({ api = workspaceApi }: { api?: SpecWorkspaceA
           api.listSpecs(null),
           api.listConstraintSnapshots(null),
           api.listConstraintProposals(null),
-          readCompleteSourceCatalog(api, "source_raw"),
-          readCompleteSourceCatalog(api, "source_rendered"),
+          readCompleteSourceCatalog(api, "source_raw", selectedProjectId),
+          readCompleteSourceCatalog(api, "source_rendered", selectedProjectId),
           api.listProjects(),
         ]);
       // One call per project: materials are only addressable under their owner, and
@@ -416,7 +420,7 @@ export function SpecWorkspacePage({ api = workspaceApi }: { api?: SpecWorkspaceA
         specs,
       };
     },
-    queryKey: ["spec-workspace"],
+    queryKey: ["spec-workspace", selectedProjectId ?? ""],
     retry: false,
   });
   const [specs, setSpecs] = useState<CursorPageState<SpecView> | null>(null);

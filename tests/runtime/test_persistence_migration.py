@@ -14,10 +14,13 @@ from sqlalchemy import Inspector, MetaData, Table, inspect, text
 from sqlalchemy.orm import Session
 
 from gameforge.contracts.canonical import compute_snapshot_id
+
 from gameforge.contracts.cost import CacheHitObservationV1, MonetaryObservationV1
 from gameforge.runtime.cost.ledger import SqlCostLedger
 from gameforge.runtime.persistence import migrations_api as m
 from gameforge.runtime.persistence.engine import get_engine
+from gameforge.runtime.persistence.models import RunRow
+from gameforge.runtime.persistence.runs import _run_wire
 from gameforge.runtime.persistence.models import Base
 from tests.runtime.cost.ledger_testkit import (
     amount,
@@ -1158,7 +1161,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     expected = _legacy_projection(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
     assert _legacy_projection(url) == expected
     assert _fetch_one(
         url,
@@ -1178,7 +1181,7 @@ def test_legacy_projection_survives_0001_head_0001_head_round_trip(tmp_path) -> 
     assert _legacy_projection(url) == expected
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
     assert _legacy_projection(url) == expected
 
 
@@ -1398,7 +1401,7 @@ def test_0004_empty_conflict_store_upgrades_to_required_context_and_downgrades(
     assert "context" not in _column_names(url, "conflict_sets")
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
     assert "context" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "conflict_sets")
     assert "content_digest" in _column_names(url, "merge_conflicts")
@@ -1500,7 +1503,7 @@ def test_0012_backfills_capped_impact_and_replays_after_downgrade(tmp_path) -> N
     assert "run_hold_balances" not in _table_names(url)
 
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
     raw = _fetch_one(
         url,
         f"SELECT payload FROM run_hold_balances WHERE hold_group_id = '{hold_group_id}'",
@@ -1522,7 +1525,7 @@ def test_0012_backfills_capped_impact_and_replays_after_downgrade(tmp_path) -> N
 
     m.downgrade(url, "0011")
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
 
 
 def test_0012_round_trip_preserves_reused_active_plus_settled_overage(tmp_path) -> None:
@@ -2304,7 +2307,7 @@ def test_0012_fails_when_budget_reserve_disagrees_with_reconstructed_holds(
     finally:
         engine.dispose()
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
 
 
 def test_0012_rejects_noncanonical_group_source_before_ddl_and_can_retry(tmp_path) -> None:
@@ -2364,7 +2367,7 @@ def test_0012_rejects_noncanonical_group_source_before_ddl_and_can_retry(tmp_pat
     finally:
         engine.dispose()
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
 
 
 def test_0012_rejects_budget_snapshot_member_drift_before_ddl_and_can_retry(tmp_path) -> None:
@@ -2420,7 +2423,7 @@ def test_0012_rejects_budget_snapshot_member_drift_before_ddl_and_can_retry(tmp_
     finally:
         engine.dispose()
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
 
 
 def test_0012_rejects_orphan_budget_reservation_before_ddl_and_can_retry(tmp_path) -> None:
@@ -2462,7 +2465,7 @@ def test_0012_rejects_orphan_budget_reservation_before_ddl_and_can_retry(tmp_pat
             "DELETE FROM budget_reservations WHERE reservation_id = 'reservation:orphan'"
         )
     m.upgrade(url, "head")
-    assert _current_revision(url) == "0018"
+    assert _current_revision(url) == "0019"
 
 
 def test_0006_downgrade_refuses_to_discard_retained_cost_authority(tmp_path) -> None:
@@ -2586,3 +2589,188 @@ def test_alembic_head_matches_runtime_metadata(tmp_path) -> None:
             assert compare_metadata(context, Base.metadata) == []
     finally:
         engine.dispose()
+
+
+def _rows(url: str, statement: str) -> list[tuple[object, ...]]:
+    engine = get_engine(url)
+    try:
+        with engine.connect() as connection:
+            return [tuple(row) for row in connection.execute(text(statement))]
+    finally:
+        engine.dispose()
+
+
+def _seed_two_project_workspace(url: str) -> None:
+    """A pre-0019 workspace shaped like a real one: two games, each with its own content.
+
+    ALPHA has published content (so it owns a ref and its history) and a review report
+    reachable only through lineage. BETA has published nothing, so it is still in the
+    unborn-ref window. One snapshot belongs to no project at all — the seeded catalog
+    content every workspace carries.
+    """
+
+    def artifact(artifact_id: str, kind: str, lineage: str = "[]", meta: str = "{}") -> str:
+        return (
+            "INSERT INTO artifacts (artifact_id, lineage_schema_version, kind, version_tuple,"
+            " lineage, payload_hash, created_at, meta, object_ref) VALUES"
+            f" ('{artifact_id}', 'lineage@2', '{kind}', '{{}}', '{lineage}',"
+            f" '{'a' * 64}', '2026-07-28T00:00:00Z', '{meta}', NULL)"
+        )
+
+    def project(project_id: str, key: str, bootstrap: str) -> str:
+        return (
+            "INSERT INTO game_projects (project_id, project_key, display_name, status,"
+            " domain_scope, bootstrap_snapshot_artifact_id, content_ref_name,"
+            " constraint_ref_name, created_by, created_at, updated_at, revision, payload)"
+            f" VALUES ('{project_id}', '{key}', '{key}', 'draft',"
+            f" '{{\"domain_ids\":[\"builtin\"]}}', '{bootstrap}',"
+            f" 'projects/{project_id}/content/head',"
+            f" 'projects/{project_id}/constraints/head',"
+            " 'human:maker', '2026-07-28T00:00:00Z', '2026-07-28T00:00:00Z', 1, '{}')"
+        )
+
+    statements = (
+        artifact("art:alpha:bootstrap", "ir_snapshot"),
+        artifact("art:beta:bootstrap", "ir_snapshot"),
+        artifact("art:seeded", "ir_snapshot"),
+        artifact("art:alpha:head", "ir_snapshot", lineage='["art:alpha:bootstrap"]'),
+        # Only lineage connects this to ALPHA — Phase A cannot see it.
+        artifact("art:alpha:review", "review_report", lineage='["art:alpha:head"]'),
+        # A product of the unowned seeded snapshot must stay unowned.
+        artifact("art:seeded:review", "review_report", lineage='["art:seeded"]'),
+        project("project:alpha", "alpha", "art:alpha:bootstrap"),
+        project("project:beta", "beta", "art:beta:bootstrap"),
+        "INSERT INTO refs (name, artifact_id, updated_at, revision) VALUES"
+        " ('projects/project:alpha/content/head', 'art:alpha:head',"
+        " '2026-07-28T00:00:00Z', 1)",
+        "INSERT INTO refs (name, artifact_id, updated_at, revision) VALUES"
+        " ('content/head', 'art:seeded', '2026-07-28T00:00:00Z', 1)",
+    )
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            for statement in statements:
+                connection.execute(text(statement))
+    finally:
+        engine.dispose()
+
+
+def test_0019_backfills_project_membership_from_retained_authority(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'project-scope.db'}"
+    m.upgrade(url, "0018")
+    _seed_two_project_workspace(url)
+
+    m.upgrade(url, "head")
+
+    assert _current_revision(url) == "0019"
+    assert sorted(
+        _rows(url, "SELECT project_id, artifact_id FROM project_artifacts")
+    ) == [
+        # Phase A: the bootstrap each project declares, and ALPHA's published head.
+        ("project:alpha", "art:alpha:bootstrap"),
+        ("project:alpha", "art:alpha:head"),
+        # Phase B: reachable from ALPHA's head through lineage and nothing else.
+        ("project:alpha", "art:alpha:review"),
+        ("project:beta", "art:beta:bootstrap"),
+    ]
+    # Seeded content no project owns stays unowned, including what descends from it.
+    assert _rows(
+        url,
+        "SELECT artifact_id FROM project_artifacts"
+        " WHERE artifact_id IN ('art:seeded', 'art:seeded:review')",
+    ) == []
+
+
+def test_0019_downgrade_refuses_to_drop_retained_project_membership(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'project-scope-downgrade.db'}"
+    m.upgrade(url, "0018")
+    _seed_two_project_workspace(url)
+    m.upgrade(url, "head")
+
+    with pytest.raises(RuntimeError, match="retained project Artifact membership"):
+        m.downgrade(url, "0018")
+
+
+def test_0019_downgrade_succeeds_when_no_membership_was_recorded(tmp_path) -> None:
+    url = f"sqlite:///{tmp_path / 'project-scope-empty.db'}"
+    m.upgrade(url, "head")
+
+    m.downgrade(url, "0018")
+
+    assert "project_artifacts" not in _table_names(url)
+    assert "project_id" not in _column_names(url, "runs")
+
+
+_RETAINED_RUN_ID = "run:pre-0019"
+
+
+def _insert_pre_0019_run(url: str) -> None:
+    """One Run row written before `runs.project_id` existed."""
+
+    engine = get_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    """
+                    INSERT INTO runs (
+                        run_id, run_schema_version, kind, kind_version, status, revision,
+                        idempotency_scope, idempotency_key, request_hash, payload,
+                        payload_hash, run_kind_definition_digest, outcome_policy_set_digest,
+                        migration_capability_matrix, failure_classifier,
+                        dispatch_trace_carrier, initiated_by, queue_deadline_utc,
+                        attempt_timeout_ns, overall_deadline_utc, cancel_requested_at,
+                        cancel_requested_by, current_attempt_no, next_attempt_no,
+                        next_fencing_token, next_event_seq, budget_set_snapshot_id,
+                        run_budget_hold_group_id, concurrency_permit_group_id, retry_policy,
+                        max_attempts, retry_not_before_utc, result_artifact_id,
+                        failure_artifact_id, terminal_cassette_artifact_id,
+                        created_at, updated_at
+                    ) VALUES (
+                        :run_id, 'run@1', 'review.run', 1, 'failed', 1,
+                        'migration', 'pre-0019', :hash, '{}', :hash, :hash, :hash,
+                        NULL, '{}', NULL, '{}', '2026-07-28T00:01:00Z', 1000000000,
+                        '2026-07-28T00:10:00Z', NULL, NULL, 1, 2, 2, 1,
+                        'budget-set:pre-0019', 'reservation:pre-0019', NULL, '{}', 1,
+                        NULL, NULL, NULL, NULL,
+                        '2026-07-28T00:00:00Z', '2026-07-28T00:00:00Z'
+                    )
+                    """
+                ),
+                {"run_id": _RETAINED_RUN_ID, "hash": "b" * 64},
+            )
+    finally:
+        engine.dispose()
+
+
+def test_0019_upgraded_workspace_still_reads_back_its_retained_runs(tmp_path) -> None:
+    """A new Run column must not strand the Runs a workspace already retained.
+
+    `_parse_run_row` asserts byte equality between the parsed record and the
+    hand-written column-to-wire map, so a column added to one and not the other makes
+    every retained Run unreadable. That is the shape of the `cc31d028` incident, and a
+    fresh-workspace suite cannot see it — only a database that outlived the code can.
+
+    This pins the map, which is the half that drifts: `RunRecord.project_id` defaults to
+    None, so the two agree only while `_run_wire` also emits the key. The end-to-end
+    readback was additionally verified by upgrading a real retained workspace and
+    serving `/api/v1/runs` from it.
+    """
+
+    url = f"sqlite:///{tmp_path / 'project-scope-readback.db'}"
+    m.upgrade(url, "0018")
+    _seed_two_project_workspace(url)
+    _insert_pre_0019_run(url)
+
+    m.upgrade(url, "head")
+
+    engine = get_engine(url)
+    try:
+        with Session(engine) as session:
+            wire = _run_wire(session.get(RunRow, _RETAINED_RUN_ID))
+    finally:
+        engine.dispose()
+
+    # Retained before the column existed, so it belongs to no project and says so.
+    assert "project_id" in wire
+    assert wire["project_id"] is None

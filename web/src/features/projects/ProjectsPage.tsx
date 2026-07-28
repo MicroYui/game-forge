@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, FolderKanban, Plus } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -40,6 +40,7 @@ function ProjectListError({ error, retry }: { error: Error; retry(): void }) {
 
 export function ProjectsPage({ api = projectsApi }: { api?: ProjectsPageApi }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const projects = useQuery({
     queryFn: () => api.listProjects(),
     queryKey: ["projects"],
@@ -68,6 +69,9 @@ export function ProjectsPage({ api = projectsApi }: { api?: ProjectsPageApi }) {
         },
         createMutationIntent(),
       );
+      // The shell's game selector reads its own copy of the project list; a new game
+      // has to appear there without waiting for a full page load.
+      await queryClient.invalidateQueries({ queryKey: ["project-selection", "projects"] });
       // The button promises material next, so land where material is added.
       navigate(`/projects/${encodeURIComponent(created.value.project_id)}/authoring`);
     } catch (error) {

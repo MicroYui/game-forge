@@ -1463,17 +1463,66 @@ class WorkerArtifactPort:
         object_bindings: object,
         object_store: object,
         allow_legacy_test_repositories: bool = False,
+        project_bindings: object | None = None,
+        runs: object | None = None,
     ) -> None:
         self._artifacts = artifacts
         self._object_bindings = object_bindings
         self._object_store = object_store
         self._allow_legacy_test_repositories = allow_legacy_test_repositories
+        # The port is built per transaction with the Run in scope, so every Artifact a
+        # Run publishes — review reports, findings evidence, traces, exports, previews —
+        # records its project here rather than in each handler.
+        self._project_bindings = project_bindings
+        self._runs = runs
+        self._run_projects: dict[str, tuple[str, str]] = {}
         self._preflight_bindings: dict[
             str, PreverifiedArtifactBinding | PreverifiedAbsentArtifactBinding
         ] = {}
 
     def get(self, artifact_id: str) -> object | None:
         return self._artifacts.get(artifact_id)  # type: ignore[attr-defined]
+
+    def preflight_run_projects(self, run_ids: Sequence[str]) -> None:
+        """Read each Run's project during the read phase, before any terminal write.
+
+        Terminal publication performs every read before its first DML so the batch is
+        constant-cost and holds no lock across a read. Resolving the project here keeps
+        `record_run_project` a pure write.
+        """
+
+        if self._project_bindings is None or self._runs is None:
+            return
+        for run_id in run_ids:
+            run = self._runs.get(run_id)  # type: ignore[attr-defined]
+            project_id = getattr(run, "project_id", None)
+            if isinstance(project_id, str):
+                self._run_projects[run_id] = (project_id, getattr(run, "updated_at", "") or "")
+
+    def record_run_project(self, run_id: str, artifacts: Sequence[object]) -> None:
+        """Record which game published these Artifacts, from its preflighted Run.
+
+        One call covers every Run product — review reports, findings evidence, playtest
+        traces, config exports, previews, patches — because they all reach storage
+        through this port. A Run over content no project owns records nothing, which is
+        how seeded content stays outside every project filter.
+        """
+
+        resolved = self._run_projects.get(run_id)
+        if self._project_bindings is None or resolved is None:
+            return
+        project_id, bound_at = resolved
+        artifact_ids = [
+            artifact_id
+            for artifact in artifacts
+            if isinstance(artifact_id := getattr(artifact, "artifact_id", None), str)
+        ]
+        self._project_bindings.bind(  # type: ignore[attr-defined]
+            project_id,
+            artifact_ids,
+            bound_by=f"run:{run_id}",
+            bound_at=bound_at,
+        )
 
     def _current_transaction_identity(self) -> tuple[object, object] | None:
         """Return the shared SQL session/transaction capability when available."""

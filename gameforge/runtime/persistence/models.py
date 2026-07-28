@@ -573,6 +573,8 @@ class RunRow(Base):
         ),
         Index("ix_runs_claim_order", "status", "retry_not_before_utc", "created_at", "run_id"),
         Index("ix_runs_deadlines", "status", "queue_deadline_utc", "overall_deadline_utc"),
+        # `list_runs` sorts by (created_at, run_id) and had no index for it at all.
+        Index("ix_runs_project_created", "project_id", "created_at", "run_id"),
     )
 
     run_id: Mapped[str] = mapped_column(String, primary_key=True)
@@ -593,6 +595,10 @@ class RunRow(Base):
     dispatch_trace_carrier: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     initiated_by: Mapped[dict] = mapped_column(JSON, nullable=False)
     resource_domain_scope: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    # Which game this Run belongs to, derived server-side at admission from the Run's
+    # own inputs. NULL for Runs over content no project owns — seeded catalog content,
+    # bench, DR drills — which is a real answer rather than a missing one.
+    project_id: Mapped[str | None] = mapped_column(String, nullable=True)
     queue_deadline_utc: Mapped[str] = mapped_column(String, nullable=False)
     attempt_timeout_ns: Mapped[int] = mapped_column(BigInteger, nullable=False)
     overall_deadline_utc: Mapped[str] = mapped_column(String, nullable=False)
@@ -987,6 +993,9 @@ class RunFindingLinkRow(Base):
             "finding_revision",
             name="uq_run_finding_revision",
         ),
+        # Reaching a Finding's project means reaching its producing Run, and every
+        # existing index on this table leads with run_id.
+        Index("ix_run_finding_links_finding", "finding_id", "run_id"),
     )
 
     run_id: Mapped[str] = mapped_column(String, primary_key=True)
@@ -1587,6 +1596,42 @@ class GameProjectRow(Base):
     updated_at: Mapped[str] = mapped_column(String, nullable=False)
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
     payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class ProjectArtifactRow(Base):
+    """Which project an Artifact belongs to — the producer index a project filter reads.
+
+    Many-to-many on purpose. ``SqlArtifactRepository.put`` is content-addressed and
+    deduplicating, so two projects publishing byte-identical content resolve to ONE
+    Artifact row. A single-valued column would silently keep whichever project wrote
+    first and call that the owner.
+
+    ``bound_by`` records which authority asserted the membership (a Run, a command, or
+    the backfill) so the fact can be audited; nothing branches on it.
+    """
+
+    __tablename__ = "project_artifacts"
+    __table_args__ = (
+        # The composite primary key already serves `WHERE project_id = ? ORDER BY
+        # artifact_id`, which is exactly the immutable index's page order. This one
+        # covers the other direction: "which projects own this Artifact".
+        Index(
+            "ix_project_artifacts_artifact_project",
+            "artifact_id",
+            "project_id",
+        ),
+    )
+
+    project_id: Mapped[str] = mapped_column(
+        ForeignKey("game_projects.project_id", ondelete="RESTRICT"),
+        primary_key=True,
+    )
+    artifact_id: Mapped[str] = mapped_column(
+        ForeignKey("artifacts.artifact_id", ondelete="RESTRICT"),
+        primary_key=True,
+    )
+    bound_at: Mapped[str] = mapped_column(String, nullable=False)
+    bound_by: Mapped[str] = mapped_column(String, nullable=False)
 
 
 class ProjectIdentityAliasRow(Base):

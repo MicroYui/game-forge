@@ -56,6 +56,9 @@ from gameforge.runtime.persistence.identity import SqlIdentityRepository
 from gameforge.runtime.persistence.models import AuditRow, Base
 from gameforge.runtime.persistence.object_bindings import SqlObjectBindingRepository
 from gameforge.runtime.persistence.policies import SqlPolicySnapshotRepository
+from gameforge.runtime.persistence.project_artifacts import (
+    SqlProjectArtifactBindingRepository,
+)
 from gameforge.runtime.persistence.projects import SqlProjectRepository
 from gameforge.runtime.persistence.refs import SqlRefStore
 from gameforge.runtime.persistence.runs import SqlRunRepository
@@ -251,6 +254,7 @@ def project_runtime(tmp_path):
                 clock=clock,
             ),
             projects=SqlProjectRepository(session),
+            project_artifacts=SqlProjectArtifactBindingRepository(session),
         )
 
     uow = SqliteUnitOfWork(engine, capabilities)

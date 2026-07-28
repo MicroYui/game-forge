@@ -200,6 +200,25 @@ def _deterministic_id(
     return f"{kind}:{digest[:32]}"
 
 
+def _bind_project_artifacts(
+    transaction: object,
+    *,
+    project_id: str,
+    artifact_ids: tuple[str, ...],
+    bound_by: str,
+    bound_at: str,
+) -> None:
+    """Record which game these Artifacts belong to, in the same UoW that published them.
+
+    Without this a freshly created game has content but no membership, so selecting it
+    shows an empty workspace — worse than showing everything.
+    """
+
+    _required(transaction.project_artifacts, "project_artifacts").bind(
+        project_id, artifact_ids, bound_by=bound_by, bound_at=bound_at
+    )
+
+
 class ProjectAuthoringService:
     """Create/read/archive project mappings and governed planning materials."""
 
@@ -313,6 +332,13 @@ class ProjectAuthoringService:
             if artifacts.put(bootstrap) != bootstrap:
                 raise IntegrityViolation("bootstrap Artifact publisher returned another Artifact")
             created = projects.create_project(candidate)
+            _bind_project_artifacts(
+                transaction,
+                project_id=created.project_id,
+                artifact_ids=(bootstrap.artifact_id,),
+                bound_by="command:project.create",
+                bound_at=created.created_at,
+            )
             self._append_audit(
                 transaction,
                 context=context,
@@ -666,6 +692,16 @@ class ProjectAuthoringService:
                 revision=1,
             )
             created = projects.create_material(material)
+            _bind_project_artifacts(
+                transaction,
+                project_id=project_id,
+                artifact_ids=(
+                    created.original_source_artifact_id,
+                    created.rendered_source_artifact_id,
+                ),
+                bound_by="command:project.material",
+                bound_at=created_at,
+            )
             # Material changes are visible on the project card and therefore advance
             # the project mapping revision without changing content authority.
             replacement = project.model_copy(

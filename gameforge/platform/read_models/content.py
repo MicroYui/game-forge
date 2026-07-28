@@ -684,6 +684,7 @@ class _ContentReadOperations:
         kind: ArtifactKind,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[ArtifactSummaryV1]:
         """List safe immutable envelopes for one exact ArtifactKind.
 
@@ -695,7 +696,7 @@ class _ContentReadOperations:
         if kind not in _ARTIFACT_KINDS:
             raise RequestSchemaInvalid("Artifact catalog kind is not supported")
         limit = _page_limit(limit)
-        filters: dict[str, JsonValue] = {"kind": kind}
+        filters: dict[str, JsonValue] = {"kind": kind, "project_id": project_id}
         query = _query_hash(
             resource_kind="artifacts",
             filters=filters,
@@ -808,6 +809,7 @@ class _ContentReadOperations:
         *,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[SpecViewV1]:
         definition = _ListDefinition(
             "specs", "spec", "spec-artifact-id@1", "spec-view@1", "spec-view@1"
@@ -815,7 +817,7 @@ class _ContentReadOperations:
         return self._artifact_page(
             principal,
             definition=definition,
-            filters={},
+            filters={"project_id": project_id},
             cursor=cursor,
             limit=limit,
             index_kind="specs",
@@ -935,6 +937,7 @@ class _ContentReadOperations:
         *,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[ConstraintSnapshotViewV1]:
         return self._artifact_page(
             principal,
@@ -945,7 +948,7 @@ class _ContentReadOperations:
                 "constraint-snapshot-view@1",
                 "constraint-snapshot-view@1",
             ),
-            filters={},
+            filters={"project_id": project_id},
             cursor=cursor,
             limit=limit,
             index_kind="constraints",
@@ -978,6 +981,7 @@ class _ContentReadOperations:
         *,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[ConstraintProposalReadViewV1]:
         return self._artifact_page(
             principal,
@@ -988,7 +992,7 @@ class _ContentReadOperations:
                 "constraint-proposal-read-view@1",
                 "constraint-proposal-read-view@1",
             ),
-            filters={},
+            filters={"project_id": project_id},
             cursor=cursor,
             limit=limit,
             index_kind="constraint_proposals",
@@ -1031,6 +1035,7 @@ class _ContentReadOperations:
         *,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[PatchArtifactReadViewV1]:
         return self._artifact_page(
             principal,
@@ -1041,7 +1046,7 @@ class _ContentReadOperations:
                 "patch-artifact-read-view@1",
                 "patch-artifact-read-view@1",
             ),
-            filters={},
+            filters={"project_id": project_id},
             cursor=cursor,
             limit=limit,
             index_kind="patches",
@@ -1128,6 +1133,7 @@ class _ContentReadOperations:
         *,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[RollbackRequestReadViewV1]:
         return self._artifact_page(
             principal,
@@ -1138,7 +1144,7 @@ class _ContentReadOperations:
                 "rollback-request-read-view@1",
                 "rollback-request-read-view@1",
             ),
-            filters={},
+            filters={"project_id": project_id},
             cursor=cursor,
             limit=limit,
             index_kind="rollback_requests",
@@ -1231,6 +1237,7 @@ class _ContentReadOperations:
         *,
         cursor: PageCursorV1 | None,
         limit: int,
+        project_id: str | None = None,
     ) -> PageV1[ReviewArtifactViewV1]:
         return self._artifact_page(
             principal,
@@ -1241,7 +1248,7 @@ class _ContentReadOperations:
                 "review-artifact-view@1",
                 "review-artifact-view@1",
             ),
-            filters={},
+            filters={"project_id": project_id},
             cursor=cursor,
             limit=limit,
             index_kind="reviews",

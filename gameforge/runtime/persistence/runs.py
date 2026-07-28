@@ -422,6 +422,7 @@ def _run_wire(row: RunRow) -> dict[str, Any]:
         "dispatch_trace_carrier": row.dispatch_trace_carrier,
         "initiated_by": row.initiated_by,
         "resource_domain_scope": row.resource_domain_scope,
+        "project_id": row.project_id,
         "queue_deadline_utc": row.queue_deadline_utc,
         "attempt_timeout_ns": row.attempt_timeout_ns,
         "overall_deadline_utc": row.overall_deadline_utc,
@@ -1287,6 +1288,12 @@ class SqlRunRepository:
             if retained.resource_domain_scope != parsed.resource_domain_scope:
                 raise Conflict(
                     "Run idempotency key is bound to a different resource domain scope",
+                    scope=parsed.idempotency_scope,
+                    key=parsed.idempotency_key,
+                )
+            if retained.project_id != parsed.project_id:
+                raise Conflict(
+                    "Run idempotency key is bound to a different project",
                     scope=parsed.idempotency_scope,
                     key=parsed.idempotency_key,
                 )
