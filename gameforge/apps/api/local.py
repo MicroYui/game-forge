@@ -1383,6 +1383,7 @@ def _build_workflow_command_service(
                 refs=SqlRefStore(session, cursor_signer=cursor_signer, clock=clock),
                 approvals=SqlApprovalRepository(session),
                 policies=policies,
+                projects=SqlProjectRepository(session),
                 readers=WorkflowTypedReaders(
                     artifacts=artifacts, bindings=object_bindings, objects=object_store
                 ),

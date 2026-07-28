@@ -89,6 +89,7 @@ from gameforge.contracts.lineage import (
     VersionTuple,
     build_artifact_v2,
 )
+from gameforge.contracts.projects import ProjectRefRole, project_ref_binding
 from gameforge.contracts.storage import ObjectStore, UtcClock
 from gameforge.contracts.versions import META_SCHEMA_VERSION
 from gameforge.contracts.workflow import (
@@ -300,9 +301,67 @@ class WorkflowReadPort:
     policies: Any
     readers: WorkflowTypedReaders
     progress_projector: CurrentApprovalProgressProjector
+    # A ref name under `projects/` has an owner, and only the owner may draft onto it.
+    projects: Any = None
 
 
 WorkflowReadScope = Callable[[], AbstractContextManager[WorkflowReadPort]]
+
+
+def _require_ref_ownership(
+    read: WorkflowReadPort,
+    *,
+    ref_name: str,
+    base_artifact_id: str | None,
+    role: ProjectRefRole,
+) -> None:
+    """Refuse a draft that claims a ref namespace belonging to another project.
+
+    `GameProjectV1` pins a project's two ref names, so the name alone says who owns
+    it. What the owner may draft is not a new rule either — it is the one the project
+    path already computes: the ref's current Artifact, or the project's bootstrap
+    snapshot while the ref does not exist yet.
+
+    That unborn window is where this matters. The apply-side CAS compares
+    `refs.get(ref_name)` against `expected_ref`, so before a project's first publish
+    both are None, they agree, and a draft off ANY snapshot was accepted into ANY
+    project's namespace. Operations that begin from a ref that must ALREADY exist —
+    rollback, rebase — cannot reach that window and keep their own preconditions.
+
+    ``base_artifact_id=None`` means the operation has no base at all (a whole-content
+    upload), which can never be a project's current content: a project's content moves
+    by patch, so such a request is refused outright.
+    """
+
+    binding = project_ref_binding(ref_name)
+    if binding is None:
+        return
+    project_id, ref_role = binding
+    if ref_role != role:
+        raise Conflict(
+            "ref name belongs to a different project authority",
+            ref_name=ref_name,
+            expected_role=role,
+        )
+    projects = read.projects
+    if projects is None:
+        raise DependencyUnavailable(
+            "project authority is unavailable",
+            component="project_ref_ownership",
+        )
+    project = projects.get_project(project_id)
+    if project is None:
+        raise Conflict("ref name claims a project that does not exist", ref_name=ref_name)
+    current = read.refs.get(ref_name)
+    owned_base = (
+        project.bootstrap_snapshot_artifact_id if current is None else current.artifact_id
+    )
+    if base_artifact_id is None or base_artifact_id != owned_base:
+        raise Conflict(
+            "draft base is not the current content of the project owning this ref",
+            ref_name=ref_name,
+            base_snapshot_artifact_id=base_artifact_id,
+        )
 
 
 def _utc_text(clock: UtcClock) -> str:
@@ -556,6 +615,12 @@ class WorkflowCommandService:
                     expected_ref_artifact_id=payload.expected_ref.artifact_id,
                     base_artifact_id=base_artifact.artifact_id,
                 )
+            _require_ref_ownership(
+                read,
+                ref_name=payload.ref_name,
+                base_artifact_id=base_artifact.artifact_id,
+                role="content",
+            )
             base_snapshot = read.readers.load_snapshot(base_artifact)
             patch = self._compile_patch(payload, base_snapshot)
             preview = apply_patch(base_snapshot, patch)

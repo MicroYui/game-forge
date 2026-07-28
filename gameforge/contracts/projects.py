@@ -117,6 +117,27 @@ class GameProjectV1(_FrozenModel):
         return self
 
 
+ProjectRefRole = Literal["content", "constraints"]
+
+
+def project_ref_binding(ref_name: str) -> tuple[str, ProjectRefRole] | None:
+    """Which project owns ``ref_name``, or ``None`` when no project claims it.
+
+    Purely lexical, and deliberately so: ``GameProjectV1._authority_shape`` pins the
+    two ref names a project may own to ``projects/{project_id}/{content,constraints}/head``,
+    so the name alone decides ownership and nothing needs to be read to know it.
+    Proving the owner EXISTS is the caller's job — this only says whose name it is.
+    """
+
+    for role in ("content", "constraints"):
+        prefix, suffix = "projects/", f"/{role}/head"
+        if ref_name.startswith(prefix) and ref_name.endswith(suffix):
+            project_id = ref_name[len(prefix) : -len(suffix)]
+            if _PROJECT_ID_RE.fullmatch(project_id) is not None:
+                return project_id, role  # type: ignore[return-value]
+    return None
+
+
 class ProjectCreateRequestV1(_FrozenModel):
     request_schema_version: Literal["project-create-request@1"] = "project-create-request@1"
     project_key: ProjectKey
@@ -569,7 +590,9 @@ __all__ = [
     "ProjectMaterialPageV1",
     "ProjectMaterialRenameRequestV1",
     "ProjectMaterialTextRequestV1",
+    "ProjectRefRole",
     "ProjectMaterialV1",
     "ProjectPageV1",
     "ProjectUpdateRequestV1",
+    "project_ref_binding",
 ]
