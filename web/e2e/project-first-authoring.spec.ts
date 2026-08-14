@@ -2,6 +2,7 @@ import { setTimeout as delay } from "node:timers/promises";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import { PROJECT_DEMO_TARGET_DURATION_MS } from "../scripts/project-demo-storyboard";
 import {
   guardAuthoringEgress,
   loginAuthoringPage,
@@ -9,6 +10,7 @@ import {
   type AuthoringStack,
 } from "./support/authoring-live-stack";
 import { expectPlannerReadable } from "./support/planner-readable";
+import { prepareProjectDemoOutput, showProjectDemoScene } from "./support/project-demo-recording";
 
 const adminCredentials = { login: "admin", password: "admin-password-1" };
 const feishuMaterial = JSON.stringify({
@@ -90,17 +92,45 @@ test.describe("project-first-authoring", () => {
   }) => {
     if (stack === undefined) throw new Error("Project authoring stack did not start.");
     const unexpectedRequests = new Set<string>();
+    const demoOutput =
+      process.env.GAMEFORGE_RECORD_DEMO === "1" ? await prepareProjectDemoOutput() : undefined;
     const context = await browser.newContext({
       baseURL: stack.baseURL,
+      colorScheme: demoOutput === undefined ? undefined : "dark",
+      deviceScaleFactor: demoOutput === undefined ? undefined : 1,
       ignoreHTTPSErrors: true,
+      recordVideo:
+        demoOutput === undefined
+          ? undefined
+          : { dir: demoOutput.rawVideoDirectory, size: { height: 720, width: 1280 } },
+      viewport: demoOutput === undefined ? undefined : { height: 720, width: 1280 },
     });
+    if (demoOutput !== undefined) {
+      await context.addInitScript(() => {
+        window.localStorage.setItem("gameforge.theme", "dark");
+        document.documentElement.dataset.theme = "dark";
+      });
+    }
     await guardAuthoringEgress(context, stack.baseURL, unexpectedRequests);
     const page = await context.newPage();
     page.setDefaultTimeout(15_000);
+    const demoStartedAt = Date.now();
+    const demoVideo = demoOutput === undefined ? null : page.video();
+    const showDemo = async (
+      key: string,
+      options: { cover?: boolean; target?: Locator; targetFinishAt?: number } = {},
+    ): Promise<void> => {
+      if (demoOutput === undefined) return;
+      await showProjectDemoScene(page, demoOutput, key, options);
+    };
 
     try {
+      if (demoOutput !== undefined && demoVideo === null) {
+        throw new Error("Project demo context did not start video recording.");
+      }
       await loginAuthoringPage(page, adminCredentials);
       await expect(page.getByRole("heading", { name: "游戏项目", level: 1 })).toBeVisible();
+      await showDemo("intro", { cover: true });
 
       await page.getByLabel("游戏名称").fill("天空港计划");
       await page.getByLabel("项目代号").fill("sky-harbor");
@@ -108,6 +138,7 @@ test.describe("project-first-authoring", () => {
       await page
         .getByLabel("一句话创意")
         .fill("玩家经营一座漂浮在云海中的港口，并与天气管理员共同维护生态。");
+      await showDemo("project");
       await page.getByRole("button", { name: "创建并添加材料" }).click();
       await expect(page.getByRole("heading", { name: "天空港计划", level: 1 })).toBeVisible();
       await expectPlannerReadable(page, "新建项目后的工作台");
@@ -119,6 +150,7 @@ test.describe("project-first-authoring", () => {
       await page.getByLabel("材料名称").fill("天空港核心创意");
       await page.getByLabel("粘贴格式").selectOption("feishu_blocks_json");
       await page.getByLabel("策划内容").fill(feishuMaterial);
+      await showDemo("material", { target: page.getByLabel("策划内容") });
       await page.getByRole("button", { name: "保存这份材料" }).click();
       await expect(page.getByText("材料已保存，可以交给 AI 提取。", { exact: false })).toBeVisible();
       await expect(page.getByText("天空港核心创意", { exact: true }).last()).toBeVisible();
@@ -132,6 +164,7 @@ test.describe("project-first-authoring", () => {
       await expect(aliases).toContainText("air.quality");
       await expect(aliases).toContainText("air_quality");
       await expect(page.getByRole("region", { name: "实体与关系编辑器" })).toBeVisible();
+      await showDemo("proposal", { target: aliases });
 
       await page.getByRole("button", { name: "添加实体" }).click();
       await page.getByLabel("内容名称").fill("云港向导");
@@ -149,6 +182,9 @@ test.describe("project-first-authoring", () => {
         .getByLabel("编辑已选内容")
         .getByRole("combobox", { name: /^终点内容/u })
         .selectOption({ label: "天空港" });
+      await showDemo("graph-edit", {
+        target: page.getByRole("region", { name: "实体与关系编辑器" }),
+      });
 
       await page.getByRole("button", { name: "创建发布草案" }).click();
       const publishLink = page.getByRole("link", { name: "验证并发布这个版本" });
@@ -189,6 +225,7 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByText("第 1 版内容")).toBeVisible();
       await expect(page.getByRole("region", { name: "游戏内容图谱" })).toBeVisible();
       await expectPlannerReadable(page, "游戏现状总览");
+      await showDemo("content-v1", { target: page.getByText("第 1 版内容") });
       const rulesLink = page.getByRole("link", { name: /生成与维护规则/u });
       await expect(rulesLink).toHaveAttribute("href", /\/specs\?.*project=/u);
       await rulesLink.click();
@@ -252,6 +289,9 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByRole("dialog", { name: "确认发布权威约束" })).toBeVisible();
       await page.getByRole("button", { name: "确认发布" }).click();
       await expect(page.getByRole("heading", { name: "已发布为权威约束" })).toBeVisible();
+      await showDemo("rules", {
+        target: page.getByRole("heading", { name: "已发布为权威约束" }),
+      });
 
       await page.goto(projectPath);
       const generationLink = page.getByRole("link", { name: /继续生成内容/u });
@@ -285,6 +325,9 @@ test.describe("project-first-authoring", () => {
         timeout: 45_000,
       });
       await expect(page.getByRole("rowheader", { name: "角色 风暴观测员" })).toBeVisible();
+      await showDemo("continuation", {
+        target: page.getByRole("rowheader", { name: "角色 风暴观测员" }),
+      });
 
       await page.getByRole("link", { name: /打开修改详情/u }).click();
       const generatedPatchPath = new URL(page.url()).pathname;
@@ -310,6 +353,7 @@ test.describe("project-first-authoring", () => {
 
       await page.goto(projectPath);
       await expect(page.getByText("第 2 版内容")).toBeVisible();
+      await showDemo("content-v2", { target: page.getByText("第 2 版内容") });
       await page.getByRole("link", { name: /进入自动试玩/u }).click();
       await expect(page.getByRole("heading", { name: "自动试玩", level: 1 })).toBeVisible();
       const preparePlaytest = page.getByRole("button", { name: /^准备内容候选/u });
@@ -331,8 +375,17 @@ test.describe("project-first-authoring", () => {
       await expect(page.getByRole("heading", { name: "仍有试玩任务未完成" })).toBeVisible({
         timeout: 45_000,
       });
+      await showDemo("playtest", {
+        target: page.getByRole("heading", { name: "仍有试玩任务未完成" }),
+      });
+      await showDemo("outro", {
+        targetFinishAt: demoStartedAt + PROJECT_DEMO_TARGET_DURATION_MS,
+      });
     } finally {
       await context.close();
+      if (demoOutput !== undefined && demoVideo !== null) {
+        await demoVideo.saveAs(demoOutput.videoPath);
+      }
     }
 
     expect([...unexpectedRequests]).toEqual([]);
